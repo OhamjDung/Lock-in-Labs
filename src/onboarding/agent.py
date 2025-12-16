@@ -2,120 +2,12 @@ import json
 import os
 from typing import Tuple, List, Dict
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
 from src.models import CharacterSheet, ConversationState
-from src.prompts import ARCHITECT_SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
+from src.onboarding.prompts import ARCHITECT_SYSTEM_PROMPT, FEW_SHOT_EXAMPLES
+from src.llm import LLMClient
 
 # Load environment variables
 load_dotenv()
-
-class LLMClient:
-    def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        if not self.api_key:
-            print("Warning: GEMINI_API_KEY not found in environment variables.")
-        else:
-            self.client = genai.Client(api_key=self.api_key)
-
-    def chat_completion(self, messages, model="gemma-3-4b-it", json_mode=False):
-        if not self.api_key:
-            return "Error: GEMINI_API_KEY not configured."
-
-        system_instruction = None
-        contents = []
-        
-        for msg in messages:
-            if msg['role'] == 'system':
-                if system_instruction is None:
-                    system_instruction = msg['content']
-                else:
-                    system_instruction += "\n\n" + msg['content']
-            elif msg['role'] == 'user':
-                contents.append(types.Content(role='user', parts=[types.Part.from_text(text=msg['content'])]))
-            elif msg['role'] == 'assistant':
-                contents.append(types.Content(role='model', parts=[types.Part.from_text(text=msg['content'])]))
-        
-        # Handle Gemma specific logic for JSON mode
-        is_gemma = "gemma" in model
-        if json_mode and is_gemma:
-            if system_instruction:
-                system_instruction += "\n\nIMPORTANT: Output ONLY valid JSON. No Markdown. No explanations."
-            else:
-                system_instruction = "IMPORTANT: Output ONLY valid JSON. No Markdown. No explanations."
-
-        # Gemma does not support system_instruction in config, so we prepend it to the first user message
-        if is_gemma and system_instruction:
-            # Find the first user message in contents
-            user_msg_found = False
-            for content in contents:
-                if content.role == 'user':
-                    # Prepend system instruction to the first part text
-                    original_text = content.parts[0].text
-                    content.parts[0].text = f"System Instruction:\n{system_instruction}\n\nUser Message:\n{original_text}"
-                    user_msg_found = True
-                    break
-            
-            # If no user message found (rare), create one
-            if not user_msg_found:
-                contents.insert(0, types.Content(role='user', parts=[types.Part.from_text(text=f"System Instruction:\n{system_instruction}")]))
-            
-            # Clear system_instruction from config for Gemma
-            system_instruction = None
-
-        config = types.GenerateContentConfig(
-            temperature=0.7,
-            system_instruction=system_instruction,
-            safety_settings=[
-                types.SafetySetting(
-                    category="HARM_CATEGORY_HARASSMENT",
-                    threshold="BLOCK_NONE"
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_HATE_SPEECH",
-                    threshold="BLOCK_NONE"
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    threshold="BLOCK_NONE"
-                ),
-                types.SafetySetting(
-                    category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold="BLOCK_NONE"
-                )
-            ]
-        )
-
-        if json_mode and not is_gemma:
-            config.response_mime_type = "application/json"
-            
-        try:
-            response = self.client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=config
-            )
-            
-            if not response.text:
-                 print(f"[DEBUG] Gemini blocked response or returned empty text.")
-                 return "I apologize, but I cannot process that request."
-
-            text = response.text
-            # Clean up Gemma output if it includes markdown blocks despite instructions
-            if json_mode and is_gemma:
-                text = text.strip()
-                if text.startswith("```json"):
-                    text = text[7:]
-                if text.startswith("```"):
-                    text = text[3:]
-                if text.endswith("```"):
-                    text = text[:-3]
-                text = text.strip()
-
-            return text
-        except Exception as e:
-            print(f"Error calling Gemini: {e}")
-            return ""
 
 llm_client = LLMClient()
 
@@ -146,7 +38,10 @@ class CriticAgent:
         {{
             "north_star_goals": ["string"],
             "main_quests": ["string"],
-            "core_stats": {{"StatName": integer}},
+            "stats_career": {{"StatName": integer}},
+            "stats_physical": {{"StatName": integer}},
+            "stats_mental": {{"StatName": integer}},
+            "stats_social": {{"StatName": integer}},
             "debuffs_analysis": [
                 {{"name": "string", "evidence": "exact quote from user", "confidence": "high|medium|low"}}
             ],
@@ -165,13 +60,14 @@ class CriticAgent:
            - If the user says "I want to journal", that is a Main Quest ("Journal daily").
            - If the user says "I want to improve communication", that is a North Star Goal.
         3. DEDUPLICATION: Do NOT output items that are semantically similar to existing ones.
-        4. STAT INFERENCE: You MUST estimate Core Stats (1-10) if the user describes their habits.
-           - Physical activity/Health -> Vitality
-           - Learning/Planning/Strategy -> Intelligence
-           - Consistency/Willpower/Routine -> Discipline
+        4. STAT INFERENCE: You MUST estimate Stats (1-10) across the 4 Pillars:
+           - Career: Focus, Strategy, Wealth, Skill
+           - Physical: Strength, Endurance, Agility, Health
+           - Mental: Clarity, Resilience, Logic, Creativity
+           - Social: Charisma, Empathy, Leadership, Connection
            - If they admit to struggling, lower the stat (e.g., Discipline: 3).
            - If they have a solid routine, raise it (e.g., Vitality: 6).
-        5. DEBUFFS: Look for EXPLICIT keywords like "stutter", "distracted", "procrastinate", "injury", "fear", "anxiety". 
+        5. DEBUFFS: Look for EXPLICIT keywords like "stutter", "distracted", "procrastinate", "injury", "fear", "anxiety", "lack of routine". 
            - REQUIREMENT: You MUST provide the "evidence" (exact quote) for every debuff.
            - STRICT RULE: Do NOT infer debuffs from a busy schedule or multiple hobbies.
            - STRICT RULE: Only add "Digital Distraction" if the user mentions "phone", "social media", "scrolling", "screen", or "internet addiction".
@@ -184,6 +80,14 @@ class CriticAgent:
            1. Add it to the "debuffs_analysis" list.
            2. In the "feedback" field, suggest a Main Quest to fix it.
               * Feedback format: "Detected Debuff 'X'. Suggest Main Quest: 'Y'."
+           
+           EXAMPLE JSON OUTPUT FOR DEBUFF:
+           {{
+               "debuffs_analysis": [
+                   {{"name": "Lack of Routine Building", "evidence": "I struggle to keep a schedule", "confidence": "high"}}
+               ],
+               "feedback": "Detected Debuff 'Lack of Routine Building'. Suggest Main Quest: 'Create a daily schedule'."
+           }}
         
         6. QUEST PROPOSALS:
            - IF (and ONLY IF) the user explicitly agrees to a proposal from the 'Last Architect Message' (e.g., "Yes, I'll do that"), THEN add it to 'main_quests'.
@@ -223,8 +127,14 @@ class CriticAgent:
                     if not is_duplicate:
                         current_sheet.main_quests.append(quest)
                         
-            if "core_stats" in data:
-                current_sheet.core_stats.update(data["core_stats"])
+            if "stats_career" in data:
+                current_sheet.stats_career.update(data["stats_career"])
+            if "stats_physical" in data:
+                current_sheet.stats_physical.update(data["stats_physical"])
+            if "stats_mental" in data:
+                current_sheet.stats_mental.update(data["stats_mental"])
+            if "stats_social" in data:
+                current_sheet.stats_social.update(data["stats_social"])
                 
             if "debuffs_analysis" in data:
                 for item in data["debuffs_analysis"]:
@@ -270,10 +180,12 @@ class ArchitectAgent:
         if current_sheet.north_star_goals: filled_fields += 1
         if current_sheet.main_quests: filled_fields += 1
         # Stats are weighted more heavily
-        non_zero_stats = sum(1 for val in current_sheet.core_stats.values() if val > 0)
+        # Check if at least one stat in ANY category is > 0
+        all_stats = {**current_sheet.stats_career, **current_sheet.stats_physical, **current_sheet.stats_mental, **current_sheet.stats_social}
+        non_zero_stats = sum(1 for val in all_stats.values() if val > 0)
         if non_zero_stats >= 1: filled_fields += 1
         if non_zero_stats >= 2: filled_fields += 1 # Bonus for getting deeper
-        if current_sheet.debuffs: filled_fields += 1 
+        if current_sheet.debuffs: filled_fields += 1  
         
         # Adjust total fields to 5 to account for the extra stat weight
         total_fields = 5
@@ -292,6 +204,7 @@ class ArchitectAgent:
         Instruction: 
         1. You MUST include a progress bar at the end of your response in this format:
            [Progress: ||||||....] {progress_pct}%
+           (Use exactly 20 characters for the bar. Example: [||||||||||..........] 50%)
         2. You can optionally mention the completion percentage to encourage the user if they are close.
         3. If you have assigned stats in your response, explicitly list them in a summary block like:
            [Stats Updated: Intelligence: X, Vitality: Y, Discipline: Z]
