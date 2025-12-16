@@ -1,0 +1,727 @@
+{
+  "user_id": "user_01",
+  "character_sheet": {
+    "user_id": "user_01",
+    "north_star_goals": [
+      "Mental Clarity & Self-Reflection",
+      "Physical Peak Performance",
+      "Mastery of Technology",
+      "Strong Social Connections"
+    ],
+    "main_quests": [
+      "Journal daily",
+      "Exercise daily",
+      "Practice vocal skills daily",
+      "Dedicate time to volleyball",
+      "Dedicate time to coding",
+      "Spend time with family and friends",
+      "Code daily"
+    ],
+    "stats_career": {
+      "Focus": 6,
+      "Strategy": 6,
+      "Skill": 6,
+      "Wealth": 3,
+      "Career": 6
+    },
+    "stats_physical": {
+      "Strength": 3,
+      "Endurance": 3,
+      "Agility": 3,
+      "Health": 3
+    },
+    "stats_mental": {
+      "Clarity": 6,
+      "Resilience": 6,
+      "Logic": 6,
+      "Creativity": 6
+    },
+    "stats_social": {
+      "Charisma": 5,
+      "Empathy": 6,
+      "Leadership": 3,
+      "Connection": 7
+    },
+    "debuffs": [],
+    "skill_tree": {
+      "nodes": [
+        {
+          "id": "goal_journal_daily",
+          "name": "Journal Daily",
+          "type": "Goal",
+          "pillar": "Mental",
+          "prerequisites": [
+            "skill_clarity",
+            "skill_resilience"
+          ],
+          "xp_reward": 200,
+          "description": "Daily reflection and self-assessment (VIA Character Strength: Zest)."
+        },
+        {
+          "id": "goal_exercise_daily",
+          "name": "Exercise Daily",
+          "type": "Goal",
+          "pillar": "Physical",
+          "prerequisites": [
+            "skill_strength",
+            "skill_endurance"
+          ],
+          "xp_reward": 250,
+          "description": "Regular physical activity for improved health and fitness (ExerciseDB: VO2 Max)."
+        },
+        {
+          "id": "goal_practice_vocal_skills_daily",
+          "name": "Practice Vocal Skills Daily",
+          "type": "Goal",
+          "pillar": "Mental",
+          "prerequisites": [
+            "skill_clarity",
+            "skill_creativity"
+          ],
+          "xp_reward": 220,
+          "description": "Daily vocal exercises to improve articulation and projection (VIA Character Strength: Curiosity)."
+        },
+        {
+          "id": "goal_dedicate_time_volleyball",
+          "name": "Dedicate Time to Volleyball",
+          "type": "Goal",
+          "pillar": "Physical",
+          "prerequisites": [
+            "skill_agility",
+            "skill_strength",
+            "skill_endurance",
+            "habit_warm_up_practice"
+          ],
+          "xp_reward": 300,
+          "description": "Participate in volleyball activities for improved coordination and teamwork (O*NET 2.B.1.b)."
+        },
+        {
+          "id": "goal_dedicate_time_coding",
+          "name": "Dedicate Time to Coding",
+          "type": "Goal",
+          "pillar": "Career",
+          "prerequisites": [
+            "skill_focus",
+            "skill_logic",
+            "skill_python_programming"
+          ],
+          "xp_reward": 350,
+          "description": "Engage in coding activities to develop programming skills (O*NET 2.B.1.b)."
+        },
+        {
+          "id": "goal_spend_time_family_friends",
+          "name": "Spend Time with Family and Friends",
+          "type": "Goal",
+          "pillar": "Social",
+          "prerequisites": [
+            "skill_empathy",
+            "skill_connection"
+          ],
+          "xp_reward": 280,
+          "description": "Nurture relationships for social support and well-being (NVC Need: Belonging)."
+        },
+        {
+          "id": "goal_code_daily",
+          "name": "Code Daily",
+          "type": "Goal",
+          "pillar": "Career",
+          "prerequisites": [
+            "skill_focus",
+            "skill_logic",
+            "skill_python_programming"
+          ],
+          "xp_reward": 350,
+          "description": "Daily coding practice to maintain and improve programming skills (O*NET 2.B.1.b)."
+        },
+        {
+          "id": "habit_warm_up_practice",
+          "name": "Practice Warm-Up Routine",
+          "type": "Habit",
+          "pillar": "Physical",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Perform a dynamic warm-up before physical activity (ExerciseDB: Joint Mobility)."
+        },
+        {
+          "id": "habit_no_interrupting_practice",
+          "name": "Practice 'Wait 2 Seconds'",
+          "type": "Habit",
+          "pillar": "Social",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Practice active listening by waiting 2 seconds before responding (NVC Need: Understanding)."
+        },
+        {
+          "id": "skill_clarity",
+          "name": "Clarity of Thought",
+          "type": "Sub-Skill",
+          "pillar": "Mental",
+          "prerequisites": [
+            "habit_practice_clarity"
+          ],
+          "xp_reward": 150,
+          "description": "The ability to think clearly and make sound judgments (CBT Distortion: All-or-Nothing Thinking)."
+        },
+        {
+          "id": "skill_resilience",
+          "name": "Emotional Resilience",
+          "type": "Sub-Skill",
+          "pillar": "Mental",
+          "prerequisites": [
+            "habit_practice_resilience"
+          ],
+          "xp_reward": 180,
+          "description": "The ability to bounce back from adversity (VIA Character Strength: Perseverance)."
+        },
+        {
+          "id": "skill_strength",
+          "name": "Physical Strength",
+          "type": "Sub-Skill",
+          "pillar": "Physical",
+          "prerequisites": [
+            "habit_practice_strength"
+          ],
+          "xp_reward": 160,
+          "description": "Muscular power and force (ExerciseDB: Posterior Chain Strength)."
+        },
+        {
+          "id": "skill_endurance",
+          "name": "Physical Endurance",
+          "type": "Sub-Skill",
+          "pillar": "Physical",
+          "prerequisites": [
+            "habit_practice_endurance"
+          ],
+          "xp_reward": 170,
+          "description": "The ability to sustain physical effort over time (ExerciseDB: VO2 Max)."
+        },
+        {
+          "id": "skill_agility",
+          "name": "Physical Agility",
+          "type": "Sub-Skill",
+          "pillar": "Physical",
+          "prerequisites": [
+            "habit_practice_agility"
+          ],
+          "xp_reward": 140,
+          "description": "Coordination and responsiveness (ExerciseDB: Balance)."
+        },
+        {
+          "id": "skill_focus",
+          "name": "Concentration",
+          "type": "Sub-Skill",
+          "pillar": "Mental",
+          "prerequisites": [
+            "habit_practice_focus",
+            "habit_specific_focus"
+          ],
+          "xp_reward": 190,
+          "description": "The ability to maintain attention on a task (CBT Distortion: Catastrophizing)."
+        },
+        {
+          "id": "skill_logic",
+          "name": "Logical Reasoning",
+          "type": "Sub-Skill",
+          "pillar": "Mental",
+          "prerequisites": [
+            "habit_practice_logic"
+          ],
+          "xp_reward": 200,
+          "description": "The ability to think critically and solve problems (VIA Character Strength: Prudence)."
+        },
+        {
+          "id": "skill_python_programming",
+          "name": "Python Programming",
+          "type": "Sub-Skill",
+          "pillar": "Career",
+          "prerequisites": [
+            "habit_practice_python_programming"
+          ],
+          "xp_reward": 220,
+          "description": "Proficiency in the Python programming language (O*NET 2.A.3.1)."
+        },
+        {
+          "id": "skill_empathy",
+          "name": "Social Empathy",
+          "type": "Sub-Skill",
+          "pillar": "Social",
+          "prerequisites": [
+            "habit_practice_empathy"
+          ],
+          "xp_reward": 160,
+          "description": "The ability to understand and share the feelings of others (NVC Need: Connection)."
+        },
+        {
+          "id": "skill_connection",
+          "name": "Social Connection",
+          "type": "Sub-Skill",
+          "pillar": "Social",
+          "prerequisites": [
+            "habit_practice_connection"
+          ],
+          "xp_reward": 180,
+          "description": "The ability to form and maintain meaningful relationships (NVC Need: Belonging)."
+        },
+        {
+          "id": "skill_leadership",
+          "name": "Leadership Skills",
+          "type": "Sub-Skill",
+          "pillar": "Social",
+          "prerequisites": [
+            "habit_practice_leadership"
+          ],
+          "xp_reward": 170,
+          "description": "The ability to guide and motivate others (O*NET 3.1.1.1)."
+        },
+        {
+          "id": "habit_practice_clarity",
+          "name": "Practice Clarity of Thought",
+          "type": "Habit",
+          "pillar": "Mental",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Clarity of Thought."
+        },
+        {
+          "id": "habit_practice_resilience",
+          "name": "Practice Emotional Resilience",
+          "type": "Habit",
+          "pillar": "Mental",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Emotional Resilience."
+        },
+        {
+          "id": "habit_practice_strength",
+          "name": "Practice Physical Strength",
+          "type": "Habit",
+          "pillar": "Physical",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Physical Strength."
+        },
+        {
+          "id": "habit_practice_endurance",
+          "name": "Practice Physical Endurance",
+          "type": "Habit",
+          "pillar": "Physical",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Physical Endurance."
+        },
+        {
+          "id": "habit_practice_agility",
+          "name": "Practice Physical Agility",
+          "type": "Habit",
+          "pillar": "Physical",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Physical Agility."
+        },
+        {
+          "id": "habit_practice_focus",
+          "name": "Practice Concentration",
+          "type": "Habit",
+          "pillar": "Mental",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Concentration."
+        },
+        {
+          "id": "habit_specific_focus",
+          "name": "Perform Concentration Drills",
+          "type": "Habit",
+          "pillar": "Mental",
+          "prerequisites": [],
+          "xp_reward": 15,
+          "description": "Specific exercises to build Concentration."
+        },
+        {
+          "id": "habit_practice_logic",
+          "name": "Practice Logical Reasoning",
+          "type": "Habit",
+          "pillar": "Mental",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Logical Reasoning."
+        },
+        {
+          "id": "habit_practice_python_programming",
+          "name": "Practice Python Programming",
+          "type": "Habit",
+          "pillar": "Career",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Python Programming."
+        },
+        {
+          "id": "habit_practice_empathy",
+          "name": "Practice Social Empathy",
+          "type": "Habit",
+          "pillar": "Social",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Social Empathy."
+        },
+        {
+          "id": "habit_practice_connection",
+          "name": "Practice Social Connection",
+          "type": "Habit",
+          "pillar": "Social",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Social Connection."
+        },
+        {
+          "id": "habit_practice_leadership",
+          "name": "Practice Leadership Skills",
+          "type": "Habit",
+          "pillar": "Social",
+          "prerequisites": [],
+          "xp_reward": 10,
+          "description": "Daily practice to improve Leadership Skills."
+        }
+      ]
+    }
+  },
+  "skill_tree": {
+    "nodes": [
+      {
+        "id": "goal_journal_daily",
+        "name": "Journal Daily",
+        "type": "Goal",
+        "pillar": "Mental",
+        "prerequisites": [
+          "skill_clarity",
+          "skill_resilience"
+        ],
+        "xp_reward": 200,
+        "description": "Daily reflection and self-assessment (VIA Character Strength: Zest)."
+      },
+      {
+        "id": "goal_exercise_daily",
+        "name": "Exercise Daily",
+        "type": "Goal",
+        "pillar": "Physical",
+        "prerequisites": [
+          "skill_strength",
+          "skill_endurance"
+        ],
+        "xp_reward": 250,
+        "description": "Regular physical activity for improved health and fitness (ExerciseDB: VO2 Max)."
+      },
+      {
+        "id": "goal_practice_vocal_skills_daily",
+        "name": "Practice Vocal Skills Daily",
+        "type": "Goal",
+        "pillar": "Mental",
+        "prerequisites": [
+          "skill_clarity",
+          "skill_creativity"
+        ],
+        "xp_reward": 220,
+        "description": "Daily vocal exercises to improve articulation and projection (VIA Character Strength: Curiosity)."
+      },
+      {
+        "id": "goal_dedicate_time_volleyball",
+        "name": "Dedicate Time to Volleyball",
+        "type": "Goal",
+        "pillar": "Physical",
+        "prerequisites": [
+          "skill_agility",
+          "skill_strength",
+          "skill_endurance",
+          "habit_warm_up_practice"
+        ],
+        "xp_reward": 300,
+        "description": "Participate in volleyball activities for improved coordination and teamwork (O*NET 2.B.1.b)."
+      },
+      {
+        "id": "goal_dedicate_time_coding",
+        "name": "Dedicate Time to Coding",
+        "type": "Goal",
+        "pillar": "Career",
+        "prerequisites": [
+          "skill_focus",
+          "skill_logic",
+          "skill_python_programming"
+        ],
+        "xp_reward": 350,
+        "description": "Engage in coding activities to develop programming skills (O*NET 2.B.1.b)."
+      },
+      {
+        "id": "goal_spend_time_family_friends",
+        "name": "Spend Time with Family and Friends",
+        "type": "Goal",
+        "pillar": "Social",
+        "prerequisites": [
+          "skill_empathy",
+          "skill_connection"
+        ],
+        "xp_reward": 280,
+        "description": "Nurture relationships for social support and well-being (NVC Need: Belonging)."
+      },
+      {
+        "id": "goal_code_daily",
+        "name": "Code Daily",
+        "type": "Goal",
+        "pillar": "Career",
+        "prerequisites": [
+          "skill_focus",
+          "skill_logic",
+          "skill_python_programming"
+        ],
+        "xp_reward": 350,
+        "description": "Daily coding practice to maintain and improve programming skills (O*NET 2.B.1.b)."
+      },
+      {
+        "id": "habit_warm_up_practice",
+        "name": "Practice Warm-Up Routine",
+        "type": "Habit",
+        "pillar": "Physical",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Perform a dynamic warm-up before physical activity (ExerciseDB: Joint Mobility)."
+      },
+      {
+        "id": "habit_no_interrupting_practice",
+        "name": "Practice 'Wait 2 Seconds'",
+        "type": "Habit",
+        "pillar": "Social",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Practice active listening by waiting 2 seconds before responding (NVC Need: Understanding)."
+      },
+      {
+        "id": "skill_clarity",
+        "name": "Clarity of Thought",
+        "type": "Sub-Skill",
+        "pillar": "Mental",
+        "prerequisites": [
+          "habit_practice_clarity"
+        ],
+        "xp_reward": 150,
+        "description": "The ability to think clearly and make sound judgments (CBT Distortion: All-or-Nothing Thinking)."
+      },
+      {
+        "id": "skill_resilience",
+        "name": "Emotional Resilience",
+        "type": "Sub-Skill",
+        "pillar": "Mental",
+        "prerequisites": [
+          "habit_practice_resilience"
+        ],
+        "xp_reward": 180,
+        "description": "The ability to bounce back from adversity (VIA Character Strength: Perseverance)."
+      },
+      {
+        "id": "skill_strength",
+        "name": "Physical Strength",
+        "type": "Sub-Skill",
+        "pillar": "Physical",
+        "prerequisites": [
+          "habit_practice_strength"
+        ],
+        "xp_reward": 160,
+        "description": "Muscular power and force (ExerciseDB: Posterior Chain Strength)."
+      },
+      {
+        "id": "skill_endurance",
+        "name": "Physical Endurance",
+        "type": "Sub-Skill",
+        "pillar": "Physical",
+        "prerequisites": [
+          "habit_practice_endurance"
+        ],
+        "xp_reward": 170,
+        "description": "The ability to sustain physical effort over time (ExerciseDB: VO2 Max)."
+      },
+      {
+        "id": "skill_agility",
+        "name": "Physical Agility",
+        "type": "Sub-Skill",
+        "pillar": "Physical",
+        "prerequisites": [
+          "habit_practice_agility"
+        ],
+        "xp_reward": 140,
+        "description": "Coordination and responsiveness (ExerciseDB: Balance)."
+      },
+      {
+        "id": "skill_focus",
+        "name": "Concentration",
+        "type": "Sub-Skill",
+        "pillar": "Mental",
+        "prerequisites": [
+          "habit_practice_focus",
+          "habit_specific_focus"
+        ],
+        "xp_reward": 190,
+        "description": "The ability to maintain attention on a task (CBT Distortion: Catastrophizing)."
+      },
+      {
+        "id": "skill_logic",
+        "name": "Logical Reasoning",
+        "type": "Sub-Skill",
+        "pillar": "Mental",
+        "prerequisites": [
+          "habit_practice_logic"
+        ],
+        "xp_reward": 200,
+        "description": "The ability to think critically and solve problems (VIA Character Strength: Prudence)."
+      },
+      {
+        "id": "skill_python_programming",
+        "name": "Python Programming",
+        "type": "Sub-Skill",
+        "pillar": "Career",
+        "prerequisites": [
+          "habit_practice_python_programming"
+        ],
+        "xp_reward": 220,
+        "description": "Proficiency in the Python programming language (O*NET 2.A.3.1)."
+      },
+      {
+        "id": "skill_empathy",
+        "name": "Social Empathy",
+        "type": "Sub-Skill",
+        "pillar": "Social",
+        "prerequisites": [
+          "habit_practice_empathy"
+        ],
+        "xp_reward": 160,
+        "description": "The ability to understand and share the feelings of others (NVC Need: Connection)."
+      },
+      {
+        "id": "skill_connection",
+        "name": "Social Connection",
+        "type": "Sub-Skill",
+        "pillar": "Social",
+        "prerequisites": [
+          "habit_practice_connection"
+        ],
+        "xp_reward": 180,
+        "description": "The ability to form and maintain meaningful relationships (NVC Need: Belonging)."
+      },
+      {
+        "id": "skill_leadership",
+        "name": "Leadership Skills",
+        "type": "Sub-Skill",
+        "pillar": "Social",
+        "prerequisites": [
+          "habit_practice_leadership"
+        ],
+        "xp_reward": 170,
+        "description": "The ability to guide and motivate others (O*NET 3.1.1.1)."
+      },
+      {
+        "id": "habit_practice_clarity",
+        "name": "Practice Clarity of Thought",
+        "type": "Habit",
+        "pillar": "Mental",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Clarity of Thought."
+      },
+      {
+        "id": "habit_practice_resilience",
+        "name": "Practice Emotional Resilience",
+        "type": "Habit",
+        "pillar": "Mental",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Emotional Resilience."
+      },
+      {
+        "id": "habit_practice_strength",
+        "name": "Practice Physical Strength",
+        "type": "Habit",
+        "pillar": "Physical",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Physical Strength."
+      },
+      {
+        "id": "habit_practice_endurance",
+        "name": "Practice Physical Endurance",
+        "type": "Habit",
+        "pillar": "Physical",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Physical Endurance."
+      },
+      {
+        "id": "habit_practice_agility",
+        "name": "Practice Physical Agility",
+        "type": "Habit",
+        "pillar": "Physical",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Physical Agility."
+      },
+      {
+        "id": "habit_practice_focus",
+        "name": "Practice Concentration",
+        "type": "Habit",
+        "pillar": "Mental",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Concentration."
+      },
+      {
+        "id": "habit_specific_focus",
+        "name": "Perform Concentration Drills",
+        "type": "Habit",
+        "pillar": "Mental",
+        "prerequisites": [],
+        "xp_reward": 15,
+        "description": "Specific exercises to build Concentration."
+      },
+      {
+        "id": "habit_practice_logic",
+        "name": "Practice Logical Reasoning",
+        "type": "Habit",
+        "pillar": "Mental",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Logical Reasoning."
+      },
+      {
+        "id": "habit_practice_python_programming",
+        "name": "Practice Python Programming",
+        "type": "Habit",
+        "pillar": "Career",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Python Programming."
+      },
+      {
+        "id": "habit_practice_empathy",
+        "name": "Practice Social Empathy",
+        "type": "Habit",
+        "pillar": "Social",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Social Empathy."
+      },
+      {
+        "id": "habit_practice_connection",
+        "name": "Practice Social Connection",
+        "type": "Habit",
+        "pillar": "Social",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Social Connection."
+      },
+      {
+        "id": "habit_practice_leadership",
+        "name": "Practice Leadership Skills",
+        "type": "Habit",
+        "pillar": "Social",
+        "prerequisites": [],
+        "xp_reward": 10,
+        "description": "Daily practice to improve Leadership Skills."
+      }
+    ]
+  }
+}
