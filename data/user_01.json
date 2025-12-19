@@ -1,727 +1,2946 @@
 {
-  "user_id": "user_01",
-  "character_sheet": {
-    "user_id": "user_01",
-    "north_star_goals": [
-      "Mental Clarity & Self-Reflection",
-      "Physical Peak Performance",
-      "Mastery of Technology",
-      "Strong Social Connections"
-    ],
-    "main_quests": [
-      "Journal daily",
-      "Exercise daily",
-      "Practice vocal skills daily",
-      "Dedicate time to volleyball",
-      "Dedicate time to coding",
-      "Spend time with family and friends",
-      "Code daily"
-    ],
-    "stats_career": {
-      "Focus": 6,
-      "Strategy": 6,
-      "Skill": 6,
-      "Wealth": 3,
-      "Career": 6
+    "character_sheet": {
+        "user_id": "user_01",
+        "goals": {
+            "CAREER": {
+                "name": "Build and Adapt Code",
+                "pillar": "CAREER",
+                "current_quests": [],
+                "needed_quests": [
+                    "Self-Assessment & Exploration",
+                    "Basic Coding Fundamentals",
+                    "Data Analysis Introduction",
+                    "Pandas Library",
+                    "SQL Database Fundamentals",
+                    "Project-Based Learning",
+                    "Career Transition & Networking"
+                ],
+                "description": "Focus on developing and adapting code independently, demonstrating resilience and problem-solving skills."
+            },
+            "PHYSICAL": {
+                "name": "Exercise",
+                "pillar": "PHYSICAL",
+                "current_quests": [
+                    "Do plyometrics",
+                    "Do weight training"
+                ],
+                "needed_quests": [
+                    "Recovery Foundation",
+                    "Sleep Hygiene",
+                    "Knee Pushup Progression",
+                    "Pushup Progression",
+                    "Incline Pushup Progression",
+                    "Floor Pushup Progression",
+                    "Diamond Pushup Progression",
+                    "Plyometric Progression"
+                ],
+                "description": "Increase muscle mass through targeted exercise."
+            },
+            "SOCIAL": {
+                "name": "Spend Time with Family and Friends",
+                "pillar": "SOCIAL",
+                "current_quests": [],
+                "needed_quests": [
+                    "Initial Social Assessment",
+                    "Manage Social Anxiety",
+                    "Active Listening Practice",
+                    "Develop Empathy",
+                    "Initiate Small Social Interactions",
+                    "Conflict Resolution Skills",
+                    "Strengthen Existing Relationships",
+                    "Leadership Through Connection"
+                ],
+                "description": "Cultivate and maintain meaningful relationships with friends and family."
+            },
+            "MENTAL": {
+                "name": "Journaling",
+                "pillar": "MENTAL",
+                "current_quests": [],
+                "needed_quests": [
+                    "Box Breathing Technique",
+                    "Thought Logging",
+                    "Cognitive Restructuring",
+                    "Self-Compassion Practice",
+                    "SMART Goal Setting",
+                    "Growth Mindset Adoption",
+                    "Resilience Framework"
+                ],
+                "description": "Daily journaling practice."
+            }
+        },
+        "stats_career": {
+            "Learn to Code": 6,
+            "Build and Adapt Code": 9,
+            "Research and Experiment": 7
+        },
+        "stats_physical": {
+            "Exercise": 8
+        },
+        "stats_mental": {
+            "Journaling": 8,
+            "Problem Solving": 6
+        },
+        "stats_social": {
+            "Volleyball": 6,
+            "Spend Time with Family and Friends": 9,
+            "Communication Style": 7
+        },
+        "debuffs": [
+            "Solitary Focus",
+            "Negative Reaction to Failure"
+        ],
+        "skill_tree": null,
+        "xp_total": 480,
+        "xp_career": 120,
+        "xp_physical": 120,
+        "xp_mental": 120,
+        "xp_social": 120,
+        "habit_progress": {
+            "habit_journaling___reflect_on_the_day": {
+                "node_id": "habit_journaling___reflect_on_the_day",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_identify_1_area_for_improvement": {
+                "node_id": "habit_identify_1_area_for_improvement",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_read_a_relevant_article_or_blog_post": {
+                "node_id": "habit_read_a_relevant_article_or_blog_post",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_codecademy___30_minutes": {
+                "node_id": "habit_codecademy___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_solve_a_simple_coding_challenge": {
+                "node_id": "habit_solve_a_simple_coding_challenge",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_read_a_coding_tutorial": {
+                "node_id": "habit_read_a_coding_tutorial",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_datacamp___30_minutes": {
+                "node_id": "habit_datacamp___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_explore_a_public_dataset": {
+                "node_id": "habit_explore_a_public_dataset",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_watch_a_data_analysis_tutorial": {
+                "node_id": "habit_watch_a_data_analysis_tutorial",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_pandas_tutorial___45_minutes": {
+                "node_id": "habit_pandas_tutorial___45_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_practice_with_a_dataset": {
+                "node_id": "habit_practice_with_a_dataset",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_read_pandas_documentation": {
+                "node_id": "habit_read_pandas_documentation",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_sql_tutorial___30_minutes": {
+                "node_id": "habit_sql_tutorial___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_writing_sql_queries": {
+                "node_id": "habit_practice_writing_sql_queries",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_explore_a_database_schema": {
+                "node_id": "habit_explore_a_database_schema",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_brainstorm_project_ideas___15_minutes": {
+                "node_id": "habit_brainstorm_project_ideas___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_break_down_a_project_into_smaller_tasks___30_minutes": {
+                "node_id": "habit_break_down_a_project_into_smaller_tasks___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_work_on_a_project_for_60_minutes": {
+                "node_id": "habit_work_on_a_project_for_60_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_linkedin___connect_with_3_people": {
+                "node_id": "habit_linkedin___connect_with_3_people",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_reach_out_to_a_contact___15_minutes": {
+                "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_attend_a_virtual_networking_event___60_minutes": {
+                "node_id": "habit_attend_a_virtual_networking_event___60_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_mindful_breathing___5_minutes": {
+                "node_id": "habit_mindful_breathing___5_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_hydration___drink_8_glasses_of_water": {
+                "node_id": "habit_hydration___drink_8_glasses_of_water",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_gentle_stretching___10_minutes": {
+                "node_id": "habit_gentle_stretching___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_digital_detox___1_hour_before_bed": {
+                "node_id": "habit_digital_detox___1_hour_before_bed",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_consistent_sleep_schedule___maintain_a_regular_sleep_wake_cycle": {
+                "node_id": "habit_consistent_sleep_schedule___maintain_a_regular_sleep_wake_cycle",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_relaxing_bedtime_routine___30_minutes": {
+                "node_id": "habit_relaxing_bedtime_routine___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_knee_pushups___3_sets_of_8_12_reps": {
+                "node_id": "habit_knee_pushups___3_sets_of_8_12_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___60_seconds_between_sets": {
+                "node_id": "habit_rest___60_seconds_between_sets",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_progression___increase_reps_or_sets": {
+                "node_id": "habit_progression___increase_reps_or_sets",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_wall_pushups___3_sets_of_10_15_reps": {
+                "node_id": "habit_wall_pushups___3_sets_of_10_15_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_incline_pushups___3_sets_of_8_12_reps": {
+                "node_id": "habit_incline_pushups___3_sets_of_8_12_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___60_seconds_between_sets_2": {
+                "node_id": "habit_rest___60_seconds_between_sets_2",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_incline_pushups___3_sets_of_8_12_reps_2": {
+                "node_id": "habit_incline_pushups___3_sets_of_8_12_reps_2",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_decrease_incline___gradually_lower_the_surface": {
+                "node_id": "habit_decrease_incline___gradually_lower_the_surface",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___60_seconds_between_sets_3": {
+                "node_id": "habit_rest___60_seconds_between_sets_3",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_floor_pushups___3_sets_of_5_8_reps": {
+                "node_id": "habit_floor_pushups___3_sets_of_5_8_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_modify___perform_pushups_with_hands_closer_together": {
+                "node_id": "habit_modify___perform_pushups_with_hands_closer_together",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___60_seconds_between_sets_4": {
+                "node_id": "habit_rest___60_seconds_between_sets_4",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_diamond_pushups___3_sets_of_3_5_reps": {
+                "node_id": "habit_diamond_pushups___3_sets_of_3_5_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___90_seconds_between_sets": {
+                "node_id": "habit_rest___90_seconds_between_sets",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_progression___increase_reps_or_sets_2": {
+                "node_id": "habit_progression___increase_reps_or_sets_2",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_box_jumps___3_sets_of_5_8_reps": {
+                "node_id": "habit_box_jumps___3_sets_of_5_8_reps",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_rest___90_seconds_between_sets_2": {
+                "node_id": "habit_rest___90_seconds_between_sets_2",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_progression___increase_box_height": {
+                "node_id": "habit_progression___increase_box_height",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_mindful_movement___20_minutes": {
+                "node_id": "habit_mindful_movement___20_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_sensory_grounding___10_minutes": {
+                "node_id": "habit_sensory_grounding___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_creative_expression___30_minutes": {
+                "node_id": "habit_creative_expression___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_self_compassion___15_minutes": {
+                "node_id": "habit_self_compassion___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_reframe_the_failure___20_minutes": {
+                "node_id": "habit_reframe_the_failure___20_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_focus_on_progress___10_minutes": {
+                "node_id": "habit_focus_on_progress___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_observe_social_interactions___15_minutes": {
+                "node_id": "habit_observe_social_interactions___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_reflect_on_your_own_social_behavior___10_minutes": {
+                "node_id": "habit_reflect_on_your_own_social_behavior___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_identify_a_social_skill_to_focus_on___5_minutes": {
+                "node_id": "habit_identify_a_social_skill_to_focus_on___5_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_grounding_technique___5_minutes": {
+                "node_id": "habit_grounding_technique___5_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_positive_self_talk___10_minutes": {
+                "node_id": "habit_positive_self_talk___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_exposure___start_with_small_social_interactions___30_minutes": {
+                "node_id": "habit_exposure___start_with_small_social_interactions___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_listen_attentively___30_minutes": {
+                "node_id": "habit_listen_attentively___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_paraphrase___summarize_what_you_heard": {
+                "node_id": "habit_paraphrase___summarize_what_you_heard",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_ask_clarifying_questions___15_minutes": {
+                "node_id": "habit_ask_clarifying_questions___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_read_fiction___30_minutes": {
+                "node_id": "habit_read_fiction___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_listen_to_podcasts___30_minutes": {
+                "node_id": "habit_listen_to_podcasts___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_perspective_taking___15_minutes": {
+                "node_id": "habit_practice_perspective_taking___15_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_smile_and_make_eye_contact___throughout_the_day": {
+                "node_id": "habit_smile_and_make_eye_contact___throughout_the_day",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_start_a_conversation___15_minutes": {
+                "node_id": "habit_start_a_conversation___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_offer_a_compliment___5_minutes": {
+                "node_id": "habit_offer_a_compliment___5_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_active_listening___30_minutes": {
+                "node_id": "habit_practice_active_listening___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_express_your_needs_clearly___15_minutes": {
+                "node_id": "habit_express_your_needs_clearly___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_brainstorm_solutions___30_minutes": {
+                "node_id": "habit_brainstorm_solutions___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_reach_out_to_a_loved_one___15_minutes": {
+                "node_id": "habit_reach_out_to_a_loved_one___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_plan_a_quality_time_activity___30_minutes": {
+                "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_express_gratitude___10_minutes": {
+                "node_id": "habit_express_gratitude___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_ask_for_input___15_minutes": {
+                "node_id": "habit_ask_for_input___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_recognize_and_appreciate_contributions___10_minutes": {
+                "node_id": "habit_recognize_and_appreciate_contributions___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_show_empathy_and_understanding___30_minutes": {
+                "node_id": "habit_show_empathy_and_understanding___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_box_breathing___5_minutes": {
+                "node_id": "habit_practice_box_breathing___5_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_repeat_throughout_the_day___as_needed": {
+                "node_id": "habit_repeat_throughout_the_day___as_needed",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_focus_on_the_sensation_of_breath___10_minutes": {
+                "node_id": "habit_focus_on_the_sensation_of_breath___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_record_thoughts___10_minutes": {
+                "node_id": "habit_record_thoughts___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_identify_patterns___15_minutes": {
+                "node_id": "habit_identify_patterns___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_challenge_negative_thoughts___15_minutes": {
+                "node_id": "habit_challenge_negative_thoughts___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_identify_cognitive_distortions___15_minutes": {
+                "node_id": "habit_identify_cognitive_distortions___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_challenge_distorted_thoughts___30_minutes": {
+                "node_id": "habit_challenge_distorted_thoughts___30_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_replace_distorted_thoughts___15_minutes": {
+                "node_id": "habit_replace_distorted_thoughts___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_self_kindness___10_minutes": {
+                "node_id": "habit_self_kindness___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_recognize_common_humanity___15_minutes": {
+                "node_id": "habit_recognize_common_humanity___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_self_acceptance___10_minutes": {
+                "node_id": "habit_practice_self_acceptance___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_define_a_smart_goal___15_minutes": {
+                "node_id": "habit_define_a_smart_goal___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_break_down_the_goal___10_minutes": {
+                "node_id": "habit_break_down_the_goal___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_track_progress___5_minutes": {
+                "node_id": "habit_track_progress___5_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_embrace_challenges___10_minutes": {
+                "node_id": "habit_embrace_challenges___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_learn_from_mistakes___15_minutes": {
+                "node_id": "habit_learn_from_mistakes___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_value_effort___10_minutes": {
+                "node_id": "habit_value_effort___10_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_identify_coping_mechanisms___15_minutes": {
+                "node_id": "habit_identify_coping_mechanisms___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            },
+            "habit_practice_self_care___30_minutes": {
+                "node_id": "habit_practice_self_care___30_minutes",
+                "status": "ACTIVE",
+                "completed_total": 4,
+                "completed_since_last_report": 4,
+                "last_completed_date": "2025-12-18",
+                "streak_days": 0
+            },
+            "habit_seek_support___15_minutes": {
+                "node_id": "habit_seek_support___15_minutes",
+                "status": "LOCKED",
+                "completed_total": 0,
+                "completed_since_last_report": 0,
+                "last_completed_date": null,
+                "streak_days": 0
+            }
+        },
+        "daily_schedule": {
+            "2025-12-18": [
+                {
+                    "time": "07:00",
+                    "label": "Mindful Breathing - 5 minutes",
+                    "node_id": "habit_mindful_breathing___5_minutes",
+                    "pillar": "PHYSICAL",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "08:00",
+                    "label": "Digital Detox - 1 hour before bed",
+                    "node_id": "habit_digital_detox___1_hour_before_bed",
+                    "pillar": "PHYSICAL",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "09:00",
+                    "label": "Pandas tutorial - 45 minutes",
+                    "node_id": "habit_pandas_tutorial___45_minutes",
+                    "pillar": "CAREER",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "10:00",
+                    "label": "Reach out to a contact - 15 minutes",
+                    "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                    "pillar": "CAREER",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "11:00",
+                    "label": "Track progress - 5 minutes",
+                    "node_id": "habit_track_progress___5_minutes",
+                    "pillar": "MENTAL",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "12:00",
+                    "label": "Practice self-care - 30 minutes",
+                    "node_id": "habit_practice_self_care___30_minutes",
+                    "pillar": "MENTAL",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "13:00",
+                    "label": "Practice perspective-taking - 15 minutes",
+                    "node_id": "habit_practice_perspective_taking___15_minutes",
+                    "pillar": "SOCIAL",
+                    "status": "PENDING"
+                },
+                {
+                    "time": "14:00",
+                    "label": "Plan a quality time activity - 30 minutes",
+                    "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                    "pillar": "SOCIAL",
+                    "status": "PENDING"
+                }
+            ]
+        },
+        "daily_reports": [
+            {
+                "date": "2025-12-17",
+                "summary": "Auto-generated daily report.\n\nDecisions / next steps:\n- Next time, focus on a single table and a single concrete question when working with database schemas.\nNew follow-up tasks:\n- Pick one table and one concrete question to explore (pillar: CAREER, scheduled: 2025-12-17)",
+                "sentiment": "unknown",
+                "wins": [
+                    "Made progress on Pandas tutorial - 45 minutes",
+                    "Made progress on Reach out to a contact - 15 minutes",
+                    "Made progress on Mindful Breathing - 5 minutes",
+                    "Made progress on Digital Detox - 1 hour before bed",
+                    "Made progress on Practice perspective-taking - 15 minutes",
+                    "Made progress on Plan a quality time activity - 30 minutes",
+                    "Made progress on Track progress - 5 minutes",
+                    "Made progress on Practice self-care - 30 minutes"
+                ],
+                "struggles": [],
+                "reflections": [],
+                "free_text": "Everything i did and pretty well. Besides the database schema, there were too many database schema i didnt know what to focus on. And focusing on the sensation of breath was kind of hard and i felt it was useless.  Yes that would help confirm",
+                "tasks": [
+                    {
+                        "task_id": "2025-12-17_habit_pandas_tutorial___45_minutes",
+                        "node_id": "habit_pandas_tutorial___45_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_reach_out_to_a_contact___15_minutes",
+                        "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_mindful_breathing___5_minutes",
+                        "node_id": "habit_mindful_breathing___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_digital_detox___1_hour_before_bed",
+                        "node_id": "habit_digital_detox___1_hour_before_bed",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_practice_perspective_taking___15_minutes",
+                        "node_id": "habit_practice_perspective_taking___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_plan_a_quality_time_activity___30_minutes",
+                        "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_track_progress___5_minutes",
+                        "node_id": "habit_track_progress___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-17_habit_practice_self_care___30_minutes",
+                        "node_id": "habit_practice_self_care___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    }
+                ],
+                "stats_delta": {
+                    "stats_career": {},
+                    "stats_physical": {},
+                    "stats_mental": {},
+                    "stats_social": {},
+                    "xp_career": 0,
+                    "xp_physical": 0,
+                    "xp_mental": 0,
+                    "xp_social": 0,
+                    "xp_total": 0
+                },
+                "new_tasks": [
+                    {
+                        "id": "plan_db_focus_2025-12-17",
+                        "name": "Pick one table and one concrete question to explore",
+                        "node_id": "habit_explore_a_database_schema",
+                        "pillar": "CAREER",
+                        "type": "Habit",
+                        "scheduled_date": "2025-12-17",
+                        "status": "PENDING",
+                        "planned_repetitions": 1,
+                        "completed_repetitions": 0,
+                        "xp_awarded": 0,
+                        "notes": "Follow-up from reporting about being overwhelmed by database schemas."
+                    }
+                ],
+                "new_skill_nodes": []
+            },
+            {
+                "date": "2025-12-18",
+                "summary": "Auto-generated daily report.\n\nXP gained today: total 120 (CAREER 30, PHYSICAL 30, MENTAL 30, SOCIAL 30).\nNo meaningful XP pattern yet from recent days.\n\nSchedule / timetable suggestion (for this habit set):\n- Morning: Mindful Breathing - 5 minutes, Digital Detox - 1 hour before bed\n- Afternoon: Pandas tutorial - 45 minutes, Reach out to a contact - 15 minutes\n- Evening: Practice perspective-taking - 15 minutes, Plan a quality time activity - 30 minutes, Track progress - 5 minutes, Practice self-care - 30 minutes",
+                "sentiment": "unknown",
+                "wins": [
+                    "Made progress on Pandas tutorial - 45 minutes",
+                    "Made progress on Reach out to a contact - 15 minutes",
+                    "Made progress on Mindful Breathing - 5 minutes",
+                    "Made progress on Digital Detox - 1 hour before bed",
+                    "Made progress on Practice perspective-taking - 15 minutes",
+                    "Made progress on Plan a quality time activity - 30 minutes",
+                    "Made progress on Track progress - 5 minutes",
+                    "Made progress on Practice self-care - 30 minutes"
+                ],
+                "struggles": [],
+                "reflections": [],
+                "free_text": "I did everything but all the Mindful Breathing i thought wasnt that effective, cuz i like to think. Also the tracking progress idk when i should do it. Like you should give me a schedule of when to do what confirm",
+                "tasks": [
+                    {
+                        "task_id": "2025-12-18_habit_pandas_tutorial___45_minutes",
+                        "node_id": "habit_pandas_tutorial___45_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_reach_out_to_a_contact___15_minutes",
+                        "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_mindful_breathing___5_minutes",
+                        "node_id": "habit_mindful_breathing___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_digital_detox___1_hour_before_bed",
+                        "node_id": "habit_digital_detox___1_hour_before_bed",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_perspective_taking___15_minutes",
+                        "node_id": "habit_practice_perspective_taking___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_plan_a_quality_time_activity___30_minutes",
+                        "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_track_progress___5_minutes",
+                        "node_id": "habit_track_progress___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_self_care___30_minutes",
+                        "node_id": "habit_practice_self_care___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    }
+                ],
+                "stats_delta": {
+                    "stats_career": {},
+                    "stats_physical": {},
+                    "stats_mental": {},
+                    "stats_social": {},
+                    "xp_career": 30,
+                    "xp_physical": 30,
+                    "xp_mental": 30,
+                    "xp_social": 30,
+                    "xp_total": 120
+                },
+                "new_tasks": [],
+                "new_skill_nodes": []
+            },
+            {
+                "date": "2025-12-18",
+                "summary": "Auto-generated daily report.\n\nXP gained today: total 120 (CAREER 30, PHYSICAL 30, MENTAL 30, SOCIAL 30).\nToday was above your recent XP average (~60 per day).\n\nSchedule / timetable suggestion (for this habit set):\n- Morning: Mindful Breathing - 5 minutes, Digital Detox - 1 hour before bed\n- Afternoon: Pandas tutorial - 45 minutes, Reach out to a contact - 15 minutes\n- Evening: Practice perspective-taking - 15 minutes, Plan a quality time activity - 30 minutes, Track progress - 5 minutes, Practice self-care - 30 minutes",
+                "sentiment": "unknown",
+                "wins": [
+                    "Made progress on Pandas tutorial - 45 minutes",
+                    "Made progress on Reach out to a contact - 15 minutes",
+                    "Made progress on Mindful Breathing - 5 minutes",
+                    "Made progress on Digital Detox - 1 hour before bed",
+                    "Made progress on Practice perspective-taking - 15 minutes",
+                    "Made progress on Plan a quality time activity - 30 minutes",
+                    "Made progress on Track progress - 5 minutes",
+                    "Made progress on Practice self-care - 30 minutes"
+                ],
+                "struggles": [],
+                "reflections": [],
+                "free_text": "I did everything but all the Mindful Breathing i thought wasnt that effective, cuz i like to think. Also the tracking progress idk when i should do it. Like you should give me a schedule of when to do what confirm",
+                "tasks": [
+                    {
+                        "task_id": "2025-12-18_habit_pandas_tutorial___45_minutes",
+                        "node_id": "habit_pandas_tutorial___45_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_reach_out_to_a_contact___15_minutes",
+                        "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_mindful_breathing___5_minutes",
+                        "node_id": "habit_mindful_breathing___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_digital_detox___1_hour_before_bed",
+                        "node_id": "habit_digital_detox___1_hour_before_bed",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_perspective_taking___15_minutes",
+                        "node_id": "habit_practice_perspective_taking___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_plan_a_quality_time_activity___30_minutes",
+                        "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_track_progress___5_minutes",
+                        "node_id": "habit_track_progress___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_self_care___30_minutes",
+                        "node_id": "habit_practice_self_care___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    }
+                ],
+                "stats_delta": {
+                    "stats_career": {},
+                    "stats_physical": {},
+                    "stats_mental": {},
+                    "stats_social": {},
+                    "xp_career": 30,
+                    "xp_physical": 30,
+                    "xp_mental": 30,
+                    "xp_social": 30,
+                    "xp_total": 120
+                },
+                "new_tasks": [],
+                "new_skill_nodes": []
+            },
+            {
+                "date": "2025-12-18",
+                "summary": "Auto-generated daily report.\n\nXP gained today: total 120 (CAREER 30, PHYSICAL 30, MENTAL 30, SOCIAL 30).\nToday was above your recent XP average (~80 per day).\n\nSchedule / timetable suggestion (for this habit set):\n- Morning: Mindful Breathing - 5 minutes, Digital Detox - 1 hour before bed\n- Afternoon: Pandas tutorial - 45 minutes, Reach out to a contact - 15 minutes\n- Evening: Practice perspective-taking - 15 minutes, Plan a quality time activity - 30 minutes, Track progress - 5 minutes, Practice self-care - 30 minutes",
+                "sentiment": "unknown",
+                "wins": [
+                    "Made progress on Pandas tutorial - 45 minutes",
+                    "Made progress on Reach out to a contact - 15 minutes",
+                    "Made progress on Mindful Breathing - 5 minutes",
+                    "Made progress on Digital Detox - 1 hour before bed",
+                    "Made progress on Practice perspective-taking - 15 minutes",
+                    "Made progress on Plan a quality time activity - 30 minutes",
+                    "Made progress on Track progress - 5 minutes",
+                    "Made progress on Practice self-care - 30 minutes"
+                ],
+                "struggles": [],
+                "reflections": [],
+                "free_text": "I did everything but all the Mindful Breathing i thought wasnt that effective, cuz i like to think. Also the tracking progress idk when i should do it. Like you should give me a schedule of when to do what confirm",
+                "tasks": [
+                    {
+                        "task_id": "2025-12-18_habit_pandas_tutorial___45_minutes",
+                        "node_id": "habit_pandas_tutorial___45_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_reach_out_to_a_contact___15_minutes",
+                        "node_id": "habit_reach_out_to_a_contact___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_mindful_breathing___5_minutes",
+                        "node_id": "habit_mindful_breathing___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_digital_detox___1_hour_before_bed",
+                        "node_id": "habit_digital_detox___1_hour_before_bed",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_perspective_taking___15_minutes",
+                        "node_id": "habit_practice_perspective_taking___15_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_plan_a_quality_time_activity___30_minutes",
+                        "node_id": "habit_plan_a_quality_time_activity___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_track_progress___5_minutes",
+                        "node_id": "habit_track_progress___5_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    },
+                    {
+                        "task_id": "2025-12-18_habit_practice_self_care___30_minutes",
+                        "node_id": "habit_practice_self_care___30_minutes",
+                        "status": "DONE",
+                        "completed_repetitions": 1,
+                        "user_comment": ""
+                    }
+                ],
+                "stats_delta": {
+                    "stats_career": {},
+                    "stats_physical": {},
+                    "stats_mental": {},
+                    "stats_social": {},
+                    "xp_career": 30,
+                    "xp_physical": 30,
+                    "xp_mental": 30,
+                    "xp_social": 30,
+                    "xp_total": 120
+                },
+                "new_tasks": [],
+                "new_skill_nodes": []
+            }
+        ],
+        "last_report_date": "2025-12-18"
     },
-    "stats_physical": {
-      "Strength": 3,
-      "Endurance": 3,
-      "Agility": 3,
-      "Health": 3
-    },
-    "stats_mental": {
-      "Clarity": 6,
-      "Resilience": 6,
-      "Logic": 6,
-      "Creativity": 6
-    },
-    "stats_social": {
-      "Charisma": 5,
-      "Empathy": 6,
-      "Leadership": 3,
-      "Connection": 7
-    },
-    "debuffs": [],
     "skill_tree": {
-      "nodes": [
-        {
-          "id": "goal_journal_daily",
-          "name": "Journal Daily",
-          "type": "Goal",
-          "pillar": "Mental",
-          "prerequisites": [
-            "skill_clarity",
-            "skill_resilience"
-          ],
-          "xp_reward": 200,
-          "description": "Daily reflection and self-assessment (VIA Character Strength: Zest)."
-        },
-        {
-          "id": "goal_exercise_daily",
-          "name": "Exercise Daily",
-          "type": "Goal",
-          "pillar": "Physical",
-          "prerequisites": [
-            "skill_strength",
-            "skill_endurance"
-          ],
-          "xp_reward": 250,
-          "description": "Regular physical activity for improved health and fitness (ExerciseDB: VO2 Max)."
-        },
-        {
-          "id": "goal_practice_vocal_skills_daily",
-          "name": "Practice Vocal Skills Daily",
-          "type": "Goal",
-          "pillar": "Mental",
-          "prerequisites": [
-            "skill_clarity",
-            "skill_creativity"
-          ],
-          "xp_reward": 220,
-          "description": "Daily vocal exercises to improve articulation and projection (VIA Character Strength: Curiosity)."
-        },
-        {
-          "id": "goal_dedicate_time_volleyball",
-          "name": "Dedicate Time to Volleyball",
-          "type": "Goal",
-          "pillar": "Physical",
-          "prerequisites": [
-            "skill_agility",
-            "skill_strength",
-            "skill_endurance",
-            "habit_warm_up_practice"
-          ],
-          "xp_reward": 300,
-          "description": "Participate in volleyball activities for improved coordination and teamwork (O*NET 2.B.1.b)."
-        },
-        {
-          "id": "goal_dedicate_time_coding",
-          "name": "Dedicate Time to Coding",
-          "type": "Goal",
-          "pillar": "Career",
-          "prerequisites": [
-            "skill_focus",
-            "skill_logic",
-            "skill_python_programming"
-          ],
-          "xp_reward": 350,
-          "description": "Engage in coding activities to develop programming skills (O*NET 2.B.1.b)."
-        },
-        {
-          "id": "goal_spend_time_family_friends",
-          "name": "Spend Time with Family and Friends",
-          "type": "Goal",
-          "pillar": "Social",
-          "prerequisites": [
-            "skill_empathy",
-            "skill_connection"
-          ],
-          "xp_reward": 280,
-          "description": "Nurture relationships for social support and well-being (NVC Need: Belonging)."
-        },
-        {
-          "id": "goal_code_daily",
-          "name": "Code Daily",
-          "type": "Goal",
-          "pillar": "Career",
-          "prerequisites": [
-            "skill_focus",
-            "skill_logic",
-            "skill_python_programming"
-          ],
-          "xp_reward": 350,
-          "description": "Daily coding practice to maintain and improve programming skills (O*NET 2.B.1.b)."
-        },
-        {
-          "id": "habit_warm_up_practice",
-          "name": "Practice Warm-Up Routine",
-          "type": "Habit",
-          "pillar": "Physical",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Perform a dynamic warm-up before physical activity (ExerciseDB: Joint Mobility)."
-        },
-        {
-          "id": "habit_no_interrupting_practice",
-          "name": "Practice 'Wait 2 Seconds'",
-          "type": "Habit",
-          "pillar": "Social",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Practice active listening by waiting 2 seconds before responding (NVC Need: Understanding)."
-        },
-        {
-          "id": "skill_clarity",
-          "name": "Clarity of Thought",
-          "type": "Sub-Skill",
-          "pillar": "Mental",
-          "prerequisites": [
-            "habit_practice_clarity"
-          ],
-          "xp_reward": 150,
-          "description": "The ability to think clearly and make sound judgments (CBT Distortion: All-or-Nothing Thinking)."
-        },
-        {
-          "id": "skill_resilience",
-          "name": "Emotional Resilience",
-          "type": "Sub-Skill",
-          "pillar": "Mental",
-          "prerequisites": [
-            "habit_practice_resilience"
-          ],
-          "xp_reward": 180,
-          "description": "The ability to bounce back from adversity (VIA Character Strength: Perseverance)."
-        },
-        {
-          "id": "skill_strength",
-          "name": "Physical Strength",
-          "type": "Sub-Skill",
-          "pillar": "Physical",
-          "prerequisites": [
-            "habit_practice_strength"
-          ],
-          "xp_reward": 160,
-          "description": "Muscular power and force (ExerciseDB: Posterior Chain Strength)."
-        },
-        {
-          "id": "skill_endurance",
-          "name": "Physical Endurance",
-          "type": "Sub-Skill",
-          "pillar": "Physical",
-          "prerequisites": [
-            "habit_practice_endurance"
-          ],
-          "xp_reward": 170,
-          "description": "The ability to sustain physical effort over time (ExerciseDB: VO2 Max)."
-        },
-        {
-          "id": "skill_agility",
-          "name": "Physical Agility",
-          "type": "Sub-Skill",
-          "pillar": "Physical",
-          "prerequisites": [
-            "habit_practice_agility"
-          ],
-          "xp_reward": 140,
-          "description": "Coordination and responsiveness (ExerciseDB: Balance)."
-        },
-        {
-          "id": "skill_focus",
-          "name": "Concentration",
-          "type": "Sub-Skill",
-          "pillar": "Mental",
-          "prerequisites": [
-            "habit_practice_focus",
-            "habit_specific_focus"
-          ],
-          "xp_reward": 190,
-          "description": "The ability to maintain attention on a task (CBT Distortion: Catastrophizing)."
-        },
-        {
-          "id": "skill_logic",
-          "name": "Logical Reasoning",
-          "type": "Sub-Skill",
-          "pillar": "Mental",
-          "prerequisites": [
-            "habit_practice_logic"
-          ],
-          "xp_reward": 200,
-          "description": "The ability to think critically and solve problems (VIA Character Strength: Prudence)."
-        },
-        {
-          "id": "skill_python_programming",
-          "name": "Python Programming",
-          "type": "Sub-Skill",
-          "pillar": "Career",
-          "prerequisites": [
-            "habit_practice_python_programming"
-          ],
-          "xp_reward": 220,
-          "description": "Proficiency in the Python programming language (O*NET 2.A.3.1)."
-        },
-        {
-          "id": "skill_empathy",
-          "name": "Social Empathy",
-          "type": "Sub-Skill",
-          "pillar": "Social",
-          "prerequisites": [
-            "habit_practice_empathy"
-          ],
-          "xp_reward": 160,
-          "description": "The ability to understand and share the feelings of others (NVC Need: Connection)."
-        },
-        {
-          "id": "skill_connection",
-          "name": "Social Connection",
-          "type": "Sub-Skill",
-          "pillar": "Social",
-          "prerequisites": [
-            "habit_practice_connection"
-          ],
-          "xp_reward": 180,
-          "description": "The ability to form and maintain meaningful relationships (NVC Need: Belonging)."
-        },
-        {
-          "id": "skill_leadership",
-          "name": "Leadership Skills",
-          "type": "Sub-Skill",
-          "pillar": "Social",
-          "prerequisites": [
-            "habit_practice_leadership"
-          ],
-          "xp_reward": 170,
-          "description": "The ability to guide and motivate others (O*NET 3.1.1.1)."
-        },
-        {
-          "id": "habit_practice_clarity",
-          "name": "Practice Clarity of Thought",
-          "type": "Habit",
-          "pillar": "Mental",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Clarity of Thought."
-        },
-        {
-          "id": "habit_practice_resilience",
-          "name": "Practice Emotional Resilience",
-          "type": "Habit",
-          "pillar": "Mental",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Emotional Resilience."
-        },
-        {
-          "id": "habit_practice_strength",
-          "name": "Practice Physical Strength",
-          "type": "Habit",
-          "pillar": "Physical",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Physical Strength."
-        },
-        {
-          "id": "habit_practice_endurance",
-          "name": "Practice Physical Endurance",
-          "type": "Habit",
-          "pillar": "Physical",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Physical Endurance."
-        },
-        {
-          "id": "habit_practice_agility",
-          "name": "Practice Physical Agility",
-          "type": "Habit",
-          "pillar": "Physical",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Physical Agility."
-        },
-        {
-          "id": "habit_practice_focus",
-          "name": "Practice Concentration",
-          "type": "Habit",
-          "pillar": "Mental",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Concentration."
-        },
-        {
-          "id": "habit_specific_focus",
-          "name": "Perform Concentration Drills",
-          "type": "Habit",
-          "pillar": "Mental",
-          "prerequisites": [],
-          "xp_reward": 15,
-          "description": "Specific exercises to build Concentration."
-        },
-        {
-          "id": "habit_practice_logic",
-          "name": "Practice Logical Reasoning",
-          "type": "Habit",
-          "pillar": "Mental",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Logical Reasoning."
-        },
-        {
-          "id": "habit_practice_python_programming",
-          "name": "Practice Python Programming",
-          "type": "Habit",
-          "pillar": "Career",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Python Programming."
-        },
-        {
-          "id": "habit_practice_empathy",
-          "name": "Practice Social Empathy",
-          "type": "Habit",
-          "pillar": "Social",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Social Empathy."
-        },
-        {
-          "id": "habit_practice_connection",
-          "name": "Practice Social Connection",
-          "type": "Habit",
-          "pillar": "Social",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Social Connection."
-        },
-        {
-          "id": "habit_practice_leadership",
-          "name": "Practice Leadership Skills",
-          "type": "Habit",
-          "pillar": "Social",
-          "prerequisites": [],
-          "xp_reward": 10,
-          "description": "Daily practice to improve Leadership Skills."
-        }
-      ]
+        "nodes": [
+            {
+                "id": "goal_build_and_adapt_code",
+                "name": "Build and Adapt Code",
+                "type": "Goal",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_self_assessment___exploration",
+                    "skill_basic_coding_fundamentals",
+                    "skill_data_analysis_introduction",
+                    "skill_pandas_library",
+                    "skill_sql_database_fundamentals",
+                    "skill_project_based_learning",
+                    "skill_career_transition___networking"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Focus on developing and adapting code independently, demonstrating resilience and problem-solving skills."
+            },
+            {
+                "id": "skill_self_assessment___exploration",
+                "name": "Self-Assessment & Exploration",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_journaling___reflect_on_the_day",
+                    "habit_identify_1_area_for_improvement",
+                    "habit_read_a_relevant_article_or_blog_post"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_basic_coding_fundamentals",
+                "name": "Basic Coding Fundamentals",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_codecademy___30_minutes",
+                    "habit_solve_a_simple_coding_challenge",
+                    "habit_read_a_coding_tutorial"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_data_analysis_introduction",
+                "name": "Data Analysis Introduction",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_datacamp___30_minutes",
+                    "habit_explore_a_public_dataset",
+                    "habit_watch_a_data_analysis_tutorial"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_pandas_library",
+                "name": "Pandas Library",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_pandas_tutorial___45_minutes",
+                    "habit_practice_with_a_dataset",
+                    "habit_read_pandas_documentation"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_sql_database_fundamentals",
+                "name": "SQL Database Fundamentals",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_sql_tutorial___30_minutes",
+                    "habit_practice_writing_sql_queries",
+                    "habit_explore_a_database_schema"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_project_based_learning",
+                "name": "Project-Based Learning",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_brainstorm_project_ideas___15_minutes",
+                    "habit_break_down_a_project_into_smaller_tasks___30_minutes",
+                    "habit_work_on_a_project_for_60_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "skill_career_transition___networking",
+                "name": "Career Transition & Networking",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_linkedin___connect_with_3_people",
+                    "habit_reach_out_to_a_contact___15_minutes",
+                    "habit_attend_a_virtual_networking_event___60_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Build and Adapt Code'."
+            },
+            {
+                "id": "goal_exercise",
+                "name": "Exercise",
+                "type": "Goal",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_recovery_foundation",
+                    "skill_sleep_hygiene",
+                    "skill_knee_pushup_progression",
+                    "skill_pushup_progression",
+                    "skill_incline_pushup_progression",
+                    "skill_floor_pushup_progression",
+                    "skill_diamond_pushup_progression",
+                    "skill_plyometric_progression"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Increase muscle mass through targeted exercise."
+            },
+            {
+                "id": "skill_recovery_foundation",
+                "name": "Recovery Foundation",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_mindful_breathing___5_minutes",
+                    "habit_hydration___drink_8_glasses_of_water",
+                    "habit_gentle_stretching___10_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_sleep_hygiene",
+                "name": "Sleep Hygiene",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_digital_detox___1_hour_before_bed",
+                    "habit_consistent_sleep_schedule___maintain_a_regular_sleep_wake_cycle",
+                    "habit_relaxing_bedtime_routine___30_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_knee_pushup_progression",
+                "name": "Knee Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_knee_pushups___3_sets_of_8_12_reps",
+                    "habit_rest___60_seconds_between_sets",
+                    "habit_progression___increase_reps_or_sets"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_pushup_progression",
+                "name": "Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_wall_pushups___3_sets_of_10_15_reps",
+                    "habit_incline_pushups___3_sets_of_8_12_reps",
+                    "habit_rest___60_seconds_between_sets_2"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_incline_pushup_progression",
+                "name": "Incline Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_incline_pushups___3_sets_of_8_12_reps_2",
+                    "habit_decrease_incline___gradually_lower_the_surface",
+                    "habit_rest___60_seconds_between_sets_3"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_floor_pushup_progression",
+                "name": "Floor Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_floor_pushups___3_sets_of_5_8_reps",
+                    "habit_modify___perform_pushups_with_hands_closer_together",
+                    "habit_rest___60_seconds_between_sets_4"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_diamond_pushup_progression",
+                "name": "Diamond Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_diamond_pushups___3_sets_of_3_5_reps",
+                    "habit_rest___90_seconds_between_sets",
+                    "habit_progression___increase_reps_or_sets_2"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "skill_plyometric_progression",
+                "name": "Plyometric Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_box_jumps___3_sets_of_5_8_reps",
+                    "habit_rest___90_seconds_between_sets_2",
+                    "habit_progression___increase_box_height"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Exercise'."
+            },
+            {
+                "id": "goal_spend_time_with_family_and_friends",
+                "name": "Spend Time with Family and Friends",
+                "type": "Goal",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_initial_social_assessment",
+                    "skill_manage_social_anxiety",
+                    "skill_active_listening_practice",
+                    "skill_develop_empathy",
+                    "skill_initiate_small_social_interactions",
+                    "skill_conflict_resolution_skills",
+                    "skill_strengthen_existing_relationships",
+                    "skill_leadership_through_connection"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Cultivate and maintain meaningful relationships with friends and family."
+            },
+            {
+                "id": "skill_initial_social_assessment",
+                "name": "Initial Social Assessment",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_observe_social_interactions___15_minutes",
+                    "habit_reflect_on_your_own_social_behavior___10_minutes",
+                    "habit_identify_a_social_skill_to_focus_on___5_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_manage_social_anxiety",
+                "name": "Manage Social Anxiety",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_grounding_technique___5_minutes",
+                    "habit_positive_self_talk___10_minutes",
+                    "habit_exposure___start_with_small_social_interactions___30_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_active_listening_practice",
+                "name": "Active Listening Practice",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_listen_attentively___30_minutes",
+                    "habit_paraphrase___summarize_what_you_heard",
+                    "habit_ask_clarifying_questions___15_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_develop_empathy",
+                "name": "Develop Empathy",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_read_fiction___30_minutes",
+                    "habit_listen_to_podcasts___30_minutes",
+                    "habit_practice_perspective_taking___15_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_initiate_small_social_interactions",
+                "name": "Initiate Small Social Interactions",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_smile_and_make_eye_contact___throughout_the_day",
+                    "habit_start_a_conversation___15_minutes",
+                    "habit_offer_a_compliment___5_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_conflict_resolution_skills",
+                "name": "Conflict Resolution Skills",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_practice_active_listening___30_minutes",
+                    "habit_express_your_needs_clearly___15_minutes",
+                    "habit_brainstorm_solutions___30_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_strengthen_existing_relationships",
+                "name": "Strengthen Existing Relationships",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_reach_out_to_a_loved_one___15_minutes",
+                    "habit_plan_a_quality_time_activity___30_minutes",
+                    "habit_express_gratitude___10_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "skill_leadership_through_connection",
+                "name": "Leadership Through Connection",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_ask_for_input___15_minutes",
+                    "habit_recognize_and_appreciate_contributions___10_minutes",
+                    "habit_show_empathy_and_understanding___30_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Spend Time with Family and Friends'."
+            },
+            {
+                "id": "goal_journaling",
+                "name": "Journaling",
+                "type": "Goal",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_box_breathing_technique",
+                    "skill_thought_logging",
+                    "skill_cognitive_restructuring",
+                    "skill_self_compassion_practice",
+                    "skill_smart_goal_setting",
+                    "skill_growth_mindset_adoption",
+                    "skill_resilience_framework"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Daily journaling practice."
+            },
+            {
+                "id": "skill_box_breathing_technique",
+                "name": "Box Breathing Technique",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_practice_box_breathing___5_minutes",
+                    "habit_repeat_throughout_the_day___as_needed",
+                    "habit_focus_on_the_sensation_of_breath___10_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_thought_logging",
+                "name": "Thought Logging",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_record_thoughts___10_minutes",
+                    "habit_identify_patterns___15_minutes",
+                    "habit_challenge_negative_thoughts___15_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_cognitive_restructuring",
+                "name": "Cognitive Restructuring",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_identify_cognitive_distortions___15_minutes",
+                    "habit_challenge_distorted_thoughts___30_minutes",
+                    "habit_replace_distorted_thoughts___15_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_self_compassion_practice",
+                "name": "Self-Compassion Practice",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_self_kindness___10_minutes",
+                    "habit_recognize_common_humanity___15_minutes",
+                    "habit_practice_self_acceptance___10_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_smart_goal_setting",
+                "name": "SMART Goal Setting",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_define_a_smart_goal___15_minutes",
+                    "habit_break_down_the_goal___10_minutes",
+                    "habit_track_progress___5_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_growth_mindset_adoption",
+                "name": "Growth Mindset Adoption",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_embrace_challenges___10_minutes",
+                    "habit_learn_from_mistakes___15_minutes",
+                    "habit_value_effort___10_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "skill_resilience_framework",
+                "name": "Resilience Framework",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_identify_coping_mechanisms___15_minutes",
+                    "habit_practice_self_care___30_minutes",
+                    "habit_seek_support___15_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Journaling'."
+            },
+            {
+                "id": "goal_fix_overcome_solitary_focus",
+                "name": "Overcome Solitary Focus",
+                "type": "Goal",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_fix_recovery_skills_for_solitary_focus"
+                ],
+                "xp_reward": 500,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Recovery quest to remove debuff."
+            },
+            {
+                "id": "skill_fix_recovery_skills_for_solitary_focus",
+                "name": "Recovery Skills for Solitary Focus",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_mindful_movement___20_minutes",
+                    "habit_sensory_grounding___10_minutes",
+                    "habit_creative_expression___30_minutes"
+                ],
+                "xp_reward": 200,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skills to overcome debuff 'Solitary Focus'."
+            },
+            {
+                "id": "goal_fix_overcome_negative_reaction_to_failure",
+                "name": "Overcome Negative Reaction to Failure",
+                "type": "Goal",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_fix_recovery_skills_for_negative_reaction_to_failure"
+                ],
+                "xp_reward": 500,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Recovery quest to remove debuff."
+            },
+            {
+                "id": "skill_fix_recovery_skills_for_negative_reaction_to_failure",
+                "name": "Recovery Skills for Negative Reaction to Failure",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_self_compassion___15_minutes",
+                    "habit_reframe_the_failure___20_minutes",
+                    "habit_focus_on_progress___10_minutes"
+                ],
+                "xp_reward": 200,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skills to overcome debuff 'Negative Reaction to Failure'."
+            },
+            {
+                "id": "habit_journaling___reflect_on_the_day",
+                "name": "Journaling - Reflect on the day",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 15 minutes writing about your experiences, emotions, and learnings."
+            },
+            {
+                "id": "habit_identify_1_area_for_improvement",
+                "name": "Identify 1 area for improvement",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Pinpoint one small area where you could have acted differently or learned something new."
+            },
+            {
+                "id": "habit_read_a_relevant_article_or_blog_post",
+                "name": "Read a relevant article or blog post",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Dedicate 30 minutes to reading content related to self-awareness or personal growth."
+            },
+            {
+                "id": "habit_codecademy___30_minutes",
+                "name": "Codecademy - 30 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Complete a lesson on a basic coding concept (e.g., variables, loops)."
+            },
+            {
+                "id": "habit_solve_a_simple_coding_challenge",
+                "name": "Solve a simple coding challenge",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Work through a beginner-friendly coding challenge on platforms like HackerRank or LeetCode."
+            },
+            {
+                "id": "habit_read_a_coding_tutorial",
+                "name": "Read a coding tutorial",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read a short tutorial on a specific coding concept or library."
+            },
+            {
+                "id": "habit_datacamp___30_minutes",
+                "name": "DataCamp - 30 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Work through a module on data analysis fundamentals."
+            },
+            {
+                "id": "habit_explore_a_public_dataset",
+                "name": "Explore a public dataset",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Find a publicly available dataset and spend 30 minutes exploring it using a tool like Google Sheets or Excel."
+            },
+            {
+                "id": "habit_watch_a_data_analysis_tutorial",
+                "name": "Watch a data analysis tutorial",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Watch a video tutorial on a specific data analysis technique (e.g., data cleaning, visualization)."
+            },
+            {
+                "id": "habit_pandas_tutorial___45_minutes",
+                "name": "Pandas tutorial - 45 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Follow a tutorial on using Pandas for data manipulation and analysis."
+            },
+            {
+                "id": "habit_practice_with_a_dataset",
+                "name": "Practice with a dataset",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Load a small dataset into Pandas and practice applying different functions (e.g., filtering, sorting, grouping)."
+            },
+            {
+                "id": "habit_read_pandas_documentation",
+                "name": "Read Pandas documentation",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 15 minutes reviewing the Pandas documentation for a specific function or method."
+            },
+            {
+                "id": "habit_sql_tutorial___30_minutes",
+                "name": "SQL tutorial - 30 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Complete a lesson on SQL basics (e.g., SELECT, FROM, WHERE)."
+            },
+            {
+                "id": "habit_practice_writing_sql_queries",
+                "name": "Practice writing SQL queries",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Write SQL queries to retrieve data from a sample database."
+            },
+            {
+                "id": "habit_explore_a_database_schema",
+                "name": "Explore a database schema",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Examine the schema of a database and understand the relationships between tables."
+            },
+            {
+                "id": "habit_brainstorm_project_ideas___15_minutes",
+                "name": "Brainstorm project ideas - 15 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Generate 3-5 potential project ideas that align with your interests and skills."
+            },
+            {
+                "id": "habit_break_down_a_project_into_smaller_tasks___30_minutes",
+                "name": "Break down a project into smaller tasks - 30 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Choose one project idea and break it down into smaller, manageable tasks."
+            },
+            {
+                "id": "habit_work_on_a_project_for_60_minutes",
+                "name": "Work on a project for 60 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Dedicate focused time to working on one of the smaller tasks."
+            },
+            {
+                "id": "habit_linkedin___connect_with_3_people",
+                "name": "LinkedIn - Connect with 3 people",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Connect with 3 professionals in your field on LinkedIn."
+            },
+            {
+                "id": "habit_reach_out_to_a_contact___15_minutes",
+                "name": "Reach out to a contact - 15 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Send a personalized message to a contact, expressing interest in their work or seeking advice."
+            },
+            {
+                "id": "habit_attend_a_virtual_networking_event___60_minutes",
+                "name": "Attend a virtual networking event - 60 minutes",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Participate in a virtual networking event or webinar."
+            },
+            {
+                "id": "habit_mindful_breathing___5_minutes",
+                "name": "Mindful Breathing - 5 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice deep, mindful breathing to calm the nervous system."
+            },
+            {
+                "id": "habit_hydration___drink_8_glasses_of_water",
+                "name": "Hydration - Drink 8 glasses of water",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ensure adequate hydration throughout the day."
+            },
+            {
+                "id": "habit_gentle_stretching___10_minutes",
+                "name": "Gentle Stretching - 10 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform gentle stretches to release tension in the body."
+            },
+            {
+                "id": "habit_digital_detox___1_hour_before_bed",
+                "name": "Digital Detox - 1 hour before bed",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Avoid screens (phone, computer, TV) for at least one hour before bedtime."
+            },
+            {
+                "id": "habit_consistent_sleep_schedule___maintain_a_regular_sleep_wake_cycle",
+                "name": "Consistent Sleep Schedule - Maintain a regular sleep-wake cycle",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Go to bed and wake up around the same time each day, even on weekends."
+            },
+            {
+                "id": "habit_relaxing_bedtime_routine___30_minutes",
+                "name": "Relaxing Bedtime Routine - 30 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Engage in a relaxing activity before bed (e.g., reading, taking a warm bath)."
+            },
+            {
+                "id": "habit_knee_pushups___3_sets_of_8_12_reps",
+                "name": "Knee Pushups - 3 sets of 8-12 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform knee pushups, focusing on proper form."
+            },
+            {
+                "id": "habit_rest___60_seconds_between_sets",
+                "name": "Rest - 60 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_progression___increase_reps_or_sets",
+                "name": "Progression - Increase reps or sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the number of reps or sets as you get stronger."
+            },
+            {
+                "id": "habit_wall_pushups___3_sets_of_10_15_reps",
+                "name": "Wall Pushups - 3 sets of 10-15 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform wall pushups to build strength."
+            },
+            {
+                "id": "habit_incline_pushups___3_sets_of_8_12_reps",
+                "name": "Incline Pushups - 3 sets of 8-12 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform incline pushups using a stable surface."
+            },
+            {
+                "id": "habit_rest___60_seconds_between_sets_2",
+                "name": "Rest - 60 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_incline_pushups___3_sets_of_8_12_reps_2",
+                "name": "Incline Pushups - 3 sets of 8-12 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform incline pushups using a stable surface."
+            },
+            {
+                "id": "habit_decrease_incline___gradually_lower_the_surface",
+                "name": "Decrease incline - Gradually lower the surface",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Reduce the height of the incline to increase difficulty."
+            },
+            {
+                "id": "habit_rest___60_seconds_between_sets_3",
+                "name": "Rest - 60 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_floor_pushups___3_sets_of_5_8_reps",
+                "name": "Floor Pushups - 3 sets of 5-8 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform floor pushups, focusing on proper form."
+            },
+            {
+                "id": "habit_modify___perform_pushups_with_hands_closer_together",
+                "name": "Modify - Perform pushups with hands closer together",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Adjust hand placement to increase difficulty."
+            },
+            {
+                "id": "habit_rest___60_seconds_between_sets_4",
+                "name": "Rest - 60 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_diamond_pushups___3_sets_of_3_5_reps",
+                "name": "Diamond Pushups - 3 sets of 3-5 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform diamond pushups, focusing on proper form."
+            },
+            {
+                "id": "habit_rest___90_seconds_between_sets",
+                "name": "Rest - 90 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_progression___increase_reps_or_sets_2",
+                "name": "Progression - Increase reps or sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the number of reps or sets as you get stronger."
+            },
+            {
+                "id": "habit_box_jumps___3_sets_of_5_8_reps",
+                "name": "Box Jumps - 3 sets of 5-8 reps",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform box jumps, focusing on proper form."
+            },
+            {
+                "id": "habit_rest___90_seconds_between_sets_2",
+                "name": "Rest - 90 seconds between sets",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Allow adequate rest between sets."
+            },
+            {
+                "id": "habit_progression___increase_box_height",
+                "name": "Progression - Increase box height",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the height of the box as you get stronger."
+            },
+            {
+                "id": "habit_observe_social_interactions___15_minutes",
+                "name": "Observe social interactions - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Pay attention to how others interact in a social setting."
+            },
+            {
+                "id": "habit_reflect_on_your_own_social_behavior___10_minutes",
+                "name": "Reflect on your own social behavior - 10 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Consider how you typically behave in social situations."
+            },
+            {
+                "id": "habit_identify_a_social_skill_to_focus_on___5_minutes",
+                "name": "Identify a social skill to focus on - 5 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Choose one specific social skill you'd like to improve."
+            },
+            {
+                "id": "habit_grounding_technique___5_minutes",
+                "name": "Grounding Technique - 5 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice grounding techniques (e.g., 5-4-3-2-1 method) to manage anxiety."
+            },
+            {
+                "id": "habit_positive_self_talk___10_minutes",
+                "name": "Positive Self-Talk - 10 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Challenge negative thoughts and replace them with positive affirmations."
+            },
+            {
+                "id": "habit_exposure___start_with_small_social_interactions___30_minutes",
+                "name": "Exposure - Start with small social interactions - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually expose yourself to social situations, starting with small, manageable interactions."
+            },
+            {
+                "id": "habit_listen_attentively___30_minutes",
+                "name": "Listen attentively - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Focus entirely on the speaker without interrupting or formulating a response."
+            },
+            {
+                "id": "habit_paraphrase___summarize_what_you_heard",
+                "name": "Paraphrase - Summarize what you heard",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Repeat back what you heard in your own words to ensure understanding."
+            },
+            {
+                "id": "habit_ask_clarifying_questions___15_minutes",
+                "name": "Ask clarifying questions - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ask questions to gain a deeper understanding of the speaker's perspective."
+            },
+            {
+                "id": "habit_read_fiction___30_minutes",
+                "name": "Read fiction - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read novels or short stories to gain insight into different perspectives."
+            },
+            {
+                "id": "habit_listen_to_podcasts___30_minutes",
+                "name": "Listen to podcasts - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Listen to podcasts featuring diverse voices and experiences."
+            },
+            {
+                "id": "habit_practice_perspective_taking___15_minutes",
+                "name": "Practice perspective-taking - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Try to imagine yourself in someone else's shoes and understand their feelings."
+            },
+            {
+                "id": "habit_smile_and_make_eye_contact___throughout_the_day",
+                "name": "Smile and make eye contact - Throughout the day",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice smiling and making eye contact with people you encounter."
+            },
+            {
+                "id": "habit_start_a_conversation___15_minutes",
+                "name": "Start a conversation - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Initiate a brief conversation with someone you don't know well."
+            },
+            {
+                "id": "habit_offer_a_compliment___5_minutes",
+                "name": "Offer a compliment - 5 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Give a genuine compliment to someone."
+            },
+            {
+                "id": "habit_practice_active_listening___30_minutes",
+                "name": "Practice active listening - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Focus on understanding the other person's perspective."
+            },
+            {
+                "id": "habit_express_your_needs_clearly___15_minutes",
+                "name": "Express your needs clearly - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Communicate your needs and feelings assertively but respectfully."
+            },
+            {
+                "id": "habit_brainstorm_solutions___30_minutes",
+                "name": "Brainstorm solutions - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Work collaboratively to find mutually agreeable solutions."
+            },
+            {
+                "id": "habit_reach_out_to_a_loved_one___15_minutes",
+                "name": "Reach out to a loved one - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Call, text, or email someone you care about."
+            },
+            {
+                "id": "habit_plan_a_quality_time_activity___30_minutes",
+                "name": "Plan a quality time activity - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Schedule time to spend with someone you value."
+            },
+            {
+                "id": "habit_express_gratitude___10_minutes",
+                "name": "Express gratitude - 10 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Tell someone you appreciate them."
+            },
+            {
+                "id": "habit_ask_for_input___15_minutes",
+                "name": "Ask for input - 15 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Solicit opinions and ideas from others."
+            },
+            {
+                "id": "habit_recognize_and_appreciate_contributions___10_minutes",
+                "name": "Recognize and appreciate contributions - 10 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Acknowledge and celebrate the efforts of team members."
+            },
+            {
+                "id": "habit_show_empathy_and_understanding___30_minutes",
+                "name": "Show empathy and understanding - 30 minutes",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Demonstrate genuine care and concern for others."
+            },
+            {
+                "id": "habit_practice_box_breathing___5_minutes",
+                "name": "Practice Box Breathing - 5 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Inhale for 4 seconds, hold for 4 seconds, exhale for 4 seconds, hold for 4 seconds."
+            },
+            {
+                "id": "habit_repeat_throughout_the_day___as_needed",
+                "name": "Repeat throughout the day - As needed",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Use box breathing whenever you feel stressed or anxious."
+            },
+            {
+                "id": "habit_focus_on_the_sensation_of_breath___10_minutes",
+                "name": "Focus on the sensation of breath - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Pay attention to the rise and fall of your chest or abdomen."
+            },
+            {
+                "id": "habit_record_thoughts___10_minutes",
+                "name": "Record thoughts - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Write down your thoughts and feelings as they arise."
+            },
+            {
+                "id": "habit_identify_patterns___15_minutes",
+                "name": "Identify patterns - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Review your logs to identify recurring themes or thought patterns."
+            },
+            {
+                "id": "habit_challenge_negative_thoughts___15_minutes",
+                "name": "Challenge negative thoughts - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Question the validity of negative thoughts and replace them with more realistic ones."
+            },
+            {
+                "id": "habit_identify_cognitive_distortions___15_minutes",
+                "name": "Identify cognitive distortions - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Learn about common cognitive distortions (e.g., catastrophizing, all-or-nothing thinking)."
+            },
+            {
+                "id": "habit_challenge_distorted_thoughts___30_minutes",
+                "name": "Challenge distorted thoughts - 30 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Examine the evidence for and against distorted thoughts."
+            },
+            {
+                "id": "habit_replace_distorted_thoughts___15_minutes",
+                "name": "Replace distorted thoughts - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop more balanced and realistic thoughts."
+            },
+            {
+                "id": "habit_self_kindness___10_minutes",
+                "name": "Self-kindness - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Treat yourself with the same kindness and understanding you would offer a friend."
+            },
+            {
+                "id": "habit_recognize_common_humanity___15_minutes",
+                "name": "Recognize common humanity - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Remind yourself that everyone makes mistakes and experiences suffering."
+            },
+            {
+                "id": "habit_practice_self_acceptance___10_minutes",
+                "name": "Practice self-acceptance - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Accept yourself, flaws and all."
+            },
+            {
+                "id": "habit_define_a_smart_goal___15_minutes",
+                "name": "Define a SMART goal - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ensure your goal is Specific, Measurable, Achievable, Relevant, and Time-bound."
+            },
+            {
+                "id": "habit_break_down_the_goal___10_minutes",
+                "name": "Break down the goal - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Divide the goal into smaller, manageable steps."
+            },
+            {
+                "id": "habit_track_progress___5_minutes",
+                "name": "Track progress - 5 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Monitor your progress and make adjustments as needed."
+            },
+            {
+                "id": "habit_embrace_challenges___10_minutes",
+                "name": "Embrace challenges - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "View challenges as opportunities for growth."
+            },
+            {
+                "id": "habit_learn_from_mistakes___15_minutes",
+                "name": "Learn from mistakes - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Analyze your mistakes and identify what you can learn from them."
+            },
+            {
+                "id": "habit_value_effort___10_minutes",
+                "name": "Value effort - 10 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Recognize that effort is more important than innate talent."
+            },
+            {
+                "id": "habit_identify_coping_mechanisms___15_minutes",
+                "name": "Identify coping mechanisms - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "List strategies you use to cope with stress and adversity."
+            },
+            {
+                "id": "habit_practice_self_care___30_minutes",
+                "name": "Practice self-care - 30 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Engage in activities that promote your physical and mental well-being."
+            },
+            {
+                "id": "habit_seek_support___15_minutes",
+                "name": "Seek support - 15 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Connect with trusted friends, family members, or a therapist."
+            },
+            {
+                "id": "habit_mindful_movement___20_minutes",
+                "name": "Mindful Movement - 20 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Engage in gentle movement like yoga or tai chi."
+            },
+            {
+                "id": "habit_sensory_grounding___10_minutes",
+                "name": "Sensory Grounding - 10 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Focus on sensory experiences (e.g., touch, smell, taste) to reconnect with the present moment."
+            },
+            {
+                "id": "habit_creative_expression___30_minutes",
+                "name": "Creative Expression - 30 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Engage in a creative activity like drawing, writing, or playing music."
+            },
+            {
+                "id": "habit_self_compassion___15_minutes",
+                "name": "Self-Compassion - 15 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice self-kindness and understanding when experiencing failure."
+            },
+            {
+                "id": "habit_reframe_the_failure___20_minutes",
+                "name": "Reframe the failure - 20 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Challenge negative interpretations of the failure and focus on what you learned."
+            },
+            {
+                "id": "habit_focus_on_progress___10_minutes",
+                "name": "Focus on progress - 10 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Recognize and celebrate small steps forward, regardless of setbacks."
+            }
+        ]
     }
-  },
-  "skill_tree": {
-    "nodes": [
-      {
-        "id": "goal_journal_daily",
-        "name": "Journal Daily",
-        "type": "Goal",
-        "pillar": "Mental",
-        "prerequisites": [
-          "skill_clarity",
-          "skill_resilience"
-        ],
-        "xp_reward": 200,
-        "description": "Daily reflection and self-assessment (VIA Character Strength: Zest)."
-      },
-      {
-        "id": "goal_exercise_daily",
-        "name": "Exercise Daily",
-        "type": "Goal",
-        "pillar": "Physical",
-        "prerequisites": [
-          "skill_strength",
-          "skill_endurance"
-        ],
-        "xp_reward": 250,
-        "description": "Regular physical activity for improved health and fitness (ExerciseDB: VO2 Max)."
-      },
-      {
-        "id": "goal_practice_vocal_skills_daily",
-        "name": "Practice Vocal Skills Daily",
-        "type": "Goal",
-        "pillar": "Mental",
-        "prerequisites": [
-          "skill_clarity",
-          "skill_creativity"
-        ],
-        "xp_reward": 220,
-        "description": "Daily vocal exercises to improve articulation and projection (VIA Character Strength: Curiosity)."
-      },
-      {
-        "id": "goal_dedicate_time_volleyball",
-        "name": "Dedicate Time to Volleyball",
-        "type": "Goal",
-        "pillar": "Physical",
-        "prerequisites": [
-          "skill_agility",
-          "skill_strength",
-          "skill_endurance",
-          "habit_warm_up_practice"
-        ],
-        "xp_reward": 300,
-        "description": "Participate in volleyball activities for improved coordination and teamwork (O*NET 2.B.1.b)."
-      },
-      {
-        "id": "goal_dedicate_time_coding",
-        "name": "Dedicate Time to Coding",
-        "type": "Goal",
-        "pillar": "Career",
-        "prerequisites": [
-          "skill_focus",
-          "skill_logic",
-          "skill_python_programming"
-        ],
-        "xp_reward": 350,
-        "description": "Engage in coding activities to develop programming skills (O*NET 2.B.1.b)."
-      },
-      {
-        "id": "goal_spend_time_family_friends",
-        "name": "Spend Time with Family and Friends",
-        "type": "Goal",
-        "pillar": "Social",
-        "prerequisites": [
-          "skill_empathy",
-          "skill_connection"
-        ],
-        "xp_reward": 280,
-        "description": "Nurture relationships for social support and well-being (NVC Need: Belonging)."
-      },
-      {
-        "id": "goal_code_daily",
-        "name": "Code Daily",
-        "type": "Goal",
-        "pillar": "Career",
-        "prerequisites": [
-          "skill_focus",
-          "skill_logic",
-          "skill_python_programming"
-        ],
-        "xp_reward": 350,
-        "description": "Daily coding practice to maintain and improve programming skills (O*NET 2.B.1.b)."
-      },
-      {
-        "id": "habit_warm_up_practice",
-        "name": "Practice Warm-Up Routine",
-        "type": "Habit",
-        "pillar": "Physical",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Perform a dynamic warm-up before physical activity (ExerciseDB: Joint Mobility)."
-      },
-      {
-        "id": "habit_no_interrupting_practice",
-        "name": "Practice 'Wait 2 Seconds'",
-        "type": "Habit",
-        "pillar": "Social",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Practice active listening by waiting 2 seconds before responding (NVC Need: Understanding)."
-      },
-      {
-        "id": "skill_clarity",
-        "name": "Clarity of Thought",
-        "type": "Sub-Skill",
-        "pillar": "Mental",
-        "prerequisites": [
-          "habit_practice_clarity"
-        ],
-        "xp_reward": 150,
-        "description": "The ability to think clearly and make sound judgments (CBT Distortion: All-or-Nothing Thinking)."
-      },
-      {
-        "id": "skill_resilience",
-        "name": "Emotional Resilience",
-        "type": "Sub-Skill",
-        "pillar": "Mental",
-        "prerequisites": [
-          "habit_practice_resilience"
-        ],
-        "xp_reward": 180,
-        "description": "The ability to bounce back from adversity (VIA Character Strength: Perseverance)."
-      },
-      {
-        "id": "skill_strength",
-        "name": "Physical Strength",
-        "type": "Sub-Skill",
-        "pillar": "Physical",
-        "prerequisites": [
-          "habit_practice_strength"
-        ],
-        "xp_reward": 160,
-        "description": "Muscular power and force (ExerciseDB: Posterior Chain Strength)."
-      },
-      {
-        "id": "skill_endurance",
-        "name": "Physical Endurance",
-        "type": "Sub-Skill",
-        "pillar": "Physical",
-        "prerequisites": [
-          "habit_practice_endurance"
-        ],
-        "xp_reward": 170,
-        "description": "The ability to sustain physical effort over time (ExerciseDB: VO2 Max)."
-      },
-      {
-        "id": "skill_agility",
-        "name": "Physical Agility",
-        "type": "Sub-Skill",
-        "pillar": "Physical",
-        "prerequisites": [
-          "habit_practice_agility"
-        ],
-        "xp_reward": 140,
-        "description": "Coordination and responsiveness (ExerciseDB: Balance)."
-      },
-      {
-        "id": "skill_focus",
-        "name": "Concentration",
-        "type": "Sub-Skill",
-        "pillar": "Mental",
-        "prerequisites": [
-          "habit_practice_focus",
-          "habit_specific_focus"
-        ],
-        "xp_reward": 190,
-        "description": "The ability to maintain attention on a task (CBT Distortion: Catastrophizing)."
-      },
-      {
-        "id": "skill_logic",
-        "name": "Logical Reasoning",
-        "type": "Sub-Skill",
-        "pillar": "Mental",
-        "prerequisites": [
-          "habit_practice_logic"
-        ],
-        "xp_reward": 200,
-        "description": "The ability to think critically and solve problems (VIA Character Strength: Prudence)."
-      },
-      {
-        "id": "skill_python_programming",
-        "name": "Python Programming",
-        "type": "Sub-Skill",
-        "pillar": "Career",
-        "prerequisites": [
-          "habit_practice_python_programming"
-        ],
-        "xp_reward": 220,
-        "description": "Proficiency in the Python programming language (O*NET 2.A.3.1)."
-      },
-      {
-        "id": "skill_empathy",
-        "name": "Social Empathy",
-        "type": "Sub-Skill",
-        "pillar": "Social",
-        "prerequisites": [
-          "habit_practice_empathy"
-        ],
-        "xp_reward": 160,
-        "description": "The ability to understand and share the feelings of others (NVC Need: Connection)."
-      },
-      {
-        "id": "skill_connection",
-        "name": "Social Connection",
-        "type": "Sub-Skill",
-        "pillar": "Social",
-        "prerequisites": [
-          "habit_practice_connection"
-        ],
-        "xp_reward": 180,
-        "description": "The ability to form and maintain meaningful relationships (NVC Need: Belonging)."
-      },
-      {
-        "id": "skill_leadership",
-        "name": "Leadership Skills",
-        "type": "Sub-Skill",
-        "pillar": "Social",
-        "prerequisites": [
-          "habit_practice_leadership"
-        ],
-        "xp_reward": 170,
-        "description": "The ability to guide and motivate others (O*NET 3.1.1.1)."
-      },
-      {
-        "id": "habit_practice_clarity",
-        "name": "Practice Clarity of Thought",
-        "type": "Habit",
-        "pillar": "Mental",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Clarity of Thought."
-      },
-      {
-        "id": "habit_practice_resilience",
-        "name": "Practice Emotional Resilience",
-        "type": "Habit",
-        "pillar": "Mental",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Emotional Resilience."
-      },
-      {
-        "id": "habit_practice_strength",
-        "name": "Practice Physical Strength",
-        "type": "Habit",
-        "pillar": "Physical",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Physical Strength."
-      },
-      {
-        "id": "habit_practice_endurance",
-        "name": "Practice Physical Endurance",
-        "type": "Habit",
-        "pillar": "Physical",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Physical Endurance."
-      },
-      {
-        "id": "habit_practice_agility",
-        "name": "Practice Physical Agility",
-        "type": "Habit",
-        "pillar": "Physical",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Physical Agility."
-      },
-      {
-        "id": "habit_practice_focus",
-        "name": "Practice Concentration",
-        "type": "Habit",
-        "pillar": "Mental",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Concentration."
-      },
-      {
-        "id": "habit_specific_focus",
-        "name": "Perform Concentration Drills",
-        "type": "Habit",
-        "pillar": "Mental",
-        "prerequisites": [],
-        "xp_reward": 15,
-        "description": "Specific exercises to build Concentration."
-      },
-      {
-        "id": "habit_practice_logic",
-        "name": "Practice Logical Reasoning",
-        "type": "Habit",
-        "pillar": "Mental",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Logical Reasoning."
-      },
-      {
-        "id": "habit_practice_python_programming",
-        "name": "Practice Python Programming",
-        "type": "Habit",
-        "pillar": "Career",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Python Programming."
-      },
-      {
-        "id": "habit_practice_empathy",
-        "name": "Practice Social Empathy",
-        "type": "Habit",
-        "pillar": "Social",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Social Empathy."
-      },
-      {
-        "id": "habit_practice_connection",
-        "name": "Practice Social Connection",
-        "type": "Habit",
-        "pillar": "Social",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Social Connection."
-      },
-      {
-        "id": "habit_practice_leadership",
-        "name": "Practice Leadership Skills",
-        "type": "Habit",
-        "pillar": "Social",
-        "prerequisites": [],
-        "xp_reward": 10,
-        "description": "Daily practice to improve Leadership Skills."
-      }
-    ]
-  }
 }

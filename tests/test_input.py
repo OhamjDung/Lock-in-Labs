@@ -1,0 +1,9 @@
+USER_INTERVIEW_V2 = """
+I would do some journaling, and then excercise, and then some vocal practice to improve my communication skills. Then i would love to dedicate some time to volleyball, to coding, and to family and friends.
+
+coding is more of a solitary thing for me. I love creating and being productive, regardless of people are doing it or not. If things were to fail in my code, i would just adapt. I would find the issue, solve the issue if possible, if the problem lies in the foundation then ill change the foundation.
+
+I think connections for me is more functional but its also emotional. Having friends is fun, i get to study with them and stuff and it makes me less lonely, but theyre also good people to ask feedback and play volleyball with.
+
+i would listen first, then i would offer some solutions. Ill also ask if they want me to listen or give advice. When in a team effort i try to help but not be too demanding
+"""
