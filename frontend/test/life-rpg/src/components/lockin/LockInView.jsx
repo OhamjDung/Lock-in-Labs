@@ -1,7 +1,12 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { RotateCcw, Download, Radio, Send, Power, Video, VideoOff, Check, Play, ClipboardList } from 'lucide-react';
+import { RotateCcw, Download, Radio, Send, Power, Video, VideoOff, Check, Play, ClipboardList, Clock, ArrowRight, Plus, Minus, Lock } from 'lucide-react';
 
 export default function LockInView({ availableQuests = [], sendFile, selectedAlgorithm, setSelectedAlgorithm, ditheredPreviewUrl, setDitheredPreviewUrl, fileInputRef, takePhotoRef }) {
+  const [showSetup, setShowSetup] = useState(true);
+  const [lockdownDuration, setLockdownDuration] = useState(60 * 60); // Default 1 hour in seconds
+  const [lockdownTimeLeft, setLockdownTimeLeft] = useState(60 * 60);
+  const [lockdownRunning, setLockdownRunning] = useState(false);
+  
   const videoRef = useRef(null);
   const overlayRef = useRef(null);
   const canvasRef = useRef(null);
@@ -219,6 +224,43 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
     return () => clearInterval(interval);
   }, [timerRunning, timeLeft]);
 
+  // Lockdown countdown timer
+  useEffect(() => {
+    let interval = null;
+    if (lockdownRunning && lockdownTimeLeft > 0) {
+      interval = setInterval(() => setLockdownTimeLeft(t => {
+        if (t <= 1) {
+          setLockdownRunning(false);
+          // Could add an alert or notification here when lockdown ends
+          return 0;
+        }
+        return t - 1;
+      }), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [lockdownRunning, lockdownTimeLeft]);
+
+  const formatLockdownTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) {
+      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const adjustLockdownTime = (minutes) => {
+    const newMinutes = Math.max(1, Math.min(480, minutes)); // 1 minute to 8 hours
+    setLockdownDuration(newMinutes * 60);
+  };
+
+  const handleStartLockdown = () => {
+    setLockdownTimeLeft(lockdownDuration);
+    setLockdownRunning(true);
+    setShowSetup(false);
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
     const secs = (seconds % 60).toString().padStart(2, '0');
@@ -240,7 +282,109 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
           <div className="relative flex-1 bg-[#050505] rounded-[2rem] p-2 md:p-3 shadow-[inset_0_5px_15px_rgba(0,0,0,1),0_0_0_8px_#151515]">
              <div className="relative w-full h-full bg-[#0a100a] rounded-[1.5rem] overflow-hidden shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] ring-1 ring-white/5 flex font-mono">
                 <div className="absolute inset-0 z-50 pointer-events-none mix-blend-overlay bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]"></div>
-                <div className={`w-full h-full grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-0 transition-opacity duration-500 ${powerOn ? 'opacity-100' : 'opacity-0'}`}>
+                
+                {/* Setup Screen */}
+                {showSetup ? (
+                  <div className="w-full h-full flex items-center justify-center p-8 relative z-10">
+                    <div className="max-w-2xl w-full">
+                      <div className="text-center mb-8">
+                        <div className="flex items-center justify-center gap-3 mb-4">
+                          <Lock size={32} className="text-[#39ff14]" />
+                          <h2 className="text-3xl font-bold text-[#39ff14] font-mono tracking-wider">LOCKDOWN INITIALIZATION</h2>
+                        </div>
+                        <p className="text-[#00cc00] text-sm font-mono">Set the duration for your focused work session</p>
+                      </div>
+
+                      <div className="bg-[#001100] border border-[#39ff14]/20 rounded-lg p-8 mb-6">
+                        <div className="text-center mb-6">
+                          <div className="text-[#39ff14] text-6xl font-mono font-bold mb-2 tabular-nums">
+                            {formatLockdownTime(lockdownDuration)}
+                          </div>
+                          <div className="text-[#00cc00] text-xs font-mono uppercase tracking-wider">LOCKDOWN DURATION</div>
+                        </div>
+
+                        <div className="flex justify-center gap-4 mb-6">
+                          <button
+                            onClick={() => adjustLockdownTime(Math.max(1, (lockdownDuration / 60) - 15))}
+                            className="w-12 h-12 bg-[#002200] border border-[#39ff14]/30 rounded flex items-center justify-center text-[#39ff14] hover:bg-[#003300] hover:border-[#39ff14] transition-all"
+                          >
+                            <Minus size={20} />
+                          </button>
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="text-[#39ff14] font-mono text-sm">Adjust Time</div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => adjustLockdownTime(Math.min(480, (lockdownDuration / 60) + 15))}
+                                className="px-3 py-1 bg-[#002200] border border-[#39ff14]/30 rounded text-[#39ff14] text-xs font-mono hover:bg-[#003300] transition-all"
+                              >
+                                +15m
+                              </button>
+                              <button
+                                onClick={() => adjustLockdownTime(Math.min(480, (lockdownDuration / 60) + 30))}
+                                className="px-3 py-1 bg-[#002200] border border-[#39ff14]/30 rounded text-[#39ff14] text-xs font-mono hover:bg-[#003300] transition-all"
+                              >
+                                +30m
+                              </button>
+                              <button
+                                onClick={() => adjustLockdownTime(Math.min(480, (lockdownDuration / 60) + 60))}
+                                className="px-3 py-1 bg-[#002200] border border-[#39ff14]/30 rounded text-[#39ff14] text-xs font-mono hover:bg-[#003300] transition-all"
+                              >
+                                +1h
+                              </button>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => adjustLockdownTime(Math.min(480, (lockdownDuration / 60) + 15))}
+                            className="w-12 h-12 bg-[#002200] border border-[#39ff14]/30 rounded flex items-center justify-center text-[#39ff14] hover:bg-[#003300] hover:border-[#39ff14] transition-all"
+                          >
+                            <Plus size={20} />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-4 gap-2 mb-6">
+                          {[15, 30, 60, 120].map((mins) => (
+                            <button
+                              key={mins}
+                              onClick={() => adjustLockdownTime(mins)}
+                              className={`px-4 py-2 border rounded font-mono text-sm transition-all ${
+                                Math.abs((lockdownDuration / 60) - mins) < 1
+                                  ? 'bg-[#39ff14] text-black border-[#39ff14] font-bold'
+                                  : 'bg-[#002200] text-[#39ff14] border-[#39ff14]/30 hover:bg-[#003300]'
+                              }`}
+                            >
+                              {mins}m
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-center gap-4">
+                        <button
+                          onClick={handleStartLockdown}
+                          className="px-8 py-3 bg-[#39ff14] text-black font-bold font-mono uppercase tracking-wider rounded hover:bg-[#4aff2a] transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(57,255,20,0.5)]"
+                        >
+                          <span>INITIATE LOCKDOWN</span>
+                          <ArrowRight size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Lockdown Countdown - Top Right Corner */}
+                    <div className="absolute top-4 right-4 z-50 bg-[#001100]/90 border border-[#39ff14]/40 rounded px-4 py-2 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Lock size={14} className="text-[#39ff14]" />
+                        <span className="text-[10px] text-[#00cc00] font-mono uppercase tracking-wider">LOCKDOWN</span>
+                      </div>
+                      <div className={`text-2xl font-mono font-bold tabular-nums ${
+                        lockdownTimeLeft < 300 ? 'text-red-400' : 'text-[#39ff14]'
+                      }`}>
+                        {formatLockdownTime(lockdownTimeLeft)}
+                      </div>
+                    </div>
+                    
+                    <div className={`w-full h-full grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-0 transition-opacity duration-500 ${powerOn ? 'opacity-100' : 'opacity-0'}`}>
                     {/* CAMERA */}
                     <div className="relative border-b md:border-r border-[#39ff14]/30 p-6 flex flex-col overflow-hidden group bg-black">
                         <div className="absolute top-3 left-4 text-[10px] font-bold tracking-widest z-20 flex items-center gap-2">
@@ -316,7 +460,9 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                             <button type="submit" className="text-[#005500] hover:text-[#39ff14]"><Send size={14} /></button>
                         </form>
                     </div>
-                </div>
+                    </div>
+                  </>
+                )}
                 {!powerOn && <div className="absolute inset-0 bg-[#080808] z-40 flex items-center justify-center"><div className="w-1 h-1 bg-white rounded-full opacity-50 shadow-[0_0_20px_white] animate-ping duration-[3000ms]"></div></div>}
              </div>
           </div>

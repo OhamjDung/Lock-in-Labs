@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Terminal, Paperclip, PenTool, User, Target, Brain, Swords, ShieldAlert, 
-  Clock, Video, FileText 
+  Clock, Video, FileText, X, Camera 
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import QuestItem from './QuestItem';
@@ -9,6 +9,112 @@ import SkillItem from './SkillItem';
 import TimelineItem from './TimelineItem';
 
 export default function ProfileView({ displayData, ditheredPreviewUrl, fileInputRef, takePhotoRef, sendFile, selectedAlgorithm }) {
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraStream, setCameraStream] = useState(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  // Start camera when modal opens
+  useEffect(() => {
+    if (showCamera) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+    return () => stopCamera();
+  }, [showCamera]);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' } 
+      });
+      setCameraStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+      alert('Unable to access camera. Please check permissions.');
+      setShowCamera(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const capturePhoto = async () => {
+    try {
+      const video = videoRef.current;
+      if (!video) {
+        console.error('Video element not found');
+        return;
+      }
+
+      // Wait for video to be ready
+      if (video.readyState < 2) {
+        console.log('Video not ready, waiting...');
+        await new Promise((resolve) => {
+          const onLoadedMetadata = () => {
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            resolve();
+          };
+          video.addEventListener('loadedmetadata', onLoadedMetadata);
+          // Timeout after 2 seconds
+          setTimeout(resolve, 2000);
+        });
+      }
+
+      if (!video.videoWidth || !video.videoHeight) {
+        console.error('Video dimensions not available:', video.videoWidth, video.videoHeight);
+        alert('Camera not ready. Please wait a moment and try again.');
+        return;
+      }
+
+      // Create or use existing canvas
+      let canvas = canvasRef.current;
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvasRef.current = canvas;
+      }
+      
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw video frame to canvas
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          console.error('Failed to create blob from canvas');
+          alert('Failed to capture photo. Please try again.');
+          return;
+        }
+        
+        try {
+          const file = new File([blob], 'capture.png', { type: 'image/png' });
+          await sendFile(file, selectedAlgorithm);
+          setShowCamera(false);
+          stopCamera();
+        } catch (err) {
+          console.error('Error sending file:', err);
+          alert('Failed to process photo. Please try again.');
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Error capturing photo:', err);
+      alert('Failed to capture photo. Please try again.');
+    }
+  };
   return (
     <div className="flex-1 flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:min-h-[600px] items-stretch perspective-1000">
@@ -45,10 +151,18 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
               {!ditheredPreviewUrl && (
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-auto z-30">
                   <div className="flex items-center gap-2">
-                    <button title="Take photo" onClick={() => { if (takePhotoRef && takePhotoRef.current) takePhotoRef.current(); }} className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600">
+                    <button 
+                      title="Take photo" 
+                      onClick={() => setShowCamera(true)} 
+                      className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
+                    >
                       <Video size={14} />
                     </button>
-                    <button title="Upload photo" onClick={() => fileInputRef.current && fileInputRef.current.click()} className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600">
+                    <button 
+                      title="Upload photo" 
+                      onClick={() => fileInputRef.current && fileInputRef.current.click()} 
+                      className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
+                    >
                       <FileText size={14} />
                     </button>
                   </div>
@@ -118,7 +232,76 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
           </div>
         </div>
       </div>
+
+      {/* Camera Modal */}
+      {showCamera && (
+        <div className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4">
+          <div className="relative bg-stone-900 rounded-lg shadow-2xl max-w-2xl w-full overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b border-stone-700">
+              <h3 className="text-stone-200 font-bold text-lg">Take Photo</h3>
+              <button
+                onClick={() => {
+                  setShowCamera(false);
+                  stopCamera();
+                }}
+                className="text-stone-400 hover:text-stone-200 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Video Preview */}
+            <div className="relative bg-black aspect-video flex items-center justify-center">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+                onLoadedMetadata={() => {
+                  console.log('Video metadata loaded:', videoRef.current?.videoWidth, videoRef.current?.videoHeight);
+                }}
+              />
+              {!cameraStream && (
+                <div className="absolute inset-0 flex items-center justify-center text-stone-400">
+                  <div className="text-center">
+                    <Video size={48} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Starting camera...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="p-4 flex justify-center gap-4 border-t border-stone-700">
+              <button
+                onClick={() => {
+                  setShowCamera(false);
+                  stopCamera();
+                }}
+                className="px-6 py-2 bg-stone-700 text-stone-200 rounded hover:bg-stone-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Capture button clicked, cameraStream:', !!cameraStream, 'video:', !!videoRef.current);
+                  capturePhoto();
+                }}
+                disabled={!cameraStream}
+                className="px-6 py-2 bg-stone-800 text-stone-100 rounded hover:bg-stone-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Camera size={18} />
+                Capture
+              </button>
+            </div>
+          </div>
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
     </div>
   );
 }
-
