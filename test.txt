@@ -5,3 +5,5 @@ I would do some journaling, and then excercise, and then some vocal practice to 
  I think connections for me is more functional but its also emotional. Having friends is fun, i get to study with them and stuff and it makes me less lonely, but theyre also good people to ask feedback and play volleyball with. 
 
   i would listen first, then i would offer some solutions. Ill also ask if they want me to listen or give advice. When in a team effort i try to help but not be too demanding         
+
+  uvicorn backend.api:app --reload --port 8000

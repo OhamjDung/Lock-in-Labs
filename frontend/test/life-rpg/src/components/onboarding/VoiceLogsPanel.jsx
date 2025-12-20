@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mic } from 'lucide-react';
 
-export default function VoiceLogsPanel({ isRecording, onToggleRecording }) {
+const VoiceLogsPanel = ({ isRecording, onToggleRecording }) => {
   return (
     <div className="flex flex-col gap-2 pt-2">
       <div className="flex items-center gap-3">
@@ -31,4 +31,6 @@ export default function VoiceLogsPanel({ isRecording, onToggleRecording }) {
       </div>
     </div>
   );
-}
+};
+
+export default VoiceLogsPanel;
