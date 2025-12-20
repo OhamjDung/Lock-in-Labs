@@ -68,6 +68,44 @@ class Goal(BaseModel):
     needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal.")
     description: Optional[str] = Field(None, description="A brief description of the goal.")
 
+
+# --- Time / Focus Models ---
+class CalendarEventType(str, Enum):
+    # Differentiate between hard deadlines and flexible habit slots
+    HARD_DEADLINE = "HARD_DEADLINE"
+    HABIT_SLOT = "HABIT_SLOT"
+    MEETING = "MEETING"
+
+
+class CalendarEvent(BaseModel):
+    id: str
+    title: str
+    start_time: str  # ISO 8601 datetime
+    end_time: str    # ISO 8601 datetime
+    type: CalendarEventType
+    node_id: Optional[str] = None  # Link to a SkillNode if relevant
+    description: Optional[str] = None
+    is_completed: bool = False
+
+
+class PomodoroSession(BaseModel):
+    id: str
+    start_time: str
+    duration_minutes: int  # e.g., 25
+    task_id: Optional[str] = None # Link to the DailyTask worked on
+    notes: Optional[str] = None
+    completed: bool = True # False if interrupted/abandoned
+
+
+class LockInSession(BaseModel):
+    """Tracks a session where the user activated the 'Sentinel'."""
+    id: str
+    start_time: str
+    end_time: str
+    duration_seconds: int
+    distractions_detected: int = 0 # Number of times phone/people were detected
+    distraction_events: List[Dict[str, str]] = Field(default_factory=list) # Timestamps of distractions
+
 class CharacterSheet(BaseModel):
     user_id: str
     
@@ -93,6 +131,22 @@ class CharacterSheet(BaseModel):
         default_factory=dict,
         description="Per-node habit progress, keyed by SkillNode.id.",
     )
+
+    # 1. Calendar (For the Calendar View)
+    calendar_events: List[CalendarEvent] = Field(default_factory=list)
+
+    # 2. Pomodoro Stats (For XP calculation & productivity tracking)
+    pomodoro_history: List[PomodoroSession] = Field(default_factory=list)
+    pomodoros_total: int = Field(default=0)
+
+    # 3. Lock-In / Focus Stats (For the 'Sentinel' view)
+    lockin_history: List[LockInSession] = Field(default_factory=list)
+    lockin_total_time_seconds: int = Field(default=0)
+    phone_distractions_total: int = Field(default=0)
+
+    # 4. MEMORY / KNOWLEDGE GRAPH (Crucial for the "Smart" AI)
+    # This acts as the AI's notebook about the user.
+    user_facts: List[str] = Field(default_factory=list, description="Persistent facts about the user (e.g., 'Dislikes morning workouts', 'Struggles with SQL joins').")
 
     # Per-day schedule the system has suggested or the user has accepted.
     # Keyed by ISO date (YYYY-MM-DD).

@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 import time
 import cv2
 import numpy as np
@@ -390,6 +390,111 @@ def get_profile(user_id: str):
     if not data:
         raise HTTPException(status_code=404, detail="Profile not found")
     return data
+
+
+@app.post("/api/profile/{user_id}")
+def save_profile_endpoint(user_id: str, payload: dict):
+    """Save/overwrite a user's profile (character_sheet + skill_tree).
+
+    The payload should be a dict matching the structure returned by
+    `load_profile`, typically containing `character_sheet` and optional
+    `skill_tree`. This performs a light pydantic validation of the
+    `character_sheet` before saving.
+    """
+    try:
+        # Optional validation of the nested character_sheet to catch schema errors early
+        cs = payload.get("character_sheet") if isinstance(payload, dict) else None
+        if cs is not None:
+            try:
+                CharacterSheet(**cs)
+            except ValidationError as e:
+                raise HTTPException(status_code=400, detail=f"character_sheet validation error: {e}")
+
+        # Persist using existing storage helper (writes local JSON and attempts Firestore write)
+        from src.storage import save_profile
+        save_profile(payload, user_id)
+        return {"ok": True, "message": "Profile saved"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/profile/{user_id}/calendar")
+def get_profile_calendar(user_id: str):
+    """Return only the `calendar_events` list for a user profile.
+
+    This is a lightweight endpoint useful for the frontend calendar view
+    to avoid fetching the full profile payload.
+    """
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    cs = data.get("character_sheet") or data
+    calendar = cs.get("calendar_events") if isinstance(cs, dict) else None
+    if calendar is None:
+        # Return empty list for clients that expect an array
+        return {"calendar_events": []}
+    return {"calendar_events": calendar}
+
+
+@app.post("/api/profile/{user_id}/calendar")
+def create_calendar_event(user_id: str, event: dict):
+    """Create a single calendar event and save it into the user's CharacterSheet."""
+    data = load_profile(user_id) or {}
+    cs = data.setdefault("character_sheet", {})
+    events = cs.setdefault("calendar_events", [])
+
+    # Try to validate with the pydantic model if available
+    evt_dict = dict(event)
+    try:
+        from src.models import CalendarEvent
+        validated = CalendarEvent(**evt_dict)
+        evt_dict = validated.dict()
+    except Exception:
+        pass
+
+    if not evt_dict.get("id"):
+        import uuid
+        evt_dict["id"] = str(uuid.uuid4())
+
+    # If event with same id exists, replace it
+    for i, e in enumerate(events):
+        if e.get("id") == evt_dict.get("id"):
+            events[i] = evt_dict
+            break
+    else:
+        events.append(evt_dict)
+
+    from src.storage import save_profile
+    save_profile(data, user_id)
+    return {"calendar_event": evt_dict}
+
+
+@app.put("/api/profile/{user_id}/calendar/{event_id}")
+def update_calendar_event(user_id: str, event_id: str, event: dict):
+    """Update a single calendar event by id."""
+    data = load_profile(user_id) or {}
+    cs = data.setdefault("character_sheet", {})
+    events = cs.setdefault("calendar_events", [])
+
+    for i, e in enumerate(events):
+        if e.get("id") == event_id:
+            updated = dict(e)
+            updated.update(event)
+            updated["id"] = event_id
+            try:
+                from src.models import CalendarEvent
+                CalendarEvent(**updated)
+            except Exception:
+                pass
+            events[i] = updated
+            from src.storage import save_profile
+            save_profile(data, user_id)
+            return {"calendar_event": updated}
+
+    raise HTTPException(status_code=404, detail="Event not found")
 
 
 @app.websocket("/ws/voice")

@@ -50,74 +50,21 @@ import {
   Pause
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import TypewriterText from './components/onboarding/TypewriterText';
+import VoiceLogsPanel from './components/onboarding/VoiceLogsPanel';
+import CalendarView from './components/calendar/CalendarView';
+import QuestItem from './components/dashboard/QuestItem';
+import SkillItem from './components/dashboard/SkillItem';
+import TimelineItem from './components/dashboard/TimelineItem';
 
 // --- ONBOARDING COMPONENTS ---
 
-const TypewriterText = ({ text, speed = 30, onComplete }) => {
-  const [index, setIndex] = useState(0);
-  const hasCompletedRef = useRef(false);
-
-  // Reset index when text changes
-  useEffect(() => {
-    setIndex(0);
-    hasCompletedRef.current = false;
-  }, [text]);
-
-  useEffect(() => {
-    if (index >= text.length) {
-      if (!hasCompletedRef.current && onComplete) {
-        hasCompletedRef.current = true;
-        console.debug('[TypewriterText] completed text:', text.slice(0, 40), '...');
-        onComplete();
-      }
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      setIndex((prev) => prev + 1);
-    }, speed);
-
-    return () => clearTimeout(timeoutId);
-  }, [index, text, speed, onComplete]);
-
-  const displayedText = text.slice(0, index);
-  return <span className="whitespace-pre-wrap">{displayedText}</span>;
-};
+// `TypewriterText` and `VoiceLogsPanel` have been extracted to
+// `src/components/onboarding/TypewriterText.jsx` and
+// `src/components/onboarding/VoiceLogsPanel.jsx` and are imported above.
 
 const architectOpening =
   "Listen kid, I've seen a lot of people come through that door. Most of 'em don't know what they want. But you? You got that look. The look of someone who's gotta find their way outta this concrete jungle. So here's what I need to know: in some perfect future, when that alarm clock goes off and you're finally livin' the dream—what's the first thing you do?";
-
-const VoiceLogsPanel = ({ isRecording, onToggleRecording }) => {
-  return (
-    <div className="flex flex-col gap-2 pt-2">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onToggleRecording}
-          className={`relative w-12 h-12 rounded-full flex items-center justify-center border border-stone-900 bg-stone-900 text-[#e8dcc5] shadow-lg transition-transform ${
-            isRecording ? "scale-105" : ""
-          }`}
-        >
-          <Mic size={20} className={isRecording ? "text-red-400" : "text-[#e8dcc5]"} />
-          {isRecording && (
-            <span className="absolute -top-2 -right-2 h-2 w-2 rounded-full bg-red-500 animate-ping" />
-          )}
-        </button>
-        <div className="flex flex-col">
-          <span className="text-[11px] font-mono text-stone-700 uppercase tracking-wide">
-            {isRecording ? "Recording..." : "Hold to record"}
-          </span>
-          <span className="text-[11px] text-stone-600">
-            Press the mic instead of typing. Audio streams live inside this case file.
-          </span>
-        </div>
-      </div>
-      <div className="text-[10px] text-stone-500">
-        (Voice Logs plays the Architect's replies out loud using the /ws/voice channel.)
-      </div>
-    </div>
-  );
-};
 
 const OnboardingModule = ({ onFinish }) => {
   const [step, setStep] = useState(1); // 1: Login, 2: Mode Selection, 3: Transcript
@@ -1130,146 +1077,9 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
     );
 };
 
-// --- SUB-COMPONENTS (Dashboard) ---
-const QuestItem = ({ quest }) => (
-  <div className="flex flex-col p-4 border-b border-[#d4c5a9] last:border-0 hover:bg-[#dfd3bc] transition-colors cursor-pointer group relative">
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-3">
-        <div className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all ${quest.status === 'active' ? 'border-stone-500 group-hover:border-stone-800' : 'border-stone-300 opacity-50'}`}>
-           {quest.status === 'active' && <div className="w-2 h-2 bg-stone-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />}
-        </div>
-        <span className={`text-sm font-bold text-stone-900 group-hover:text-black transition-colors ${quest.status === 'active' ? 'underline decoration-stone-800/40 decoration-2 underline-offset-2' : 'text-stone-500'}`}>
-            {quest.name}
-        </span>
-      </div>
-      <div className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${quest.status === 'active' ? 'text-stone-700 bg-[#d4c5a9]/40 border-[#c7bba4]' : 'text-stone-400 bg-stone-100 border-stone-200'}`}>
-        {quest.status === 'active' ? 'ACTIVE' : 'PENDING'}
-      </div>
-    </div>
-    <div className="pl-7 text-xs text-stone-700 leading-relaxed font-serif italic opacity-90">{quest.description}</div>
-  </div>
-);
-
-const SkillItem = ({ skill }) => (
-  <div className="flex items-center justify-between p-2 bg-[#dfd3bc]/50 rounded border border-[#d4c5a9] mb-2 shadow-sm mr-1">
-    <div className="flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600">
-        {skill.pillar === 'CAREER' && <Briefcase size={14} />}
-        {skill.pillar === 'PHYSICAL' && <Activity size={14} />}
-        {skill.pillar === 'MENTAL' && <Brain size={14} />}
-        {skill.pillar === 'SOCIAL' && <Users size={14} />}
-      </div>
-      <div>
-        <div className="text-xs font-bold text-stone-900">{skill.name}</div>
-        <div className="text-[10px] text-stone-600 font-mono">{skill.pillar} • LVL {skill.level}</div>
-      </div>
-    </div>
-    <div className="w-16">
-      <div className="h-1.5 bg-[#d4c5a9] rounded-full overflow-hidden border border-[#c7bba4]">
-        <div className="h-full bg-stone-700" style={{ width: `${(skill.level / 10) * 100}%` }} />
-      </div>
-    </div>
-  </div>
-);
-
-const TimelineItem = ({ item }) => (
-  <div className="flex flex-col items-center min-w-[100px] relative group">
-    <div className="text-[10px] font-mono text-stone-600 mb-2 font-bold">{item.time}</div>
-    <div className={`w-3 h-3 rounded-full border-2 z-10 transition-all ${
-      item.status === 'completed' ? 'border-stone-800 bg-stone-800' : 
-      item.status === 'upcoming' ? 'border-stone-500 bg-[#e8dcc5]' : 'border-[#d4c5a9] bg-[#d4c5a9]'
-    }`} />
-    <div className="absolute top-[21px] left-[50%] w-full h-0.5 bg-[#d4c5a9] -z-0" /> 
-    <div className="mt-3 text-xs font-medium text-center text-stone-800 group-hover:text-black transition-colors px-2 bg-[#f4e8d4] backdrop-blur-sm rounded border border-[#d4c5a9] shadow-sm">
-      {item.event}
-    </div>
-  </div>
-);
-
-const CalendarView = () => {
-  const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
-  const startOffset = 3; // Starts on Wednesday for example purposes
-
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 animate-in fade-in zoom-in-95 duration-500">
-      <div className="bg-[#e8dcc5] w-full max-w-5xl rounded-sm shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] border border-[#d4c5a9] relative overflow-hidden flex flex-col min-h-[700px] rotate-1 hover:rotate-0 transition-transform duration-500">
-        
-        {/* Texture Overlay */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-repeat mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
-
-        {/* Header */}
-        <div className="bg-[#dfd3bc]/50 border-b-2 border-stone-800 p-6 flex justify-between items-center relative z-10">
-          <div>
-            <h2 className="text-3xl font-black text-stone-900 uppercase tracking-tighter">Mission Schedule</h2>
-            <div className="text-xs font-mono text-stone-600 tracking-widest mt-1">DECEMBER 2025 // SECTOR 4</div>
-          </div>
-          <div className="flex items-center gap-4">
-             <div className="bg-stone-800 text-[#e8dcc5] px-4 py-2 rounded-sm font-bold font-mono text-sm shadow-md">
-                WEEK 51
-             </div>
-             <div className="w-12 h-12 border-2 border-red-900/30 rounded-full flex items-center justify-center -rotate-12">
-                <div className="text-[10px] font-black text-red-900/50 text-center leading-none">HIGH<br/>PRIORITY</div>
-             </div>
-          </div>
-        </div>
-
-        {/* Calendar Grid */}
-        <div className="flex-1 p-6 relative z-10">
-          <div className="grid grid-cols-7 gap-4 h-full">
-            {/* Day Headers */}
-            {daysOfWeek.map(day => (
-              <div key={day} className="text-center font-bold text-stone-500 text-xs tracking-widest border-b border-stone-400 pb-2 mb-2">
-                {day}
-              </div>
-            ))}
-
-            {/* Empty Slots */}
-            {Array.from({ length: startOffset }).map((_, i) => (
-              <div key={`empty-${i}`} className="bg-transparent" />
-            ))}
-
-            {/* Days */}
-            {daysInMonth.map(day => {
-              const isToday = day === 18; // Mock today
-              const hasEvent = [2, 5, 12, 15, 18, 22, 25].includes(day);
-              const isCompleted = day < 18 && hasEvent;
-              
-              return (
-                <div key={day} className={`
-                  relative border border-[#c7bba4] rounded-sm p-2 min-h-[80px] transition-all hover:bg-white/20 group
-                  ${isToday ? 'bg-white/40 ring-2 ring-stone-800 shadow-lg' : 'bg-[#dcd0b9]/30'}
-                `}>
-                  <div className={`font-mono text-sm font-bold ${isToday ? 'text-stone-900' : 'text-stone-500'}`}>{day}</div>
-                  
-                  {hasEvent && (
-                    <div className={`mt-2 p-1.5 rounded-sm border text-[9px] font-bold leading-tight shadow-sm
-                      ${isCompleted ? 'bg-stone-800 text-[#e8dcc5] border-stone-900 line-through opacity-60' : 'bg-[#f7e6a1] text-amber-900 border-amber-900/20'}
-                    `}>
-                      {isCompleted ? 'COMPLETED' : 'TRAINING OP'}
-                    </div>
-                  )}
-
-                  {isToday && (
-                    <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Footer Notes */}
-        <div className="p-4 border-t border-[#c7bba4] bg-[#dcd0b9]/20 relative z-10">
-           <div className="font-handwriting text-stone-600 text-lg rotate-[-1deg] ml-4">
-             * Note: Annual review scheduled for the 30th. Prepare field reports.
-           </div>
-        </div>
-
-      </div>
-    </div>
-  );
-};
+// Calendar and dashboard subcomponents have been extracted into
+// `src/components/calendar/CalendarView.jsx` and
+// `src/components/dashboard/*`. They are imported at the top of this file.
 
 const LockInView = ({ availableQuests = [], sendFile, selectedAlgorithm, setSelectedAlgorithm, ditheredPreviewUrl, setDitheredPreviewUrl, fileInputRef, takePhotoRef }) => {
   const videoRef = useRef(null);
@@ -1568,8 +1378,8 @@ const LockInView = ({ availableQuests = [], sendFile, selectedAlgorithm, setSele
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-4 h-[calc(100vh-100px)] bg-[#1a1a1a]">
-       <div className="relative bg-[#dcdcdc] p-6 md:p-8 rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.4),inset_0_-5px_10px_rgba(0,0,0,0.1)] w-full max-w-6xl h-full flex flex-col border-b-[12px] border-r-[12px] border-[#b0b0b0] transition-all">
+    <div className="fixed left-0 right-0 top-16 bottom-0 flex items-stretch justify-center p-0 bg-transparent z-40">
+       <div className="relative bg-[#dcdcdc] p-6 md:p-8 rounded-none shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.4),inset_0_-5px_10px_rgba(0,0,0,0.1)] w-full h-full flex flex-col border-b-[12px] border-r-[12px] border-[#b0b0b0] transition-all overflow-hidden">
           {/* Top Branding / Vents */}
           <div className="w-full flex justify-between items-center mb-4 px-4">
               <div className="flex gap-2">
@@ -1745,6 +1555,7 @@ export default function LifeRPGInterface() {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('FloydSteinberg');
   const fileInputRef = useRef(null);
   const takePhotoRef = useRef(null); // LockInView will register its capture function here
+  const isLockIn = activeTab === 'lockin';
 
   const sendFile = async (file, algorithmOverride) => {
     try {
@@ -1910,7 +1721,7 @@ export default function LifeRPGInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-900 text-stone-800 font-sans selection:bg-yellow-200 overflow-x-hidden relative">
+    <div className={`min-h-screen font-sans selection:bg-yellow-200 overflow-x-hidden relative transition-colors duration-500 ${isLockIn ? 'bg-[#050505] text-[#39ff14]' : 'bg-stone-900 text-stone-800'}`}>
       
       {/* CSS For Scrollbar & Shapes */}
       <style>{`
@@ -1944,7 +1755,7 @@ export default function LifeRPGInterface() {
       </div>
 
       {/* HEADER */}
-      <header className="h-16 border-b border-white/10 flex items-center justify-between px-4 md:px-8 bg-stone-900/40 backdrop-blur-md fixed w-full z-50 top-0 shadow-lg">
+      <header className={`h-16 border-b flex items-center justify-between px-4 md:px-8 fixed w-full z-50 top-0 shadow-lg transition-all duration-500 ${isLockIn ? 'bg-black/90 border-[#39ff14]/30 backdrop-blur-none' : 'bg-stone-900/40 border-white/10 backdrop-blur-md'}`}>
         <div className="flex items-center gap-4">
            <div className="text-stone-100 font-black tracking-tighter flex items-center gap-2 text-xl drop-shadow-md">
              <div className="bg-stone-100 text-stone-900 p-1 rounded-sm"><Activity size={16} /></div> 
@@ -1965,7 +1776,7 @@ export default function LifeRPGInterface() {
           <button onClick={() => setActiveTab('calendar')} className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${activeTab === 'calendar' ? 'bg-[#e8dcc5] text-stone-900 shadow-lg' : 'text-stone-300 hover:text-white hover:bg-white/10'}`}>
             <Calendar size={12} /> Calendar
           </button>
-          <button onClick={() => setActiveTab('lockin')} className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${activeTab === 'lockin' ? 'bg-[#e8dcc5] text-stone-900 shadow-lg' : 'text-stone-300 hover:text-white hover:bg-white/10'}`}>
+          <button onClick={() => setActiveTab('lockin')} className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 ${activeTab === 'lockin' ? (isLockIn ? 'bg-[#39ff14] text-black shadow-[0_0_10px_#39ff14]' : 'bg-[#e8dcc5] text-stone-900 shadow-lg') : (isLockIn ? 'text-[#005500] hover:text-[#39ff14]' : 'text-stone-300 hover:text-white hover:bg-white/10')}`}>
             <Lock size={12} /> Lock-In
           </button>
         </nav>
