@@ -9,3 +9,5 @@ I would do some journaling, and then excercise, and then some vocal practice to 
   uvicorn backend.api:app --reload --port 8000
 
   fQmr8dTaOQq116mo2X7F
+
+  i want to become a data analyst, doing data visualization
