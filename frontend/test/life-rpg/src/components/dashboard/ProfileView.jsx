@@ -102,7 +102,7 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
         
         try {
           const file = new File([blob], 'capture.png', { type: 'image/png' });
-          await sendFile(file, selectedAlgorithm);
+          await sendFile(file, selectedAlgorithm, true); // Save to Firebase
           setShowCamera(false);
           stopCamera();
         } catch (err) {
@@ -148,31 +148,29 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
               )}
               <div className="absolute top-4 right-4 border-4 border-double border-emerald-700 text-emerald-800 px-2 py-1 font-black text-sm -rotate-12 opacity-70 rounded-sm bg-emerald-600/10 mix-blend-multiply z-20">ACTIVE</div>
 
-              {!ditheredPreviewUrl && (
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-auto z-30">
-                  <div className="flex items-center gap-2">
-                    <button 
-                      title="Take photo" 
-                      onClick={() => setShowCamera(true)} 
-                      className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
-                    >
-                      <Video size={14} />
-                    </button>
-                    <button 
-                      title="Upload photo" 
-                      onClick={() => fileInputRef.current && fileInputRef.current.click()} 
-                      className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
-                    >
-                      <FileText size={14} />
-                    </button>
-                  </div>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                    const f = e.target.files && e.target.files[0];
-                    if (f) await sendFile(f, selectedAlgorithm);
-                    e.target.value = null;
-                  }} />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 pointer-events-auto z-30">
+                <div className="flex items-center gap-2">
+                  <button 
+                    title="Take photo" 
+                    onClick={() => setShowCamera(true)} 
+                    className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
+                  >
+                    <Video size={14} />
+                  </button>
+                  <button 
+                    title="Upload photo" 
+                    onClick={() => fileInputRef.current && fileInputRef.current.click()} 
+                    className="w-8 h-8 rounded-full bg-[#e8dcc5] border border-[#d4c5a9] flex items-center justify-center text-stone-600 hover:bg-[#dfd3bc] transition-colors"
+                  >
+                    <FileText size={14} />
+                  </button>
                 </div>
-              )}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  const f = e.target.files && e.target.files[0];
+                  if (f) await sendFile(f, selectedAlgorithm, true); // Save to Firebase
+                  e.target.value = null;
+                }} />
+              </div>
             </div>
             <div className="mt-4 px-2 pb-2 text-center relative z-10">
               <h1 className="text-4xl font-serif font-bold text-stone-900 tracking-tight uppercase">{displayData.user_id}</h1>

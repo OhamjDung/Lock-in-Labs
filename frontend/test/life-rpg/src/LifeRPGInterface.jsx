@@ -26,7 +26,7 @@ export default function LifeRPGInterface() {
   const takePhotoRef = useRef(null); // LockInView will register its capture function here
   const isLockIn = activeTab === 'lockin';
 
-  const sendFile = async (file, algorithmOverride) => {
+  const sendFile = async (file, algorithmOverride, saveToFirebase = false) => {
     try {
       const alg = algorithmOverride || selectedAlgorithm || 'FloydSteinberg';
       const form = new FormData();
@@ -35,15 +35,38 @@ export default function LifeRPGInterface() {
       const proto = window.location.protocol === 'https:' ? 'https' : 'http';
       const host = window.location.hostname || '127.0.0.1';
       const port = 8000;
-      const url = `${proto}://${host}:${port}/api/dither`;
+      
+      // Use avatar endpoint if saving to Firebase, otherwise just dither
+      const endpoint = saveToFirebase ? 'avatar' : 'dither';
+      const user_id = characterSheet?.user_id || 'user_01';
+      const url = saveToFirebase 
+        ? `${proto}://${host}:${port}/api/profile/${user_id}/avatar`
+        : `${proto}://${host}:${port}/api/dither`;
+      
       const resp = await fetch(url, { method: 'POST', body: form });
       if (!resp.ok) {
-        console.error('dither failed', resp.statusText);
+        console.error(`${endpoint} failed`, resp.statusText);
         return;
       }
-      const blob = await resp.blob();
-      const obj = URL.createObjectURL(blob);
-      setDitheredPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return obj; });
+      
+      if (saveToFirebase) {
+        const data = await resp.json();
+        if (data.avatar_url) {
+          setDitheredPreviewUrl(data.avatar_url);
+          // Reload profile to get updated avatar_url
+          const profileRes = await fetch(`${proto}://${host}:${port}/api/profile/${user_id}`);
+          if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            if (profileData.character_sheet) {
+              setCharacterSheet(profileData.character_sheet);
+            }
+          }
+        }
+      } else {
+        const blob = await resp.blob();
+        const obj = URL.createObjectURL(blob);
+        setDitheredPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return obj; });
+      }
     } catch (e) {
       console.error('sendFile error', e);
     }
@@ -77,6 +100,10 @@ export default function LifeRPGInterface() {
         const data = await res.json();
         if (data.character_sheet) {
           setCharacterSheet(data.character_sheet);
+          // Load avatar URL if available
+          if (data.character_sheet.avatar_url) {
+            setDitheredPreviewUrl(data.character_sheet.avatar_url);
+          }
         }
         if (data.skill_tree) {
           setSkillTree(data.skill_tree);

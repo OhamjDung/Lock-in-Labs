@@ -152,7 +152,7 @@ def _bayer_dither(pil_img, palette, order=8):
 
 from src.models import CharacterSheet, ConversationState
 from src.onboarding.agent import ArchitectAgent
-from src.storage import load_profile
+from src.storage import load_profile, save_profile
 
 
 class Message(BaseModel):
@@ -261,6 +261,73 @@ async def dither_image(
         raise HTTPException(status_code=500, detail=f"Dithering failed: {e}")
 
     return StreamingResponse(out_buf, media_type="image/png")
+
+
+@app.post("/api/profile/{user_id}/avatar")
+async def save_profile_avatar(
+    user_id: str,
+    file: UploadFile = File(...),
+    algorithm: str = Form("FloydSteinberg"),
+):
+    """Dither an uploaded image and save it to Firebase Storage, then update the user's profile.
+    
+    Returns the public URL of the saved image.
+    """
+    try:
+        # First, dither the image
+        data = await file.read()
+        
+        def _process(img_bytes, alg):
+            pil = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            palette = [tuple(c) for c in CUSTOM_PALETTE_RGB]
+            
+            if alg == "Bayer":
+                dithered_img = _bayer_dither(pil, palette, order=8)
+            elif alg == "Atkinson":
+                dithered_img = _atkinson_dither(pil, palette)
+            elif alg == "Sierra":
+                dithered_img = _sierra3_dither(pil, palette)
+            else:
+                dithered_img = _floyd_steinberg_dither(pil, palette)
+            
+            out = io.BytesIO()
+            dithered_img.save(out, format="PNG")
+            out.seek(0)
+            return out.getvalue()
+        
+        dithered_bytes = await run_in_threadpool(_process, data, algorithm)
+        
+        # Upload to Firebase Storage
+        try:
+            from firebase_admin import storage
+            bucket = storage.bucket()
+            blob_name = f"avatars/{user_id}/profile.png"
+            blob = bucket.blob(blob_name)
+            blob.upload_from_string(dithered_bytes, content_type="image/png")
+            blob.make_public()
+            image_url = blob.public_url
+        except Exception as e:
+            # If Firebase Storage fails, we can still return the dithered image
+            # and save a data URL or base64 in Firestore
+            print(f"[Firebase Storage] Failed to upload avatar: {e}")
+            # Fallback: convert to base64 data URL
+            b64_data = base64.b64encode(dithered_bytes).decode('utf-8')
+            image_url = f"data:image/png;base64,{b64_data}"
+        
+        # Update the user's profile with the avatar URL
+        try:
+            profile_data = load_profile(user_id) or {}
+            cs = profile_data.setdefault("character_sheet", {})
+            cs["avatar_url"] = image_url
+            
+            save_profile(profile_data, user_id)
+        except Exception as e:
+            print(f"[Profile] Failed to update avatar URL: {e}")
+        
+        return {"avatar_url": image_url, "ok": True}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save avatar: {e}")
 
 
 @app.websocket("/ws/phone-detect")
