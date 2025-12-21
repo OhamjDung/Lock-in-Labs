@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 import asyncio
 import base64
@@ -163,12 +163,14 @@ class Message(BaseModel):
 class ArchitectRequest(BaseModel):
     history: List[Message]
     user_input: str
+    phase: str = "phase1"  # Current phase: phase1, phase2, phase3, phase3.5, phase4, phase5
+    pending_debuffs: List[Dict[str, str]] = []  # Debuffs waiting for confirmation
 
 
 load_dotenv()
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "GorLj2SsI4u2JqL58gAA")
+ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "kqVT88a5QfII1HNAEPTJ") 
 ELEVENLABS_MODEL_ID = os.getenv("ELEVENLABS_MODEL_ID", "eleven_turbo_v2_5")
 
 
@@ -416,6 +418,9 @@ def architect_reply(payload: ArchitectRequest):
     frontend can drive the noir onboarding chat.
     """
 
+    from src.onboarding.agent import CriticAgent
+    from src.models import PendingDebuff
+    
     sheet = CharacterSheet(user_id="user_01")
     state = ConversationState(
         missing_fields=[
@@ -427,7 +432,13 @@ def architect_reply(payload: ArchitectRequest):
             "stats_social",
         ],
         current_topic="Intro",
+        phase=payload.phase,
     )
+    
+    # Convert pending debuffs from frontend to PendingDebuff objects
+    state.pending_debuffs = [
+        PendingDebuff(**d) for d in payload.pending_debuffs
+    ]
 
     # Seed conversation history with what the frontend has seen so far.
     state.conversation_history = [
@@ -435,14 +446,184 @@ def architect_reply(payload: ArchitectRequest):
     ]
 
     architect = ArchitectAgent()
+    critic = CriticAgent()
 
-    # For now we ignore Critic feedback and let the Architect drive the turn.
+    # Process ALL previous user messages through Critic to build up the character sheet
+    # This ensures progress is calculated correctly based on accumulated goals
+    for msg in state.conversation_history:
+        if msg["role"] == "user":
+            sheet, _, _, _ = critic.analyze(
+                msg["content"], 
+                sheet, 
+                state.conversation_history[:state.conversation_history.index(msg) + 1],
+                state.phase
+            )
+
+    # Determine current phase based on sheet state
+    defined_pillars = len(sheet.goals)
+    total_pillars = 4
+    all_goals_defined = defined_pillars >= total_pillars
+    
+    # Check if all goals have at least 2 quests (to assess user skill level)
+    all_goals_have_quests = all_goals_defined and all(
+        len(g.current_quests) >= 2 for g in sheet.goals.values()
+    )
+    
+    # Phase transition logic
+    if state.phase == "phase1" and all_goals_defined:
+        state.phase = "phase2"
+    elif state.phase == "phase2" and all_goals_have_quests:
+        # Check if there are pending debuffs
+        if len(state.pending_debuffs) > 0:
+            state.phase = "phase3"
+        else:
+            state.phase = "phase3.5"
+    elif state.phase == "phase3" and len(state.pending_debuffs) == 0:
+        state.phase = "phase3.5"
+
+    # Handle debuff confirmation in phase3
+    if state.phase == "phase3" and len(state.pending_debuffs) > 0:
+        # Check if user is confirming/rejecting debuffs
+        user_input_lower = payload.user_input.lower()
+        confirmed_debuffs = []
+        for debuff in state.pending_debuffs[:]:  # Copy list to iterate safely
+            debuff_name_lower = debuff.name.lower()
+            # Check for confirmation patterns
+            if any(word in user_input_lower for word in ["yes", "yeah", "yep", "correct", "true", "right", debuff_name_lower]):
+                if debuff_name_lower in user_input_lower or any(
+                    confirm_word in user_input_lower for confirm_word in ["yes", "yeah", "yep", "correct", "true", "right"]
+                ):
+                    # User confirmed this debuff
+                    if debuff.name not in sheet.debuffs:
+                        sheet.debuffs.append(debuff.name)
+                    confirmed_debuffs.append(debuff)
+            # Check for rejection patterns
+            elif any(word in user_input_lower for word in ["no", "nope", "not", "wrong", "incorrect", "false"]):
+                if debuff_name_lower in user_input_lower or any(
+                    reject_word in user_input_lower for reject_word in ["no", "nope", "not", "wrong", "incorrect", "false"]
+                ):
+                    # User rejected this debuff - remove from queue
+                    confirmed_debuffs.append(debuff)
+        
+        # Remove confirmed/rejected debuffs from pending queue
+        for debuff in confirmed_debuffs:
+            if debuff in state.pending_debuffs:
+                state.pending_debuffs.remove(debuff)
+    
+    # Process current user input through Critic to extract data
     history_plus_user = state.conversation_history + [
         {"role": "user", "content": payload.user_input}
     ]
-    reply = architect.generate_response(history_plus_user, sheet)
+    sheet, feedback, critic_analysis, new_pending_debuffs = critic.analyze(
+        payload.user_input, 
+        sheet, 
+        history_plus_user,
+        state.phase
+    )
+    
+    # Add new pending debuffs to the queue
+    for debuff in new_pending_debuffs:
+        # Check if already in queue or already confirmed
+        if debuff["name"] not in sheet.debuffs and not any(
+            d.name == debuff["name"] for d in state.pending_debuffs
+        ):
+            state.pending_debuffs.append(PendingDebuff(**debuff))
+    
+    # Convert pending debuffs to dict for response
+    pending_debuffs_dict = [
+        {"name": d.name, "evidence": d.evidence, "confidence": d.confidence}
+        for d in state.pending_debuffs
+    ]
+    
+    # Generate Architect response with Critic feedback
+    reply, architect_thinking = architect.generate_response(
+        history_plus_user, 
+        sheet, 
+        feedback,
+        ask_for_prioritization=(state.phase == "phase3.5" and not state.goals_prioritized),
+        phase=state.phase,
+        pending_debuffs=pending_debuffs_dict
+    )
 
-    return {"reply": reply}
+    return {
+        "reply": reply,
+        "phase": state.phase,
+        "pending_debuffs": pending_debuffs_dict,
+        "debug": {
+            "critic_analysis": critic_analysis,
+            "architect_thinking": architect_thinking
+        }
+    }
+
+
+class ExtractProfileRequest(BaseModel):
+    history: List[Message]
+    user_id: str
+
+
+@app.post("/api/onboarding/extract-profile")
+def extract_profile(payload: ExtractProfileRequest):
+    """Extract character sheet and skill tree from onboarding conversation history.
+    
+    This processes the full conversation through the Critic agent to extract
+    structured character sheet data, then generates the skill tree.
+    Returns the complete profile ready to be saved.
+    
+    PHASE 4: Runs planners to generate needed_quests
+    PHASE 5: Generates skill tree from needed_quests
+    """
+    try:
+        from src.onboarding.agent import CriticAgent
+        from src.skill_tree.generator import SkillTreeGenerator
+        from src.planners import get_planner
+        
+        # Initialize character sheet with the user's Firebase Auth UID
+        sheet = CharacterSheet(user_id=payload.user_id)
+        critic = CriticAgent()
+        
+        # Process conversation history through Critic to extract character sheet data
+        conversation_history = [
+            {"role": m.role, "content": m.content} for m in payload.history
+        ]
+        
+        # PHASE 1: Extract goals
+        phase = "phase1"
+        for i, msg in enumerate(conversation_history):
+            if msg["role"] == "user":
+                history_up_to_now = conversation_history[:i+1]
+                sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
+                # Check if we should move to phase 2
+                if len(sheet.goals) >= 4:
+                    phase = "phase2"
+        
+        # PHASE 2: Extract current_quests
+        phase = "phase2"
+        for i, msg in enumerate(conversation_history):
+            if msg["role"] == "user":
+                history_up_to_now = conversation_history[:i+1]
+                sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
+        
+        # PHASE 4: Run planners to generate needed_quests
+        for pillar, goal in sheet.goals.items():
+            planner = get_planner(pillar.value)
+            needed_skill_nodes = planner.generate_roadmap(
+                north_star=goal.name,
+                current_quests=goal.current_quests,
+                debuffs=sheet.debuffs
+            )
+            goal.needed_quests = [node.name for node in needed_skill_nodes]
+        
+        # PHASE 5: Generate skill tree from needed_quests
+        skill_tree_generator = SkillTreeGenerator()
+        skill_tree = skill_tree_generator.generate_skill_tree(sheet)
+        
+        # Return the complete profile
+        return {
+            "character_sheet": sheet.model_dump(),
+            "skill_tree": skill_tree.model_dump()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to extract profile: {str(e)}")
 
 
 @app.get("/api/profile/{user_id}")
@@ -613,6 +794,7 @@ async def voice_ws(websocket: WebSocket):
                     "voice_settings": {
                         "stability": 0.5,
                         "similarity_boost": 0.8,
+                        "speed": 1.1,  # Max speed (20% faster) - maintains pitch (ElevenLabs limit: 0.7-1.2)
                     },
                     # Request MP3 output and let the browser decode it via
                     # AudioContext.decodeAudioData, which is more robust than

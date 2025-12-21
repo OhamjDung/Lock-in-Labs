@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowRight, Mic, Keyboard, Fingerprint, Send, ChevronRight, User, Lock } from 'lucide-react';
+import { ArrowRight, Mic, Keyboard, Fingerprint, Send, ChevronRight, User, Lock, Mail } from 'lucide-react';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../../config/firebase';
 import TypewriterText from './TypewriterText';
 import VoiceLogsPanel from './VoiceLogsPanel';
 
@@ -8,8 +11,11 @@ const architectOpening =
 
 const OnboardingModule = ({ onFinish }) => {
   const [step, setStep] = useState(1);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [mode, setMode] = useState(null);
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -19,15 +25,110 @@ const OnboardingModule = ({ onFinish }) => {
     { role: 'assistant', content: architectOpening },
   ]);
   const [isSending, setIsSending] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const playbackContextRef = useRef(null);
   const ttsSocketRef = useRef(null);
   const introSpokenRef = useRef(false);
   const speechRecognitionRef = useRef(null);
+  const chatScrollRef = useRef(null);
 
-  const handleLogin = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
-    if (username.trim() && password.trim()) {
+    setAuthError('');
+    
+    if (!email.trim() || !password.trim()) {
+      setAuthError('Email and password are required');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setAuthError('Please enter a valid email address');
+      return;
+    }
+
+    if (password.length < 6) {
+      setAuthError('Password must be at least 6 characters');
+      return;
+    }
+
+    setIsAuthenticating(true);
+
+    try {
+      let userCredential;
+      
+      if (isSignUp) {
+        // Sign up: Create user in Firebase Auth
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Create user profile in Firestore using the Auth UID
+        await setDoc(doc(db, "users", user.uid), {
+          email: email,
+          username: email.split('@')[0], // Use email prefix as username
+          createdAt: new Date().toISOString(),
+        });
+
+        console.log('[Auth] User created:', user.uid);
+      } else {
+        // Sign in: Authenticate with Firebase Auth
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Check if user profile exists in Firestore (with error handling for network issues)
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!userDoc.exists()) {
+            // Create profile if it doesn't exist (for legacy users)
+            await setDoc(doc(db, "users", user.uid), {
+              email: email,
+              username: email.split('@')[0],
+              createdAt: new Date().toISOString(),
+            });
+          }
+        } catch (firestoreError) {
+          // Log but don't block authentication if Firestore connection fails
+          // This can happen with network issues (QUIC protocol errors, etc.)
+          console.warn('[Auth] Firestore check failed (non-critical):', firestoreError);
+          // User is still authenticated, we'll create the profile later if needed
+        }
+
+        console.log('[Auth] User signed in:', user.uid);
+      }
+
+      // Authentication successful, proceed to mode selection
       setStep(2);
+    } catch (error) {
+      console.error('[Auth] Error:', error);
+      let errorMessage = 'Authentication failed';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email is already registered. Try signing in instead.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password is too weak.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later.';
+          break;
+        default:
+          errorMessage = error.message || 'Authentication failed. Please try again.';
+      }
+      
+      setAuthError(errorMessage);
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -46,6 +147,24 @@ const OnboardingModule = ({ onFinish }) => {
   useEffect(() => {
     console.debug('[Onboarding] step/mode changed:', step, mode);
   }, [step, mode]);
+
+  // Reset messages when starting a new chat session to ensure fresh conversation
+  useEffect(() => {
+    // When entering step 3 (chat), ensure we start with just the opening message
+    if (step === 3 && mode) {
+      // Check if messages array is corrupted (has more than just the opening, or wrong opening)
+      const hasOnlyOpening = messages.length === 1 && 
+                             messages[0].role === 'assistant' && 
+                             messages[0].content === architectOpening;
+      
+      if (!hasOnlyOpening) {
+        console.warn('[Onboarding] Resetting messages to ensure fresh conversation');
+        setMessages([{ role: 'assistant', content: architectOpening }]);
+        setOnboardingProgress(0);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, mode]); // Only run when step or mode changes, not when messages changes
 
   useEffect(() => () => {
     if (ttsSocketRef.current && ttsSocketRef.current.readyState === WebSocket.OPEN) {
@@ -111,11 +230,17 @@ const OnboardingModule = ({ onFinish }) => {
             arrayBuffer,
             (audioBuffer) => {
               try {
+                // ElevenLabs already handles speed adjustment server-side with pitch preservation
+                // Just play the audio at normal speed
                 const sourceNode = ctx.createBufferSource();
                 sourceNode.buffer = audioBuffer;
                 sourceNode.connect(ctx.destination);
+                
+                sourceNode.onended = () => {
+                  resolve();
+                };
+                
                 sourceNode.start();
-                resolve();
               } catch (playErr) {
                 reject(playErr);
               }
@@ -260,6 +385,21 @@ const OnboardingModule = ({ onFinish }) => {
       }
       const data = await res.json();
 
+      // Log debug info to browser console
+      if (data.debug) {
+        if (data.debug.critic_analysis) {
+          try {
+            const criticData = JSON.parse(data.debug.critic_analysis);
+            console.log('%c[Critic Analysis]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', criticData);
+          } catch (e) {
+            console.log('%c[Critic Analysis]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', data.debug.critic_analysis);
+          }
+        }
+        if (data.debug.architect_thinking) {
+          console.log('%c[Architect Thinking]', 'color: #10b981; font-weight: bold; font-size: 14px;', data.debug.architect_thinking);
+        }
+      }
+
       let reply = data.reply || "";
       let progress = 0;
       let match = reply.match(/\[Progress:[^\]]*?(\d{1,3})%\]/i);
@@ -273,7 +413,10 @@ const OnboardingModule = ({ onFinish }) => {
       }
 
       if (reply) {
-        sendTtsText(reply);
+        // Only send TTS in voice mode
+        if (mode === 'voice') {
+          sendTtsText(reply);
+        }
       }
 
       setMessages((prev) => [
@@ -282,6 +425,13 @@ const OnboardingModule = ({ onFinish }) => {
         data.reply ? { role: "assistant", content: reply } : null,
       ].filter(Boolean));
       setUserInput("");
+      
+      // Auto-scroll to bottom after message is added
+      setTimeout(() => {
+        if (chatScrollRef.current) {
+          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+        }
+      }, 100);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -303,10 +453,55 @@ const OnboardingModule = ({ onFinish }) => {
     await sendUserTurn(userInput);
   };
 
-  const handleFinish = () => {
-    if (onFinish) {
-      onFinish({ username });
+  const handleFinish = async () => {
+    if (!onFinish || !auth.currentUser) return;
+    
+    setIsSavingProfile(true);
+    const userId = auth.currentUser.uid;
+    
+    try {
+      // Extract profile from conversation history
+      const extractRes = await fetch("http://127.0.0.1:8000/api/onboarding/extract-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          history: messages,
+          user_id: userId,
+        }),
+      });
+
+      if (!extractRes.ok) {
+        console.error('[Profile] Failed to extract profile:', extractRes.statusText);
+        // Continue anyway - user can still proceed
+      } else {
+        const profileData = await extractRes.json();
+        
+        // Save the extracted profile to Firestore
+        const saveRes = await fetch(`http://127.0.0.1:8000/api/profile/${userId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileData),
+        });
+
+        if (!saveRes.ok) {
+          console.error('[Profile] Failed to save profile:', saveRes.statusText);
+        } else {
+          console.log('[Profile] Profile saved successfully to Firestore');
+        }
+      }
+    } catch (error) {
+      console.error('[Profile] Error saving profile:', error);
+      // Continue anyway - don't block the user from proceeding
+    } finally {
+      setIsSavingProfile(false);
     }
+
+    // Pass the Firebase Auth UID instead of username
+    onFinish({ 
+      uid: userId,
+      email: auth.currentUser.email,
+      username: auth.currentUser.email?.split('@')[0] || 'user'
+    });
   };
 
   return (
@@ -335,19 +530,19 @@ const OnboardingModule = ({ onFinish }) => {
              
              <h2 className="font-serif text-3xl text-stone-900 font-bold mb-8 tracking-tight border-b-2 border-stone-800 pb-2">Identity Verification</h2>
              
-             <form onSubmit={handleLogin} className="w-full max-w-sm space-y-6 relative z-10">
+             <form onSubmit={handleAuth} className="w-full max-w-sm space-y-6 relative z-10">
                 <div className="space-y-2 group">
-                    <label className="block font-mono text-xs font-bold text-stone-600 tracking-widest uppercase group-focus-within:text-stone-900">Operative Codename</label>
+                    <label className="block font-mono text-xs font-bold text-stone-600 tracking-widest uppercase group-focus-within:text-stone-900">Email Address</label>
                     <div className="relative">
-                        <User size={16} className="absolute left-0 top-3 text-stone-500" />
+                        <Mail size={16} className="absolute left-0 top-3 text-stone-500" />
                         <input 
-                            type="text" 
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="w-full bg-transparent border-b-2 border-stone-400 py-2 pl-6 font-mono text-lg text-stone-900 focus:outline-none focus:border-stone-800 transition-colors placeholder-stone-500/30 uppercase"
-                            placeholder="ENTER NAME"
+                            type="email" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-transparent border-b-2 border-stone-400 py-2 pl-6 font-mono text-lg text-stone-900 focus:outline-none focus:border-stone-800 transition-colors placeholder-stone-500/30"
+                            placeholder="agent@example.com"
                             autoFocus
-                            autoComplete="off"
+                            autoComplete="email"
                         />
                     </div>
                 </div>
@@ -362,19 +557,40 @@ const OnboardingModule = ({ onFinish }) => {
                             onChange={(e) => setPassword(e.target.value)}
                             className="w-full bg-transparent border-b-2 border-stone-400 py-2 pl-6 font-mono text-lg text-stone-900 focus:outline-none focus:border-stone-800 transition-colors placeholder-stone-500/30"
                             placeholder="••••••••"
+                            autoComplete={isSignUp ? "new-password" : "current-password"}
                         />
                     </div>
                 </div>
 
-                <div className="pt-8">
+                {authError && (
+                  <div className="text-red-700 text-sm font-mono bg-red-50 border border-red-200 px-3 py-2 rounded">
+                    {authError}
+                  </div>
+                )}
+
+                <div className="pt-4">
                     <button 
                         type="submit"
-                        disabled={!username.trim() || !password.trim()}
+                        disabled={!email.trim() || !password.trim() || isAuthenticating}
                         className="w-full bg-stone-900 text-[#e8dcc5] py-4 font-bold tracking-[0.2em] uppercase hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 group border border-stone-700"
                     >
-                        <span>Authenticate</span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <span>{isAuthenticating ? 'Authenticating...' : (isSignUp ? 'Create Account' : 'Sign In')}</span>
+                        {!isAuthenticating && <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
                     </button>
+                    
+                    <div className="text-center mt-4">
+                        <button
+                            type="button"
+                            onClick={() => {
+                              setIsSignUp(!isSignUp);
+                              setAuthError('');
+                            }}
+                            className="text-xs font-mono text-stone-600 hover:text-stone-900 underline"
+                        >
+                            {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+                        </button>
+                    </div>
+                    
                     <div className="text-center mt-4">
                         <span className="text-[10px] font-mono text-stone-500 opacity-60">
                             WARNING: UNAUTHORIZED ACCESS IS A CLASS A FELONY
@@ -397,7 +613,7 @@ const OnboardingModule = ({ onFinish }) => {
              
              <div className="absolute top-8 left-8">
                  <div className="text-[10px] font-mono text-stone-500">OPERATIVE:</div>
-                 <div className="font-bold text-stone-800 font-mono text-sm uppercase">{username}</div>
+                 <div className="font-bold text-stone-800 font-mono text-sm uppercase">{auth.currentUser?.email?.split('@')[0] || 'USER'}</div>
              </div>
              
              <h2 className="font-serif text-3xl text-stone-900 font-bold mb-2 tracking-tight">Choose Your Protocol</h2>
@@ -444,7 +660,7 @@ const OnboardingModule = ({ onFinish }) => {
                   <div className="border border-stone-800 p-1 rounded-sm"><Fingerprint size={32} className="text-stone-800" /></div>
                   <div>
                     <h3 className="font-mono font-bold text-lg tracking-widest text-stone-900 uppercase">Official Transcript</h3>
-                    <div className="text-xs font-mono text-stone-500">SUBJECT: {username.toUpperCase()} // MODE: {mode.toUpperCase()}</div>
+                    <div className="text-xs font-mono text-stone-500">SUBJECT: {auth.currentUser?.email?.split('@')[0].toUpperCase() || 'USER'} // MODE: {mode.toUpperCase()}</div>
                   </div>
                 </div>
                 <div className="flex flex-col items-end min-w-[120px] ml-8">
@@ -468,7 +684,7 @@ const OnboardingModule = ({ onFinish }) => {
 
                   return (
                   <div className="mt-6 space-y-4">
-                    <div className="h-48 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                    <div ref={chatScrollRef} className="h-48 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                       {messages.length === 0 && (
                         <div className="text-[11px] text-stone-500 italic">
                           Start the tape. Tell the Architect what that perfect morning looks like.
@@ -481,7 +697,7 @@ const OnboardingModule = ({ onFinish }) => {
                         const isLatestArc = isArc && idx === lastArcIndex;
 
                         return (
-                          <div key={idx} className="flex gap-4">
+                          <div key={`msg-${idx}-${m.content?.substring(0, 20)}`} className="flex gap-4">
                             <div className="font-bold text-stone-500 select-none w-10 text-right">
                               {label}
                             </div>
@@ -489,14 +705,25 @@ const OnboardingModule = ({ onFinish }) => {
                               {isArc && isLatestArc ? (
                                 <>
                                   <TypewriterText
+                                    key={`typewriter-${idx}-${m.content?.substring(0, 20)}`}
                                     speed={25}
-                                    text={m.content}
+                                    text={m.content || ''}
                                     onComplete={() => setIsTypingDone(true)}
+                                    onScroll={() => {
+                                      // Auto-scroll during typewriter animation
+                                      if (chatScrollRef.current) {
+                                        const container = chatScrollRef.current;
+                                        const isNearBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+                                        if (isNearBottom) {
+                                          container.scrollTop = container.scrollHeight;
+                                        }
+                                      }
+                                    }}
                                   />
                                   <span className="animate-pulse inline-block w-2 h-4 bg-stone-800 ml-1 align-middle"></span>
                                 </>
                               ) : (
-                                <span className="whitespace-pre-wrap">{m.content}</span>
+                                <span className="whitespace-pre-wrap">{m.content || ''}</span>
                               )}
                             </div>
                           </div>
@@ -506,11 +733,28 @@ const OnboardingModule = ({ onFinish }) => {
 
                     {mode === 'text' && (
                       <form onSubmit={handleUserSubmit} className="flex flex-col gap-2 pt-2">
-                        <input
+                        <textarea
                           value={userInput}
-                          onChange={(e) => setUserInput(e.target.value)}
-                          className="bg-[#f9f0dd] border border-[#d4c5a9] rounded-sm px-3 py-2 text-[13px] text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-500"
+                          onChange={(e) => {
+                            setUserInput(e.target.value);
+                            // Auto-resize textarea
+                            e.target.style.height = 'auto';
+                            const lineHeight = 20; // Approximate line height in pixels
+                            const minLines = 1;
+                            const maxLines = 3;
+                            const lines = Math.min(maxLines, Math.max(minLines, e.target.value.split('\n').length));
+                            e.target.style.height = `${lineHeight * lines + 16}px`; // 16px for padding
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleUserSubmit(e);
+                            }
+                          }}
+                          rows={1}
+                          className="bg-[#f9f0dd] border border-[#d4c5a9] rounded-sm px-3 py-2 text-[13px] text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-500 resize-none overflow-hidden"
                           placeholder="You: In that perfect future, first thing I do is..."
+                          style={{ minHeight: '36px', maxHeight: '76px' }}
                         />
                         <div className="flex items-center gap-3">
                           <button
@@ -541,10 +785,11 @@ const OnboardingModule = ({ onFinish }) => {
              <div className={`mt-auto flex justify-end transition-opacity duration-1000 ${isTypingDone ? 'opacity-100' : 'opacity-0'}`}>
                 <button 
                   onClick={handleFinish}
-                  className="bg-stone-800 text-[#e8dcc5] px-8 py-3 rounded-sm font-bold tracking-widest hover:bg-stone-900 transition-colors shadow-lg flex items-center gap-2 group"
+                  disabled={isSavingProfile}
+                  className="bg-stone-800 text-[#e8dcc5] px-8 py-3 rounded-sm font-bold tracking-widest hover:bg-stone-900 transition-colors shadow-lg flex items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>ACCESS DASHBOARD</span>
-                  <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <span>{isSavingProfile ? 'SAVING PROFILE...' : 'ACCESS DASHBOARD'}</span>
+                  {!isSavingProfile && <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />}
                 </button>
              </div>
              

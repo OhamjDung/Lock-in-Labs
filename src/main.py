@@ -73,7 +73,7 @@ def process_turn(user_input: str, sheet: CharacterSheet, state: ConversationStat
     state.conversation_history.append({"role": "user", "content": user_input})
     
     # 2. Critic Analysis
-    sheet, feedback = critic.analyze(user_input, sheet, state.conversation_history)
+    sheet, feedback, _ = critic.analyze(user_input, sheet, state.conversation_history)
     
     if feedback:
         print(f"\n[Critic Feedback]: {feedback}")
@@ -89,7 +89,7 @@ def process_turn(user_input: str, sheet: CharacterSheet, state: ConversationStat
         # For now, we just generate the "please rank your goals" message.
         
         # We pass a special flag to the architect to generate this specific prompt.
-        full_response = architect.generate_response(
+        full_response, _ = architect.generate_response(
             state.conversation_history, 
             sheet, 
             feedback, 
@@ -142,7 +142,7 @@ def process_turn(user_input: str, sheet: CharacterSheet, state: ConversationStat
 
     # 6. Architect's regular response if not prioritizing or complete
     if not pillars_defined and not is_complete:
-        full_response = architect.generate_response(state.conversation_history, sheet, feedback)
+        full_response, _ = architect.generate_response(state.conversation_history, sheet, feedback)
         print(f"\nArchitect: {full_response}\n")
         state.conversation_history.append({"role": "assistant", "content": full_response})
 

@@ -1,0 +1,31 @@
+{
+    "character_sheet": {
+        "user_id": "kK6R32MEZghS5HNMpijNevrRZfF2",
+        "goals": {},
+        "stats_career": {},
+        "stats_physical": {},
+        "stats_mental": {},
+        "stats_social": {},
+        "debuffs": [],
+        "skill_tree": null,
+        "xp_total": 0,
+        "xp_career": 0,
+        "xp_physical": 0,
+        "xp_mental": 0,
+        "xp_social": 0,
+        "habit_progress": {},
+        "calendar_events": [],
+        "pomodoro_history": [],
+        "pomodoros_total": 0,
+        "lockin_history": [],
+        "lockin_total_time_seconds": 0,
+        "phone_distractions_total": 0,
+        "user_facts": [],
+        "daily_schedule": {},
+        "daily_reports": [],
+        "last_report_date": null
+    },
+    "skill_tree": {
+        "nodes": []
+    }
+}

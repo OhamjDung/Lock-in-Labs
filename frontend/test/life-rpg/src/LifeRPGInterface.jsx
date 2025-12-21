@@ -63,9 +63,9 @@ export default function LifeRPGInterface() {
           }
         }
       } else {
-        const blob = await resp.blob();
-        const obj = URL.createObjectURL(blob);
-        setDitheredPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return obj; });
+      const blob = await resp.blob();
+      const obj = URL.createObjectURL(blob);
+      setDitheredPreviewUrl(prev => { if (prev) URL.revokeObjectURL(prev); return obj; });
       }
     } catch (e) {
       console.error('sendFile error', e);
@@ -76,10 +76,11 @@ export default function LifeRPGInterface() {
   const displayData = useMemo(() => {
     return transformCharacterData(characterSheet, skillTree);
   }, [characterSheet, skillTree]);
-
+  
   const handleOnboardingFinish = (data) => {
-    if (data?.username) {
-      setCharacterSheet(prev => ({ ...prev, user_id: data.username }));
+    // Use Firebase Auth UID instead of username
+    if (data?.uid) {
+      setCharacterSheet(prev => ({ ...prev, user_id: data.uid }));
     }
     setShowOnboarding(false);
   };
@@ -95,7 +96,9 @@ export default function LifeRPGInterface() {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/profile/user_01');
+        // Use the user_id from characterSheet (which should be the Firebase Auth UID)
+        const userId = characterSheet?.user_id || 'user_01';
+        const res = await fetch(`http://127.0.0.1:8000/api/profile/${userId}`);
         if (!res.ok) return; // keep fallback data on failure
         const data = await res.json();
         if (data.character_sheet) {

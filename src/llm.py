@@ -9,12 +9,17 @@ load_dotenv()
 class LLMClient:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
+        # Allow model to be configured via environment variable, default to gemma-3-4b-it
+        self.default_model = os.getenv("GEMINI_MODEL", "gemma-3-4b-it")
         if not self.api_key:
             print("Warning: GEMINI_API_KEY not found in environment variables.")
         else:
             self.client = genai.Client(api_key=self.api_key)
 
-    def chat_completion(self, messages, model="gemma-3-4b-it", json_mode=False):
+    def chat_completion(self, messages, model=None, json_mode=False):
+        # Use instance default model if not specified
+        if model is None:
+            model = self.default_model
         if not self.api_key:
             return "Error: GEMINI_API_KEY not configured."
 
@@ -112,5 +117,12 @@ class LLMClient:
             return text
 
         except Exception as e:
-            print(f"Error calling Gemini API: {e}")
+            error_str = str(e)
+            # Check if it's a rate limit error
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+                print(f"Error calling Gemini API: Rate limit exceeded for model {model}")
+                print(f"Consider switching to a different model (e.g., gemini-1.5-flash) or upgrading your plan.")
+                print(f"Current model: {model}")
+            else:
+                print(f"Error calling Gemini API: {e}")
             return "{}"

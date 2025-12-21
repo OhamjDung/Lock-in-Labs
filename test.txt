@@ -7,3 +7,5 @@ I would do some journaling, and then excercise, and then some vocal practice to 
   i would listen first, then i would offer some solutions. Ill also ask if they want me to listen or give advice. When in a team effort i try to help but not be too demanding         
 
   uvicorn backend.api:app --reload --port 8000
+
+  fQmr8dTaOQq116mo2X7F

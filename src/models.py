@@ -168,12 +168,20 @@ class CharacterSheet(BaseModel):
         """Returns a flat list of all goals."""
         return list(self.goals.values())
 
+class PendingDebuff(BaseModel):
+    """A debuff waiting for user confirmation."""
+    name: str
+    evidence: str
+    confidence: str  # "high", "medium", "low"
+
 class ConversationState(BaseModel):
     missing_fields: List[str] = Field(..., description="List of fields in the CharacterSheet that still need to be populated")
     current_topic: str = Field(..., description="The specific topic the Architect is currently asking about")
     user_sentiment: str = Field(default="neutral", description="The detected emotional state of the user (e.g., engaged, bored, confused)")
     conversation_history: List[Dict[str, str]] = Field(default_factory=list, description="History of the chat")
     goals_prioritized: bool = Field(default=False, description="Flag to check if the user has ranked their goals.")
+    phase: str = Field(default="phase1", description="Current onboarding phase: phase1 (goals), phase2 (current_quests), phase3.5 (prioritization), phase4 (planners), phase5 (skill_tree)")
+    pending_debuffs: List[PendingDebuff] = Field(default_factory=list, description="Debuffs waiting for user confirmation")
 
 
 class DailyTask(BaseModel):
