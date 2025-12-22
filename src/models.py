@@ -62,8 +62,8 @@ class HabitProgress(BaseModel):
     streak_days: int = Field(default=0, description="Optional streak count in days for gamification.")
 
 class Goal(BaseModel):
-    name: str = Field(..., description="The user's high-level goal for a specific pillar.")
-    pillar: Pillar = Field(..., description="The life pillar this goal belongs to.")
+    name: str = Field(..., description="The user's high-level goal.")
+    pillars: List[Pillar] = Field(..., description="The life pillars this goal belongs to (can be multiple).")
     current_quests: List[str] = Field(default_factory=list, description="Concrete habits the user is currently doing for this goal.")
     needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal.")
     description: Optional[str] = Field(None, description="A brief description of the goal.")
@@ -109,8 +109,8 @@ class LockInSession(BaseModel):
 class CharacterSheet(BaseModel):
     user_id: str
     
-    # Use a dictionary to store goals per pillar for easier access
-    goals: Dict[Pillar, Goal] = Field(default_factory=dict, description="A dictionary mapping each pillar to its corresponding goal.")
+    # Store all goals in a list (goals can belong to multiple pillars)
+    goals: List[Goal] = Field(default_factory=list, description="List of all user goals (a goal can belong to multiple pillars).")
     
     stats_career: Dict[str, int] = Field(default_factory=dict)
     stats_physical: Dict[str, int] = Field(default_factory=dict)
@@ -174,6 +174,12 @@ class PendingDebuff(BaseModel):
     evidence: str
     confidence: str  # "high", "medium", "low"
 
+class PendingGoal(BaseModel):
+    """A goal from a pillar that hasn't been asked about yet, waiting in queue."""
+    name: str
+    pillars: List[Pillar]  # Goals can have multiple pillars
+    description: Optional[str] = None
+
 class ConversationState(BaseModel):
     missing_fields: List[str] = Field(..., description="List of fields in the CharacterSheet that still need to be populated")
     current_topic: str = Field(..., description="The specific topic the Architect is currently asking about")
@@ -182,6 +188,8 @@ class ConversationState(BaseModel):
     goals_prioritized: bool = Field(default=False, description="Flag to check if the user has ranked their goals.")
     phase: str = Field(default="phase1", description="Current onboarding phase: phase1 (goals), phase2 (current_quests), phase3.5 (prioritization), phase4 (planners), phase5 (skill_tree)")
     pending_debuffs: List[PendingDebuff] = Field(default_factory=list, description="Debuffs waiting for user confirmation")
+    pillars_asked_about: List[Pillar] = Field(default_factory=list, description="Pillars that have been asked about in Phase 1")
+    pending_goals: List[PendingGoal] = Field(default_factory=list, description="Goals from pillars not yet asked about, waiting in queue")
 
 
 class DailyTask(BaseModel):

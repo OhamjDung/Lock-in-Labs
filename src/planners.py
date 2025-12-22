@@ -191,3 +191,19 @@ class ConnectionPlanner(BasePlanner):
         }}
         """
         return self._call_llm(prompt)
+
+
+def get_planner(category: str):
+    """Returns an instance of the appropriate planner based on the category."""
+    category_upper = category.upper()
+    if "CAREER" in category_upper:
+        return CareerPlanner()
+    elif "PHYSICAL" in category_upper:
+        return PhysicalPlanner()
+    elif "MENTAL" in category_upper:
+        return MentalPlanner()
+    elif "SOCIAL" in category_upper or "CONNECTION" in category_upper:
+        return ConnectionPlanner()
+    else:
+        # Default or fallback planner
+        return CareerPlanner()

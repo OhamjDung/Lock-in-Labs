@@ -20,12 +20,16 @@ const OnboardingModule = ({ onFinish }) => {
   const [isTypingDone, setIsTypingDone] = useState(false);
   const [userInput, setUserInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [onboardingProgress, setOnboardingProgress] = useState(0);
+  const [onboardingProgress, setOnboardingProgress] = useState(0); 
   const [messages, setMessages] = useState([
     { role: 'assistant', content: architectOpening },
   ]);
   const [isSending, setIsSending] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [phase, setPhase] = useState("phase1");
+  const [pendingDebuffs, setPendingDebuffs] = useState([]);
+  const [pillarsAskedAbout, setPillarsAskedAbout] = useState([]);
+  const [pendingGoals, setPendingGoals] = useState([]);
   const playbackContextRef = useRef(null);
   const ttsSocketRef = useRef(null);
   const introSpokenRef = useRef(false);
@@ -148,10 +152,15 @@ const OnboardingModule = ({ onFinish }) => {
     console.debug('[Onboarding] step/mode changed:', step, mode);
   }, [step, mode]);
 
-  // Reset messages when starting a new chat session to ensure fresh conversation
+  // Reset messages and phase when starting a new chat session to ensure fresh conversation
   useEffect(() => {
     // When entering step 3 (chat), ensure we start with just the opening message
     if (step === 3 && mode) {
+      // Reset phase to phase1 when starting a new chat
+      setPhase("phase1");
+      setPendingDebuffs([]);
+      setPillarsAskedAbout([]);
+      setPendingGoals([]);
       // Check if messages array is corrupted (has more than just the opening, or wrong opening)
       const hasOnlyOpening = messages.length === 1 && 
                              messages[0].role === 'assistant' && 
@@ -161,6 +170,11 @@ const OnboardingModule = ({ onFinish }) => {
         console.warn('[Onboarding] Resetting messages to ensure fresh conversation');
         setMessages([{ role: 'assistant', content: architectOpening }]);
         setOnboardingProgress(0);
+        // Log the initial architect opening
+        console.log('%c[Architect Response]', 'color: #ec4899; font-weight: bold; font-size: 14px;', architectOpening);
+      } else if (messages.length === 1) {
+        // Log the opening message if it's the first time
+        console.log('%c[Architect Response]', 'color: #ec4899; font-weight: bold; font-size: 14px;', architectOpening);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -377,6 +391,10 @@ const OnboardingModule = ({ onFinish }) => {
         body: JSON.stringify({
           history: historyPayload,
           user_input: trimmed,
+          phase: phase,
+          pending_debuffs: pendingDebuffs,
+          pillars_asked_about: pillarsAskedAbout,
+          pending_goals: pendingGoals,
         }),
       });
 
@@ -385,14 +403,44 @@ const OnboardingModule = ({ onFinish }) => {
       }
       const data = await res.json();
 
+      // Update phase and state from response
+      if (data.phase) {
+        setPhase(data.phase);
+        console.log('%c[Current Phase]', 'color: #f59e0b; font-weight: bold; font-size: 14px;', data.phase);
+      }
+      if (data.pending_debuffs !== undefined) {
+        setPendingDebuffs(data.pending_debuffs);
+      }
+      if (data.pillars_asked_about !== undefined) {
+        setPillarsAskedAbout(data.pillars_asked_about);
+      }
+      if (data.pending_goals !== undefined) {
+        setPendingGoals(data.pending_goals);
+      }
+
+      // Log accumulated goals
+      if (data.accumulated_goals) {
+        console.log('%c[Accumulated Goals]', 'color: #f59e0b; font-weight: bold; font-size: 14px;', data.accumulated_goals);
+      }
+
+      // Log current quests for each goal
+      if (data.accumulated_goals && Array.isArray(data.accumulated_goals)) {
+        const questsInfo = data.accumulated_goals.map(goal => ({
+          goal: goal.name,
+          pillars: goal.pillars,
+          current_quests: goal.current_quests || []
+        }));
+        console.log('%c[Current Quests]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', questsInfo);
+      }
+
       // Log debug info to browser console
       if (data.debug) {
         if (data.debug.critic_analysis) {
           try {
             const criticData = JSON.parse(data.debug.critic_analysis);
-            console.log('%c[Critic Analysis]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', criticData);
+            console.log('%c[Critic Analysis - Current Message]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', criticData);
           } catch (e) {
-            console.log('%c[Critic Analysis]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', data.debug.critic_analysis);
+            console.log('%c[Critic Analysis - Current Message]', 'color: #3b82f6; font-weight: bold; font-size: 14px;', data.debug.critic_analysis);
           }
         }
         if (data.debug.architect_thinking) {
@@ -410,6 +458,19 @@ const OnboardingModule = ({ onFinish }) => {
         progress = Math.max(0, Math.min(100, parseInt(match[1], 10)));
         setOnboardingProgress(progress);
         reply = reply.replace(/\[Progress:[^\]]*?(\d{1,3})%\]/i, "").replace(/\[Progress:[^\]]*?\]\s*(\d{1,3})%/i, "").trim();
+      } else {
+        // Fallback progress bar system based on phase
+        const currentPhase = data.phase || phase;
+        if (currentPhase === "phase2" && onboardingProgress < 40) {
+          progress = 40;
+          setOnboardingProgress(progress);
+        } else if (currentPhase === "phase3" && onboardingProgress < 70) {
+          progress = 70;
+          setOnboardingProgress(progress);
+        } else if (currentPhase === "phase3.5" && onboardingProgress < 85) {
+          progress = 85;
+          setOnboardingProgress(progress);
+        }
       }
 
       if (reply) {
@@ -419,12 +480,73 @@ const OnboardingModule = ({ onFinish }) => {
         }
       }
 
+      // Log chat messages to console
+      console.log('%c[User Message]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', trimmed);
+      if (reply) {
+        console.log('%c[Architect Response]', 'color: #ec4899; font-weight: bold; font-size: 14px;', reply);
+      }
+
       setMessages((prev) => [
         ...prev,
         { role: "user", content: trimmed },
         data.reply ? { role: "assistant", content: reply } : null,
       ].filter(Boolean));
       setUserInput("");
+      
+      // Auto-extract and save profile when phase4 is reached
+      if (data.should_extract_profile && data.phase === "phase4" && auth.currentUser) {
+        console.log('%c[Profile] Auto-extracting and saving profile...', 'color: #10b981; font-weight: bold; font-size: 14px;');
+        const userId = auth.currentUser.uid;
+        
+        // Extract profile from conversation history (include the latest messages)
+        const updatedMessages = [
+          ...messages,
+          { role: "user", content: trimmed },
+          ...(reply ? [{ role: "assistant", content: reply }] : [])
+        ].filter(Boolean);
+        
+        try {
+          const extractRes = await fetch("http://127.0.0.1:8000/api/onboarding/extract-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              history: updatedMessages,
+              user_id: userId,
+            }),
+          });
+
+          if (extractRes.ok) {
+            const profileData = await extractRes.json();
+            
+            // Save the extracted profile to Firestore
+            const saveRes = await fetch(`http://127.0.0.1:8000/api/profile/${userId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(profileData),
+            });
+
+            if (saveRes.ok) {
+              console.log('%c[Profile] Profile extracted and saved successfully to Firestore', 'color: #10b981; font-weight: bold; font-size: 14px;');
+              // Automatically finish onboarding after profile is saved
+              if (onFinish) {
+                setTimeout(() => {
+                  onFinish({ 
+                    uid: userId,
+                    email: auth.currentUser.email,
+                    username: auth.currentUser.email?.split('@')[0] || 'user'
+                  });
+                }, 1000);
+              }
+            } else {
+              console.error('[Profile] Failed to save profile:', saveRes.statusText);
+            }
+          } else {
+            console.error('[Profile] Failed to extract profile:', extractRes.statusText);
+          }
+        } catch (error) {
+          console.error('[Profile] Error extracting/saving profile:', error);
+        }
+      }
       
       // Auto-scroll to bottom after message is added
       setTimeout(() => {
@@ -433,13 +555,16 @@ const OnboardingModule = ({ onFinish }) => {
         }
       }, 100);
     } catch (err) {
+      const errorMessage = "The line went static trying to reach the Architect. We'll keep your answer on record and try again later.";
+      console.log('%c[User Message]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', trimmed);
+      console.log('%c[Architect Response]', 'color: #ec4899; font-weight: bold; font-size: 14px;', errorMessage);
+      console.error('[Onboarding] Error sending message:', err);
       setMessages((prev) => [
         ...prev,
         { role: "user", content: trimmed },
         {
           role: "assistant",
-          content:
-            "The line went static trying to reach the Architect. We'll keep your answer on record and try again later.",
+          content: errorMessage,
         },
       ]);
       setUserInput("");
@@ -588,7 +713,7 @@ const OnboardingModule = ({ onFinish }) => {
                             className="text-xs font-mono text-stone-600 hover:text-stone-900 underline"
                         >
                             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-                        </button>
+                    </button>
                     </div>
                     
                     <div className="text-center mt-4">
@@ -670,8 +795,11 @@ const OnboardingModule = ({ onFinish }) => {
                       style={{ width: `${onboardingProgress}%` }}
                     ></div>
                   </div>
-                  <div className="text-xs font-mono text-stone-500 mt-1 text-right">{onboardingProgress}%</div>
-                </div>
+                  <div className="text-xs font-mono text-stone-500 mt-1 text-right flex items-center justify-between gap-2">
+                    <span className="text-stone-400 uppercase">{phase}</span>
+                    <span>{onboardingProgress}%</span>
+                  </div>
+                  </div>
                 <div className="text-right hidden md:block">
                   <div className="text-xs font-mono text-stone-500">TIMESTAMP</div>
                   <div className="font-mono text-stone-800">{new Date().toLocaleTimeString()}</div>
@@ -724,14 +852,14 @@ const OnboardingModule = ({ onFinish }) => {
                                 </>
                               ) : (
                                 <span className="whitespace-pre-wrap">{m.content || ''}</span>
-                              )}
-                            </div>
-                          </div>
+                        )}
+                      </div>
+                    </div>
                         );
                       })}
-                    </div>
-
-                    {mode === 'text' && (
+                </div>
+                
+                {mode === 'text' && (
                       <form onSubmit={handleUserSubmit} className="flex flex-col gap-2 pt-2">
                         <textarea
                           value={userInput}
@@ -768,8 +896,8 @@ const OnboardingModule = ({ onFinish }) => {
                             This answer goes straight into your case file.
                           </span>
                         </div>
-                      </form>
-                    )}
+                  </form>
+                )}
 
                     {mode === 'voice' && (
                       <VoiceLogsPanel

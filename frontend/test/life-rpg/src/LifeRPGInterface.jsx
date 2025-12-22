@@ -9,11 +9,14 @@ import CalendarView from './components/calendar/CalendarView';
 import LockInView from './components/lockin/LockInView';
 import { transformCharacterData } from './utils/dataTransform';
 import { skillTreeJson, rawCharacterSheet } from './data/mockData';
+import { auth } from './config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function LifeRPGInterface() {
   const [activeTab, setActiveTab] = useState('sheet'); 
   const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [checkingProfile, setCheckingProfile] = useState(true); // Track if we're checking for existing profile
 
   // Live profile state (falls back to rawCharacterSheet / skillTreeJson until API load succeeds)
   const [characterSheet, setCharacterSheet] = useState(rawCharacterSheet);
@@ -85,20 +88,94 @@ export default function LifeRPGInterface() {
     setShowOnboarding(false);
   };
 
+  const handleLogout = () => {
+    // Reset to onboarding state
+    setShowOnboarding(true);
+    setCharacterSheet(rawCharacterSheet);
+    setSkillTree(skillTreeJson);
+    setDitheredPreviewUrl(null);
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
+  // Check for existing profile when app loads (only runs once)
+  useEffect(() => {
+    const checkProfile = async (user) => {
+      if (user) {
+        // User is authenticated, check if profile exists
+        try {
+          const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+          const res = await fetch(`${backend}/api/profile/${user.uid}`);
+          
+          if (res.ok) {
+            const data = await res.json();
+            // Check if profile has actual data (not just empty structure)
+            if (data.character_sheet && data.character_sheet.goals && 
+                (Array.isArray(data.character_sheet.goals) ? data.character_sheet.goals.length > 0 : Object.keys(data.character_sheet.goals).length > 0)) {
+              // Profile exists, load it and skip onboarding
+              console.log('[Profile] Existing profile found, loading...');
+              setCharacterSheet(data.character_sheet);
+              if (data.character_sheet.avatar_url) {
+                setDitheredPreviewUrl(data.character_sheet.avatar_url);
+              }
+              if (data.skill_tree) {
+                setSkillTree(data.skill_tree);
+              }
+              setShowOnboarding(false);
+            } else {
+              // Profile doesn't exist or is empty, show onboarding
+              console.log('[Profile] No existing profile found, showing onboarding');
+              setShowOnboarding(true);
+            }
+          } else {
+            // Profile doesn't exist (404 or other error), show onboarding
+            console.log('[Profile] No existing profile found (API error), showing onboarding');
+            setShowOnboarding(true);
+          }
+        } catch (e) {
+          // Error checking profile, show onboarding to be safe
+          console.error('[Profile] Error checking for existing profile:', e);
+          setShowOnboarding(true);
+        }
+      } else {
+        // No user authenticated, show onboarding immediately
+        console.log('[Profile] No user authenticated, showing onboarding');
+        setShowOnboarding(true);
+      }
+      setCheckingProfile(false);
+    };
+
+    // Check current user synchronously first (in case auth state is already determined)
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      checkProfile(currentUser);
+    } else {
+      // No current user, show onboarding immediately
+      setShowOnboarding(true);
+      setCheckingProfile(false);
+    }
+
+    // Also listen for auth state changes (in case user signs in/out)
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      await checkProfile(user);
+    });
+
+    return () => unsubscribe();
+  }, []); // Only run once on mount
+
   // After onboarding is dismissed, try to load the real profile from the backend.
   useEffect(() => {
-    if (showOnboarding) return;
+    if (showOnboarding || checkingProfile) return;
 
     const fetchProfile = async () => {
       try {
         // Use the user_id from characterSheet (which should be the Firebase Auth UID)
         const userId = characterSheet?.user_id || 'user_01';
-        const res = await fetch(`http://127.0.0.1:8000/api/profile/${userId}`);
+        const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+        const res = await fetch(`${backend}/api/profile/${userId}`);
         if (!res.ok) return; // keep fallback data on failure
         const data = await res.json();
         if (data.character_sheet) {
@@ -118,9 +195,10 @@ export default function LifeRPGInterface() {
     };
 
     fetchProfile();
-  }, [showOnboarding]);
+  }, [showOnboarding, checkingProfile]);
 
-  if (loading) {
+  // Show loading screen while checking for profile or initial loading
+  if (loading || checkingProfile) {
     return (
       <div className="min-h-screen bg-stone-900 flex flex-col items-center justify-center text-stone-200 font-mono">
         <div className="mb-4 animate-bounce"><FileText size={48} /></div>
@@ -169,7 +247,7 @@ export default function LifeRPGInterface() {
       </div>
 
       {/* HEADER */}
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} isLockIn={isLockIn} />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} isLockIn={isLockIn} onLogout={handleLogout} />
 
       {/* MAIN CONTENT AREA */}
       <main className="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto min-h-screen flex flex-col relative z-10">

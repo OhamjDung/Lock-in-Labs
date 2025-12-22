@@ -150,7 +150,7 @@ def _bayer_dither(pil_img, palette, order=8):
                 out[y, x] = pal[0]
     return Image.fromarray(out)
 
-from src.models import CharacterSheet, ConversationState
+from src.models import CharacterSheet, ConversationState, PendingGoal, Pillar
 from src.onboarding.agent import ArchitectAgent
 from src.storage import load_profile, save_profile
 
@@ -165,6 +165,8 @@ class ArchitectRequest(BaseModel):
     user_input: str
     phase: str = "phase1"  # Current phase: phase1, phase2, phase3, phase3.5, phase4, phase5
     pending_debuffs: List[Dict[str, str]] = []  # Debuffs waiting for confirmation
+    pillars_asked_about: List[str] = []  # Pillars that have been asked about in Phase 1
+    pending_goals: List[Dict] = []  # Goals from pillars not yet asked about (pillars is a list, not string)
 
 
 load_dotenv()
@@ -419,7 +421,7 @@ def architect_reply(payload: ArchitectRequest):
     """
 
     from src.onboarding.agent import CriticAgent
-    from src.models import PendingDebuff
+    from src.models import PendingDebuff, PendingGoal, Pillar
     
     sheet = CharacterSheet(user_id="user_01")
     state = ConversationState(
@@ -439,6 +441,51 @@ def architect_reply(payload: ArchitectRequest):
     state.pending_debuffs = [
         PendingDebuff(**d) for d in payload.pending_debuffs
     ]
+    
+    # Convert pillars asked about from frontend
+    state.pillars_asked_about = []
+    for p in payload.pillars_asked_about:
+        try:
+            state.pillars_asked_about.append(Pillar(p.upper()))
+        except (ValueError, AttributeError):
+            print(f"[Warning] Invalid pillar value: {p}")
+            continue
+    
+    # Convert pending goals from frontend to PendingGoal objects
+    state.pending_goals = []
+    for d in payload.pending_goals:
+        try:
+            # Handle both "pillars" (list) and "pillar" (single) for backward compatibility
+            pillars_data = d.get("pillars")
+            if not pillars_data:
+                # Try "pillar" as fallback
+                pillar_single = d.get("pillar")
+                if pillar_single:
+                    pillars_data = [pillar_single]
+            
+            if not pillars_data:
+                continue  # Skip if no pillar data
+            
+            # Convert to Pillar enums
+            pillar_enums = []
+            for p in pillars_data:
+                try:
+                    pillar_enums.append(Pillar(p.upper()))
+                except (ValueError, AttributeError):
+                    continue
+            
+            if not pillar_enums:
+                continue  # Skip if no valid pillars
+            
+            state.pending_goals.append(PendingGoal(
+                name=d.get("name", ""),
+                pillars=pillar_enums,
+                description=d.get("description")
+            ))
+        except Exception as e:
+            # Skip invalid pending goals
+            print(f"[Warning] Failed to parse pending goal: {e}")
+            continue
 
     # Seed conversation history with what the frontend has seen so far.
     state.conversation_history = [
@@ -460,17 +507,40 @@ def architect_reply(payload: ArchitectRequest):
             )
 
     # Determine current phase based on sheet state
-    defined_pillars = len(sheet.goals)
+    # Count pillars that have at least 1 goal (accounting for multi-pillar goals)
+    all_pillars_in_goals = set()
+    for goal in sheet.goals:
+        all_pillars_in_goals.update(goal.pillars)
+    pillars_with_goals = list(all_pillars_in_goals)
+    defined_pillars = len(pillars_with_goals)
     total_pillars = 4
     all_goals_defined = defined_pillars >= total_pillars
     
     # Check if all goals have at least 2 quests (to assess user skill level)
     all_goals_have_quests = all_goals_defined and all(
-        len(g.current_quests) >= 2 for g in sheet.goals.values()
+        len(g.current_quests) >= 2 
+        for g in sheet.goals
     )
     
+    # Track previous phase to detect transitions
+    previous_phase = state.phase
+    
     # Phase transition logic
-    if state.phase == "phase1" and all_goals_defined:
+    # Check if all 4 pillars have at least 1 goal AND each has at least one pure goal
+    all_pillars_in_goals_set = set()
+    for goal in sheet.goals:
+        all_pillars_in_goals_set.update(goal.pillars)
+    
+    def has_pure_goal_for_pillar(goals, pillar):
+        """Check if a pillar has at least one pure goal (single-pillar goal)."""
+        return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
+    
+    all_4_pillars_covered = len(all_pillars_in_goals_set) >= 4
+    all_pillars_have_pure_goals = all(
+        has_pure_goal_for_pillar(sheet.goals, p) for p in Pillar if p in all_pillars_in_goals_set
+    ) if all_4_pillars_covered else False
+    
+    if state.phase == "phase1" and all_4_pillars_covered and all_pillars_have_pure_goals:
         state.phase = "phase2"
     elif state.phase == "phase2" and all_goals_have_quests:
         # Check if there are pending debuffs
@@ -480,6 +550,35 @@ def architect_reply(payload: ArchitectRequest):
             state.phase = "phase3.5"
     elif state.phase == "phase3" and len(state.pending_debuffs) == 0:
         state.phase = "phase3.5"
+    
+    # Handle goal prioritization in phase3.5
+    if state.phase == "phase3.5" and not state.goals_prioritized:
+        # Check if user provided a ranking
+        user_input_lower = payload.user_input.lower()
+        # Look for goal names or pillar names in the user's response
+        goal_names = [g.name.lower() for g in sheet.goals]
+        pillar_names = [p.value.lower() for p in Pillar]
+        
+        # Check if user mentioned multiple goals/pillars in order (indicating a ranking)
+        mentioned_goals = [g for g in goal_names if g in user_input_lower]
+        mentioned_pillars = [p for p in pillar_names if p in user_input_lower]
+        
+        # Also check for explicit ranking words
+        ranking_indicators = ["first", "second", "third", "fourth", "then", "next", "after", "most important", "least important", "priority", "prioritize", "ranked", "ranking"]
+        has_ranking_words = any(word in user_input_lower for word in ranking_indicators)
+        
+        # Check for "move on" or similar phrases that indicate user wants to proceed
+        move_on_phrases = ["move on", "move forward", "continue", "proceed", "next", "done", "finished", "complete"]
+        wants_to_move_on = any(phrase in user_input_lower for phrase in move_on_phrases)
+        
+        # If user mentioned at least 2 goals/pillars, used ranking words, or wants to move on after providing ranking, consider it complete
+        if (len(mentioned_goals) >= 2 or len(mentioned_pillars) >= 2) or (has_ranking_words and (len(mentioned_goals) >= 1 or len(mentioned_pillars) >= 1)) or (wants_to_move_on and state.goals_prioritized == False):
+            # If user wants to move on and we haven't detected a ranking yet, check if they provided one earlier
+            # For now, if they explicitly want to move on, mark as prioritized
+            state.goals_prioritized = True
+            # After prioritization, move to phase4 (which triggers extract_profile)
+            state.phase = "phase4"
+            print(f"[Phase Transition] Detected ranking or move-on request. Transitioning to phase4.")
 
     # Handle debuff confirmation in phase3
     if state.phase == "phase3" and len(state.pending_debuffs) > 0:
@@ -514,12 +613,123 @@ def architect_reply(payload: ArchitectRequest):
     history_plus_user = state.conversation_history + [
         {"role": "user", "content": payload.user_input}
     ]
+    
+    # Store goals before processing to detect new ones
+    goals_before = {g.name: g for g in sheet.goals}
+    
     sheet, feedback, critic_analysis, new_pending_debuffs = critic.analyze(
         payload.user_input, 
         sheet, 
         history_plus_user,
         state.phase
     )
+    
+    # Handle Phase 1 goal queuing logic
+    if state.phase == "phase1":
+        # Determine which pillar is currently being asked about
+        # Cycle through pillars in order: CAREER, PHYSICAL, MENTAL, SOCIAL
+        def determine_current_pillar(pillars_asked_about, goals):
+            """Determine which pillar should be asked about next."""
+            all_pillars_in_goals = set()
+            for goal in goals:
+                all_pillars_in_goals.update(goal.pillars)
+            
+            # Find first missing pillar that hasn't been asked about yet
+            for p in Pillar:  # This maintains order: CAREER, PHYSICAL, MENTAL, SOCIAL
+                if p not in pillars_asked_about and p not in all_pillars_in_goals:
+                    return p
+            
+            # If all pillars have been asked about but some are still missing, ask about first missing one
+            missing_pillars = [p for p in Pillar if p not in all_pillars_in_goals]
+            if missing_pillars:
+                return missing_pillars[0]
+            
+            return None
+        
+        def has_pure_goal_for_pillar(goals, pillar):
+            """Check if a pillar has at least one pure goal (single-pillar goal)."""
+            return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
+        
+        current_pillar = determine_current_pillar(state.pillars_asked_about, sheet.goals)
+        
+        # Process newly extracted goals
+        goals_to_remove = []
+        goals_to_confirm = []
+        new_goals_for_current_pillar = []
+        
+        for goal in sheet.goals:
+            # Check if this is a new goal (wasn't in goals_before)
+            is_new_goal = goal.name not in goals_before
+            
+            if is_new_goal:
+                goal_pillars = set(goal.pillars)
+                
+                if current_pillar and current_pillar in goal_pillars:
+                    # Goal for current pillar - save for processing
+                    new_goals_for_current_pillar.append(goal)
+                elif any(p in state.pillars_asked_about for p in goal_pillars):
+                    # Goal for already-asked pillar - mark for confirmation
+                    goals_to_confirm.append(goal)
+                else:
+                    # Goal for not-yet-asked pillar - queue it
+                    if not any(pg.name == goal.name for pg in state.pending_goals):
+                        state.pending_goals.append(PendingGoal(
+                            name=goal.name,
+                            pillars=goal.pillars,
+                            description=goal.description
+                        ))
+                    # Remove from sheet temporarily (will be added back when we ask about this pillar)
+                    goals_to_remove.append(goal)
+        
+        # Remove queued goals from sheet
+        for goal in goals_to_remove:
+            if goal in sheet.goals:
+                sheet.goals.remove(goal)
+        
+        # When we ask about a new pillar, restore its queued goals
+        if current_pillar:
+            queued_goals_for_pillar = [pg for pg in state.pending_goals if current_pillar in pg.pillars]
+            if queued_goals_for_pillar:
+                for pg in queued_goals_for_pillar:
+                    # Check if goal already exists
+                    if not any(g.name == pg.name for g in sheet.goals):
+                        from src.models import Goal
+                        sheet.goals.append(Goal(
+                            name=pg.name,
+                            pillars=pg.pillars,
+                            description=pg.description,
+                            current_quests=[]
+                        ))
+                    # Remove from pending queue
+                    state.pending_goals.remove(pg)
+        
+        # After processing all goals, check if current pillar has a pure goal
+        # Only mark pillar as asked about if it has a pure goal
+        if current_pillar and current_pillar not in state.pillars_asked_about:
+            if has_pure_goal_for_pillar(sheet.goals, current_pillar):
+                state.pillars_asked_about.append(current_pillar)
+    
+    # Handle Phase 2 pillar cycling
+    elif state.phase == "phase2":
+        # Determine which pillar to ask about next (first pillar with incomplete goals)
+        def get_pillars_with_incomplete_goals(goals):
+            """Get pillars that have goals with < 2 quests."""
+            pillars_with_incomplete = set()
+            for goal in goals:
+                if len(goal.current_quests) < 2:
+                    pillars_with_incomplete.update(goal.pillars)
+            return pillars_with_incomplete
+        
+        incomplete_pillars = get_pillars_with_incomplete_goals(sheet.goals)
+        # Cycle through pillars in order, find first one with incomplete goals
+        current_pillar_phase2 = None
+        for p in Pillar:
+            if p in incomplete_pillars:
+                current_pillar_phase2 = p
+                break
+    else:
+        current_pillar = None
+        current_pillar_phase2 = None
     
     # Add new pending debuffs to the queue
     for debuff in new_pending_debuffs:
@@ -535,20 +745,116 @@ def architect_reply(payload: ArchitectRequest):
         for d in state.pending_debuffs
     ]
     
+    # Determine current pillar and queued goals for Architect
+    current_pillar_value = None
+    queued_goals_for_current_pillar = []
+    
+    if state.phase == "phase1":
+        # Determine current pillar being asked about
+        all_pillars_in_goals = set()
+        for goal in sheet.goals:
+            all_pillars_in_goals.update(goal.pillars)
+        for p in Pillar:
+            if p not in state.pillars_asked_about and p not in all_pillars_in_goals:
+                current_pillar_value = p.value
+                break
+        if not current_pillar_value:
+            missing_pillars = [p for p in Pillar if p not in all_pillars_in_goals]
+            if missing_pillars:
+                current_pillar_value = missing_pillars[0].value
+        
+        # Get queued goals for current pillar
+        if current_pillar_value:
+            current_pillar_enum = Pillar(current_pillar_value.upper())
+            queued_goals_for_current_pillar = [
+                {"name": pg.name, "pillars": [p.value for p in pg.pillars], "description": pg.description}
+                for pg in state.pending_goals if current_pillar_enum in pg.pillars
+            ]
+    elif state.phase == "phase2":
+        # Determine current pillar with incomplete goals
+        incomplete_pillars = set()
+        for goal in sheet.goals:
+            if len(goal.current_quests) < 2:
+                incomplete_pillars.update(goal.pillars)
+        for p in Pillar:
+            if p in incomplete_pillars:
+                current_pillar_value = p.value
+                break
+    
+    # Generate phase transition message if phase changed (do this BEFORE calling Architect)
+    phase_transition_message = None
+    if previous_phase != state.phase:
+        if previous_phase == "phase1" and state.phase == "phase2":
+            phase_transition_message = "Now that I've gotten a good grasp of your goals, let's talk about what you're currently doing to achieve them."
+        elif previous_phase == "phase2" and state.phase == "phase3":
+            phase_transition_message = "Good. I've noted what you're currently doing. Now, I noticed a few things we should confirm. Let me ask you about them one at a time."
+        elif previous_phase == "phase2" and state.phase == "phase3.5":
+            # List all goals for prioritization
+            goal_list = []
+            for goal in sheet.goals:
+                pillars_str = ", ".join([p.value for p in goal.pillars])
+                goal_list.append(f"- {goal.name} ({pillars_str})")
+            goals_text = "\n".join(goal_list) if goal_list else "your goals"
+            phase_transition_message = f"Perfect. I've got a clear picture of your goals and what you're doing. Now, let's prioritize. I need you to rank your goals from most to least important:\n\n{goals_text}"
+        elif previous_phase == "phase3" and state.phase == "phase3.5":
+            # List all goals for prioritization
+            goal_list = []
+            for goal in sheet.goals:
+                pillars_str = ", ".join([p.value for p in goal.pillars])
+                goal_list.append(f"- {goal.name} ({pillars_str})")
+            goals_text = "\n".join(goal_list) if goal_list else "your goals"
+            phase_transition_message = f"Good. Now that we've confirmed everything, let's prioritize. I need you to rank your goals from most to least important:\n\n{goals_text}"
+        elif previous_phase == "phase3.5" and state.phase == "phase4":
+            phase_transition_message = "Perfect! I've got everything I need. Let me generate your skill tree now."
+    
     # Generate Architect response with Critic feedback
-    reply, architect_thinking = architect.generate_response(
-        history_plus_user, 
-        sheet, 
-        feedback,
-        ask_for_prioritization=(state.phase == "phase3.5" and not state.goals_prioritized),
-        phase=state.phase,
-        pending_debuffs=pending_debuffs_dict
-    )
+    # Skip Architect for phase3.5 transition (use only transition message) and phase4
+    if phase_transition_message and previous_phase in ["phase2", "phase3"] and state.phase == "phase3.5":
+        # For phase3.5 transition, use ONLY the transition message, don't call Architect
+        reply = phase_transition_message
+        architect_thinking = "Phase 3.5 transition - using transition message only."
+    elif state.phase == "phase4":
+        # For phase4, use transition message if available, otherwise simple acknowledgment
+        reply = phase_transition_message if phase_transition_message else "Perfect! I've got everything I need. Your skill tree is being generated now."
+        architect_thinking = "Phase 4 - Skill tree generation in progress. No further questions needed."
+    else:
+        reply, architect_thinking = architect.generate_response(
+            history_plus_user, 
+            sheet, 
+            feedback,
+            ask_for_prioritization=(state.phase == "phase3.5" and not state.goals_prioritized),
+            phase=state.phase,
+            pending_debuffs=pending_debuffs_dict,
+            current_pillar=current_pillar_value,
+            queued_goals=queued_goals_for_current_pillar
+        )
+        
+        # Prepend phase transition message for other transitions
+        if phase_transition_message:
+            reply = f"{phase_transition_message}\n\n{reply}"
 
+    # Get accumulated goals for logging (include current_quests)
+    accumulated_goals = [
+        {"name": g.name, "pillars": [p.value for p in g.pillars], "description": g.description, "current_quests": g.current_quests}
+        for g in sheet.goals
+    ]
+    
+    # Convert state back to dicts for frontend
+    pillars_asked_about_dict = [p.value for p in state.pillars_asked_about]
+    pending_goals_dict = [
+        {"name": pg.name, "pillars": [p.value for p in pg.pillars], "description": pg.description}
+        for pg in state.pending_goals
+    ]
+    
     return {
         "reply": reply,
         "phase": state.phase,
         "pending_debuffs": pending_debuffs_dict,
+        "pillars_asked_about": pillars_asked_about_dict,
+        "pending_goals": pending_goals_dict,
+        "accumulated_goals": accumulated_goals,
+        "goals_prioritized": state.goals_prioritized,
+        "should_extract_profile": state.phase == "phase4" and state.goals_prioritized,
         "debug": {
             "critic_analysis": critic_analysis,
             "architect_thinking": architect_thinking
@@ -592,8 +898,11 @@ def extract_profile(payload: ExtractProfileRequest):
             if msg["role"] == "user":
                 history_up_to_now = conversation_history[:i+1]
                 sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
-                # Check if we should move to phase 2
-                if len(sheet.goals) >= 4:
+                # Check if we should move to phase 2 (all 4 pillars have at least 1 goal)
+                all_pillars_in_goals = set()
+                for goal in sheet.goals:
+                    all_pillars_in_goals.update(goal.pillars)
+                if len(all_pillars_in_goals) >= 4:
                     phase = "phase2"
         
         # PHASE 2: Extract current_quests
@@ -604,14 +913,17 @@ def extract_profile(payload: ExtractProfileRequest):
                 sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
         
         # PHASE 4: Run planners to generate needed_quests
-        for pillar, goal in sheet.goals.items():
-            planner = get_planner(pillar.value)
-            needed_skill_nodes = planner.generate_roadmap(
-                north_star=goal.name,
-                current_quests=goal.current_quests,
-                debuffs=sheet.debuffs
-            )
-            goal.needed_quests = [node.name for node in needed_skill_nodes]
+        # For goals with multiple pillars, we'll use the first pillar's planner
+        for goal in sheet.goals:
+            # Use the first pillar for the planner (could be enhanced to use multiple planners)
+            if goal.pillars:
+                planner = get_planner(goal.pillars[0].value)
+                needed_skill_nodes = planner.generate_roadmap(
+                    north_star=goal.name,
+                    current_quests=goal.current_quests,
+                    debuffs=sheet.debuffs
+                )
+                goal.needed_quests = [node.name for node in needed_skill_nodes]
         
         # PHASE 5: Generate skill tree from needed_quests
         skill_tree_generator = SkillTreeGenerator()
@@ -623,6 +935,10 @@ def extract_profile(payload: ExtractProfileRequest):
             "skill_tree": skill_tree.model_dump()
         }
     except Exception as e:
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"[ERROR] Failed to extract profile: {str(e)}")
+        print(f"[ERROR] Traceback: {error_trace}")
         raise HTTPException(status_code=500, detail=f"Failed to extract profile: {str(e)}")
 
 

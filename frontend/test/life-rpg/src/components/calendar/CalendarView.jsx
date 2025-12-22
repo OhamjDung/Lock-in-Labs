@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { auth } from '../../config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
-export default function App() {
+export default function CalendarView() {
   const [events, setEvents] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   const formatMMDD = (dateStr) => {
     if (!dateStr) return '';
@@ -19,18 +22,33 @@ export default function App() {
   const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
   const startOffset = 3; // Starts on Wednesday for example purposes
 
-  // Mock "Today" is Dec 18, 2025
-  const TODAY_DAY = 18;
-  const TODAY_YEAR = 2025;
-  const TODAY_MONTH = 11; // 0-indexed (Dec)
+  // Get current date
+  const now = new Date();
+  const TODAY_DAY = now.getDate();
+  const TODAY_YEAR = now.getFullYear();
+  const TODAY_MONTH = now.getMonth(); // 0-indexed
+
+  // Get current user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
+    if (!userId) return; // Wait for user to be loaded
+    
     let mounted = true;
     (async () => {
       try {
         const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
-        // Fetch the full profile so we can read `daily_schedule` and other local schedule fields
-        const res = await fetch(`${backend}/api/profile/user_01`);
+        // Fetch the full profile for the current user
+        const res = await fetch(`${backend}/api/profile/${userId}`);
         
         if (!res.ok) {
            throw new Error("Backend not reachable");
@@ -86,24 +104,15 @@ export default function App() {
 
         setEvents(flattened);
       } catch (err) {
-        console.warn('Backend fetch failed, loading mock data for demo', err);
-        // Fallback mock data for display purposes
+        console.warn('Backend fetch failed for calendar data', err);
+        // Fallback to empty events if fetch fails
         if (mounted) {
-            setEvents([
-                { day: 2, date: '2025-12-02', title: 'Equipment Check', status: 'COMPLETED' },
-                { day: 5, date: '2025-12-05', title: 'Target Recon', status: 'COMPLETED' },
-                { day: 10, date: '2025-12-10', title: 'Intel Briefing', status: 'done' },
-                { day: 18, date: '2025-12-18', title: 'Operation: Nightfall', status: 'active' },
-                { day: 19, date: '2025-12-19', title: 'Debrief w/ Command', status: 'pending' },
-                { day: 20, date: '2025-12-20', title: 'Gear Maintenance', status: 'pending' },
-                { day: 24, date: '2025-12-24', title: 'Report Due', status: 'pending' },
-                { day: 30, date: '2025-12-30', title: 'Annual Review', status: 'pending' }
-            ]);
+            setEvents([]);
         }
       }
     })();
     return () => { mounted = false; };
-  }, []);
+  }, [userId, TODAY_YEAR, TODAY_MONTH]);
 
   // Group events for the sidebar
   const upcomingGroups = useMemo(() => {
@@ -154,7 +163,9 @@ export default function App() {
         <div className="bg-[#dfd3bc]/50 border-b-2 border-stone-800 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center relative z-10 gap-4">
           <div>
             <h2 className="text-3xl font-black text-stone-900 uppercase tracking-tighter">Mission Schedule</h2>
-            <div className="text-xs font-mono text-stone-600 tracking-widest mt-1">DECEMBER 2025 // SECTOR 4</div>
+            <div className="text-xs font-mono text-stone-600 tracking-widest mt-1">
+              {now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()} // SECTOR 4
+            </div>
           </div>
           <div className="flex items-center gap-4">
              <div className="bg-stone-800 text-[#e8dcc5] px-4 py-2 rounded-sm font-bold font-mono text-sm shadow-md">

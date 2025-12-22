@@ -1,11 +1,190 @@
 {
     "character_sheet": {
         "user_id": "kK6R32MEZghS5HNMpijNevrRZfF2",
-        "goals": {},
-        "stats_career": {},
-        "stats_physical": {},
-        "stats_mental": {},
-        "stats_social": {},
+        "goals": [
+            {
+                "name": "Journaling",
+                "pillars": [
+                    "MENTAL"
+                ],
+                "current_quests": [
+                    "Write in a journal for 15 minutes daily",
+                    "Write in a journal for 30 minutes daily"
+                ],
+                "needed_quests": [
+                    "Daily 15-Minute Journaling",
+                    "Emotional Awareness Training",
+                    "Box Breathing Technique",
+                    "Daily 30-Minute Journaling",
+                    "Cognitive Restructuring",
+                    "Acceptance and Commitment Therapy (ACT) Basics",
+                    "Gratitude Journaling",
+                    "Self-Compassion Practice"
+                ],
+                "description": "Engage in daily journaling."
+            },
+            {
+                "name": "Exercise",
+                "pillars": [
+                    "PHYSICAL"
+                ],
+                "current_quests": [
+                    "Go to the gym 3 times per week",
+                    "Go for a 30-minute walk daily"
+                ],
+                "needed_quests": [
+                    "Plank Progression",
+                    "Knee Pushup Progression",
+                    "Pushup Progression",
+                    "Dumbbell Bench Press Progression",
+                    "Dumbbell Row Progression",
+                    "Bodyweight Squat Progression",
+                    "Dumbbell Deadlift Progression",
+                    "Assisted Pullup Progression"
+                ],
+                "description": "Engage in regular physical exercise."
+            },
+            {
+                "name": "Improve Communication Skills",
+                "pillars": [
+                    "SOCIAL"
+                ],
+                "current_quests": [
+                    "Practice vocal exercises for 20 minutes daily",
+                    "Record yourself speaking and analyze it"
+                ],
+                "needed_quests": [
+                    "Assess Current Social Connection",
+                    "Active Listening Practice",
+                    "Develop Empathy",
+                    "Vocal Exercises & Recording Analysis",
+                    "Introduce NVC Principles",
+                    "Conflict Resolution Skills",
+                    "Increase Social Interaction",
+                    "Self-Awareness & Validation"
+                ],
+                "description": "Practice vocal exercises to enhance communication abilities."
+            },
+            {
+                "name": "Play Volleyball",
+                "pillars": [
+                    "SOCIAL",
+                    "PHYSICAL"
+                ],
+                "current_quests": [
+                    "Attend a volleyball game once a week",
+                    "Practice volleyball for 1 hour weekly"
+                ],
+                "needed_quests": [
+                    "Initial Social Connection Assessment",
+                    "Active Listening",
+                    "Empathy Practice",
+                    "Social Vulnerability Exercise",
+                    "Basic Conflict Resolution",
+                    "Engage in Small Group Activities",
+                    "Observe Social Leaders",
+                    "Confidence Building Activities"
+                ],
+                "description": "Participate in volleyball activities."
+            },
+            {
+                "name": "Learn to Code",
+                "pillars": [
+                    "CAREER"
+                ],
+                "current_quests": [
+                    "Code for 1 hour daily",
+                    "Complete a basic coding tutorial"
+                ],
+                "needed_quests": [
+                    "Solidify Basic Coding Habits",
+                    "Choose a Programming Language",
+                    "Learn Data Structures and Algorithms",
+                    "Introduction to Version Control (Git)",
+                    "Explore Data Analysis Libraries",
+                    "Master Pandas Library",
+                    "Ready for Data Science Roles"
+                ],
+                "description": "Dedicate time to learning and practicing coding."
+            },
+            {
+                "name": "Spend Time with Family and Friends",
+                "pillars": [
+                    "SOCIAL"
+                ],
+                "current_quests": [
+                    "Call a family member or friend once a week",
+                    "Plan a weekly activity with family/friends"
+                ],
+                "needed_quests": [
+                    "Self-Awareness & Social Anxiety",
+                    "Active Listening",
+                    "Empathy Practice",
+                    "Expressing Needs Clearly",
+                    "Basic Conflict Resolution",
+                    "Small Social Engagement",
+                    "Planned Connection & Leadership",
+                    "Deepening Relationships"
+                ],
+                "description": "Prioritize and engage in activities with loved ones."
+            },
+            {
+                "name": "Learn Data Analysis",
+                "pillars": [
+                    "CAREER"
+                ],
+                "current_quests": [
+                    "Learn Data Analysis",
+                    "Complete a Data Analysis course"
+                ],
+                "needed_quests": [
+                    "Define Data Analysis Goals",
+                    "Begin Data Analysis Course",
+                    "Excel Proficiency",
+                    "SQL Fundamentals",
+                    "Pandas Library",
+                    "NumPy Library",
+                    "Small Data Analysis Project",
+                    "Goal Achieved - Data Analysis"
+                ],
+                "description": "Acquire skills in data analysis."
+            },
+            {
+                "name": "Learn Data Visualization",
+                "pillars": [
+                    "CAREER"
+                ],
+                "current_quests": [
+                    "Learn Data Visualization",
+                    "Create a simple data visualization project"
+                ],
+                "needed_quests": [
+                    "Refine Learning Goals",
+                    "Python Fundamentals",
+                    "Pandas Library",
+                    "Matplotlib Visualization",
+                    "Seaborn Statistical Visualization",
+                    "Data Cleaning Project",
+                    "Interactive Visualization Project",
+                    "Data Visualization Proficiency"
+                ],
+                "description": "Develop skills in data visualization."
+            }
+        ],
+        "stats_career": {
+            "Programming": 0,
+            "Data Analysis": 0,
+            "Data Visualization": 0
+        },
+        "stats_physical": {
+            "Fitness": 0
+        },
+        "stats_mental": {
+            "Self-Reflection": 0
+        },
+        "stats_social": {
+            "Communication": 0
+        },
         "debuffs": [],
         "skill_tree": null,
         "xp_total": 0,

@@ -1,4 +1,5 @@
 import os
+import time
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -11,6 +12,7 @@ class LLMClient:
         self.api_key = os.getenv("GEMINI_API_KEY")
         # Allow model to be configured via environment variable, default to gemma-3-4b-it
         self.default_model = os.getenv("GEMINI_MODEL", "gemma-3-4b-it")
+        print(f"[LLM] Using model: {self.default_model}")
         if not self.api_key:
             print("Warning: GEMINI_API_KEY not found in environment variables.")
         else:
@@ -90,39 +92,61 @@ class LLMClient:
         if json_mode and not is_gemma:
             config.response_mime_type = "application/json"
             
-        try:
-            response = self.client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=config
-            )
-            
-            if not response.text:
-                 print(f"[DEBUG] Gemini blocked response or returned empty text.")
-                 return "{}"
-            
-            text = response.text
-            
-            # Clean up markdown code blocks if present (common with Gemma even when asked for JSON)
-            if json_mode:
-                text = text.strip()
-                if text.startswith("```json"):
-                    text = text[7:]
-                if text.startswith("```"):
-                    text = text[3:]
-                if text.endswith("```"):
-                    text = text[:-3]
-                text = text.strip()
+        max_retries = 5  # Increased from 3 to 5 for better resilience
+        base_delay = 3  # Start with 3 seconds (increased from 2)
+        
+        for attempt in range(max_retries):
+            try:
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=config
+                )
                 
-            return text
+                if not response.text:
+                     print(f"[DEBUG] Gemini blocked response or returned empty text.")
+                     return "{}"
+                
+                text = response.text
+                
+                # Clean up markdown code blocks if present (common with Gemma even when asked for JSON)
+                if json_mode:
+                    text = text.strip()
+                    if text.startswith("```json"):
+                        text = text[7:]
+                    if text.startswith("```"):
+                        text = text[3:]
+                    if text.endswith("```"):
+                        text = text[:-3]
+                    text = text.strip()
+                    
+                return text
 
-        except Exception as e:
-            error_str = str(e)
-            # Check if it's a rate limit error
-            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
-                print(f"Error calling Gemini API: Rate limit exceeded for model {model}")
-                print(f"Consider switching to a different model (e.g., gemini-1.5-flash) or upgrading your plan.")
-                print(f"Current model: {model}")
-            else:
-                print(f"Error calling Gemini API: {e}")
-            return "{}"
+            except Exception as e:
+                error_str = str(e)
+                # Check if it's a rate limit error or connection error
+                is_rate_limit = "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower()
+                is_connection_error = "connection" in error_str.lower() or "timeout" in error_str.lower() or "10060" in error_str or "failed to respond" in error_str.lower()
+                
+                # Retry on rate limits or connection errors
+                if (is_rate_limit or is_connection_error) and attempt < max_retries - 1:
+                    # Calculate exponential backoff delay
+                    delay = base_delay * (2 ** attempt)
+                    if is_rate_limit:
+                        print(f"Error calling Gemini API: Rate limit exceeded for model {model}")
+                    else:
+                        print(f"Error calling Gemini API: Connection error - {error_str}")
+                    print(f"Retrying in {delay} seconds... (attempt {attempt + 1}/{max_retries})")
+                    time.sleep(delay)
+                    continue
+                else:
+                    if is_rate_limit:
+                        print(f"Error calling Gemini API: Rate limit exceeded for model {model}")
+                        print(f"Max retries ({max_retries}) reached. Consider switching to a different model (e.g., gemini-1.5-flash) or upgrading your plan.")
+                        print(f"Current model: {model}")
+                    elif is_connection_error:
+                        print(f"Error calling Gemini API: Connection error after {max_retries} retries - {error_str}")
+                        print(f"Current model: {model}")
+                    else:
+                        print(f"Error calling Gemini API: {e}")
+                    return "{}"

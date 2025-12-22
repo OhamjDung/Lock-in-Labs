@@ -6,8 +6,20 @@ I would do some journaling, and then excercise, and then some vocal practice to 
 
   i would listen first, then i would offer some solutions. Ill also ask if they want me to listen or give advice. When in a team effort i try to help but not be too demanding         
 
+data analysis, do data visualization. 
+
+And vocal practice is for practicing my communication skills
+
+i play alot of volleyball but i need to hit the gym more to do Plyometrics to jump higher and also muscle building. 
+
+I just try to stay busy. When i get overwhelmed i just start do something, anything, because i dont want to sit there and do nothing while everything is happeneing.
+
+yea i have a different friend group for different purposes. Like i go to eat with each friend group from time to time but like each friend group has its own main function based on a activity
+
+current gym routine huh, i just go in there and do shoulder machines, do leg machines, arm machines, and back machines. Each of them i save the weight, and progressively overload and train to failure. And I just want a more asthetic body and have better cardio
+
+i have a group of friends i play vollyball with yes, its very fun
+
   uvicorn backend.api:app --reload --port 8000
 
   fQmr8dTaOQq116mo2X7F
-
-  i want to become a data analyst, doing data visualization
