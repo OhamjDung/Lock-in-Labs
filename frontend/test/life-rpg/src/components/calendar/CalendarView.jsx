@@ -10,6 +10,16 @@ export default function CalendarView() {
   const [hoveredDay, setHoveredDay] = useState(null);
   const [hoveredEventId, setHoveredEventId] = useState(null);
   const [allCalendarEvents, setAllCalendarEvents] = useState([]); // Store full event objects with IDs
+  const [viewMode, setViewMode] = useState('month'); // 'month' or 'week'
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
+    // Start of current week (Sunday)
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day;
+    const weekStart = new Date(now.setDate(diff));
+    weekStart.setHours(0, 0, 0, 0);
+    return weekStart;
+  });
   const [newEvent, setNewEvent] = useState({
     title: '',
     category: '',
@@ -33,6 +43,9 @@ export default function CalendarView() {
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
   const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
   const startOffset = 3; // Starts on Wednesday for example purposes
+  
+  // Hours for week view (8 AM to 10 PM)
+  const hours = Array.from({ length: 15 }, (_, i) => i + 8); // 8, 9, 10, ..., 22
 
   // Get current date
   const now = new Date();
@@ -137,6 +150,80 @@ export default function CalendarView() {
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  // Get week days for week view
+  const weekDays = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeekStart);
+      date.setDate(currentWeekStart.getDate() + i);
+      days.push({
+        date: date,
+        dayOfMonth: date.getDate(),
+        dayOfWeek: daysOfWeek[date.getDay()],
+        isToday: date.getDate() === TODAY_DAY && date.getMonth() === TODAY_MONTH && date.getFullYear() === TODAY_YEAR
+      });
+    }
+    return days;
+  }, [currentWeekStart, TODAY_DAY, TODAY_MONTH, TODAY_YEAR]);
+
+  // Get events for week view
+  const weekEvents = useMemo(() => {
+    const weekEventsMap = {};
+    weekDays.forEach(day => {
+      const dayEvents = events.filter(ev => {
+        try {
+          const evDate = new Date(ev.date || ev.start_time || ev.time);
+          return evDate.getDate() === day.date.getDate() &&
+                 evDate.getMonth() === day.date.getMonth() &&
+                 evDate.getFullYear() === day.date.getFullYear();
+        } catch (e) {
+          return false;
+        }
+      });
+      weekEventsMap[day.date.toISOString().slice(0, 10)] = dayEvents;
+    });
+    return weekEventsMap;
+  }, [events, weekDays]);
+
+  // Helper to get hour position for an event
+  const getEventPosition = (event) => {
+    try {
+      const eventTime = new Date(event.start_time || event.time || event.date);
+      const hour = eventTime.getHours();
+      const minutes = eventTime.getMinutes();
+      const totalMinutes = hour * 60 + minutes;
+      const startMinutes = 8 * 60; // 8 AM
+      const endMinutes = 22 * 60; // 10 PM
+      const totalRange = endMinutes - startMinutes;
+      
+      if (totalMinutes < startMinutes) return { top: 0, height: 30 };
+      if (totalMinutes > endMinutes) return { top: '100%', height: 30 };
+      
+      const position = ((totalMinutes - startMinutes) / totalRange) * 100;
+      
+      // Calculate duration
+      let duration = 60; // Default 1 hour
+      if (event.end_time) {
+        const endTime = new Date(event.end_time);
+        const endTotalMinutes = endTime.getHours() * 60 + endTime.getMinutes();
+        duration = Math.max(30, endTotalMinutes - totalMinutes);
+      }
+      
+      const heightPercent = (duration / totalRange) * 100;
+      
+      return { top: `${position}%`, height: `${Math.max(2, heightPercent)}%` };
+    } catch (e) {
+      return { top: 0, height: 30 };
+    }
+  };
+
+  // Navigate week
+  const navigateWeek = (direction) => {
+    const newWeekStart = new Date(currentWeekStart);
+    newWeekStart.setDate(currentWeekStart.getDate() + (direction * 7));
+    setCurrentWeekStart(newWeekStart);
+  };
 
   // Group events for the sidebar
   const upcomingGroups = useMemo(() => {
@@ -278,10 +365,68 @@ export default function CalendarView() {
           <div>
             <h2 className="text-3xl font-black text-stone-900 uppercase tracking-tighter">Mission Schedule</h2>
             <div className="text-xs font-mono text-stone-600 tracking-widest mt-1">
-              {now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()} // SECTOR 4
+              {viewMode === 'month' 
+                ? now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase() + ' // SECTOR 4'
+                : `${weekDays[0].date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekDays[6].date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`.toUpperCase()
+              }
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            {/* View Toggle */}
+            <div className="flex gap-2 bg-stone-700/30 p-1 rounded-sm">
+              <button
+                onClick={() => setViewMode('month')}
+                className={`px-3 py-1 rounded-sm font-bold font-mono text-xs transition-colors ${
+                  viewMode === 'month' 
+                    ? 'bg-stone-800 text-[#e8dcc5] shadow-md' 
+                    : 'text-stone-600 hover:text-stone-800'
+                }`}
+              >
+                MONTH
+              </button>
+              <button
+                onClick={() => setViewMode('week')}
+                className={`px-3 py-1 rounded-sm font-bold font-mono text-xs transition-colors ${
+                  viewMode === 'week' 
+                    ? 'bg-stone-800 text-[#e8dcc5] shadow-md' 
+                    : 'text-stone-600 hover:text-stone-800'
+                }`}
+              >
+                WEEK
+              </button>
+            </div>
+            
+            {/* Week Navigation (only show in week view) */}
+            {viewMode === 'week' && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigateWeek(-1)}
+                  className="bg-stone-800 text-[#e8dcc5] px-3 py-1 rounded-sm font-bold font-mono text-sm shadow-md hover:bg-stone-700 transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={() => {
+                    const now = new Date();
+                    const day = now.getDay();
+                    const diff = now.getDate() - day;
+                    const weekStart = new Date(now.setDate(diff));
+                    weekStart.setHours(0, 0, 0, 0);
+                    setCurrentWeekStart(weekStart);
+                  }}
+                  className="bg-stone-800 text-[#e8dcc5] px-3 py-1 rounded-sm font-bold font-mono text-xs shadow-md hover:bg-stone-700 transition-colors"
+                >
+                  TODAY
+                </button>
+                <button
+                  onClick={() => navigateWeek(1)}
+                  className="bg-stone-800 text-[#e8dcc5] px-3 py-1 rounded-sm font-bold font-mono text-sm shadow-md hover:bg-stone-700 transition-colors"
+                >
+                  →
+                </button>
+              </div>
+            )}
+            
              <button
                onClick={() => setShowAddEventModal(true)}
                className="bg-stone-800 text-[#e8dcc5] px-4 py-2 rounded-sm font-bold font-mono text-sm shadow-md hover:bg-stone-700 transition-colors"
@@ -301,6 +446,7 @@ export default function CalendarView() {
         <div className="flex flex-col lg:flex-row flex-1 relative z-10">
             
             {/* Calendar Grid - Left Column */}
+            {viewMode === 'month' ? (
             <div className="flex-1 p-6 border-b lg:border-b-0 lg:border-r border-[#c7bba4]">
                 <div className="grid grid-cols-7 gap-2 md:gap-4 h-full content-start">
                     {/* Day Headers */}
@@ -403,6 +549,132 @@ export default function CalendarView() {
                     })}
                 </div>
             </div>
+            ) : (
+            /* Week View - Schedule with Hour Lines */
+            <div className="flex-1 p-6 border-b lg:border-b-0 lg:border-r border-[#c7bba4] overflow-x-auto">
+              <div className="min-w-[800px]">
+                {/* Day Headers */}
+                <div className="grid grid-cols-8 gap-2 mb-2 sticky top-0 bg-[#e8dcc5] z-20 pb-2">
+                  <div className="text-xs font-bold text-stone-500 tracking-widest border-b border-stone-400 pb-2">
+                    TIME
+                  </div>
+                  {weekDays.map((day, idx) => (
+                    <div 
+                      key={idx}
+                      className={`text-center text-xs font-bold tracking-widest border-b border-stone-400 pb-2 ${
+                        day.isToday ? 'text-stone-900 bg-white/40 ring-2 ring-stone-800' : 'text-stone-500'
+                      }`}
+                    >
+                      <div>{day.dayOfWeek}</div>
+                      <div className="text-lg font-black">{day.dayOfMonth}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Hour Lines Grid */}
+                <div className="relative" style={{ height: 'calc(14 * 60px)' }}>
+                  {/* Hour Lines */}
+                  {hours.map((hour, hourIdx) => (
+                    <div key={hour} className="absolute w-full" style={{ top: `${(hourIdx / hours.length) * 100}%` }}>
+                      <div className="grid grid-cols-8 gap-2 h-16 border-t border-stone-300">
+                        {/* Time Label */}
+                        <div className="text-xs font-mono text-stone-500 pt-1">
+                          {hour.toString().padStart(2, '0')}:00
+                        </div>
+                        
+                        {/* Day Columns */}
+                        {weekDays.map((day, dayIdx) => {
+                          const dayKey = day.date.toISOString().slice(0, 10);
+                          const dayEvents = weekEvents[dayKey] || [];
+                          const hourEvents = dayEvents.filter(ev => {
+                            try {
+                              const evTime = new Date(ev.start_time || ev.time || ev.date);
+                              return evTime.getHours() === hour;
+                            } catch (e) {
+                              return false;
+                            }
+                          });
+
+                          return (
+                            <div 
+                              key={dayIdx} 
+                              className={`relative border-l border-stone-200 ${
+                                day.isToday ? 'bg-white/20' : ''
+                              }`}
+                              onMouseEnter={() => setHoveredDay(day.dayOfMonth)}
+                              onMouseLeave={() => setHoveredDay(null)}
+                            >
+                              {/* Hover "+" button */}
+                              {hoveredDay === day.dayOfMonth && (
+                                <button
+                                  onClick={() => {
+                                    const dateStr = `${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, '0')}-${String(day.date.getDate()).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00`;
+                                    setNewEvent({
+                                      ...newEvent,
+                                      from: dateStr,
+                                      to: ''
+                                    });
+                                    setShowAddEventModal(true);
+                                  }}
+                                  className="absolute top-1 right-1 w-5 h-5 bg-stone-800 text-[#e8dcc5] rounded-full flex items-center justify-center font-bold text-xs shadow-md hover:bg-stone-700 transition-colors z-10"
+                                  title="Add event at this time"
+                                >
+                                  +
+                                </button>
+                              )}
+
+                              {/* Events for this hour */}
+                              {hourEvents.map((ev, evIdx) => {
+                                const isCompleted = ev.status && (ev.status.toLowerCase() === 'done' || ev.status === 'COMPLETED');
+                                const isEventHovered = hoveredEventId === ev.id;
+                                const canDelete = ev.id && ev.fullEvent;
+                                const position = getEventPosition(ev);
+                                
+                                return (
+                                  <div
+                                    key={evIdx}
+                                    className={`absolute left-0 right-0 rounded-sm border text-[9px] font-bold leading-tight shadow-sm p-1 z-10 ${
+                                      isCompleted 
+                                        ? 'bg-stone-800 text-[#e8dcc5] border-stone-900 line-through opacity-60' 
+                                        : 'bg-[#f7e6a1] text-amber-900 border-amber-900/20'
+                                    }`}
+                                    style={{
+                                      top: position.top,
+                                      height: position.height,
+                                      minHeight: '20px'
+                                    }}
+                                    onMouseEnter={() => canDelete && setHoveredEventId(ev.id)}
+                                    onMouseLeave={() => setHoveredEventId(null)}
+                                  >
+                                    <div className="truncate">{ev.title}</div>
+                                    {ev.time && (
+                                      <div className="text-[8px] opacity-75">{ev.time.slice(11, 16)}</div>
+                                    )}
+                                    {canDelete && isEventHovered && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteEvent(ev.id);
+                                        }}
+                                        className="absolute top-0 right-0 w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md hover:bg-red-700 transition-colors z-20"
+                                        title="Delete event"
+                                      >
+                                        −
+                                      </button>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            )}
 
             {/* Sidebar - Right Column */}
             <div className="w-full lg:w-72 bg-[#dcd0b9]/20 p-6 flex flex-col gap-6">

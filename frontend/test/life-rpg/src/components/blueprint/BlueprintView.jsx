@@ -23,7 +23,9 @@ export default function BlueprintView({ skillTree, characterSheet }) {
           ))}
         </div>
       </div>
-      <TreeVisualizer pillar={activePillar} skillTree={skillTree} characterSheet={characterSheet} />
+      <div className="flex-1 overflow-hidden pt-20">
+        <TreeVisualizer pillar={activePillar} skillTree={skillTree} characterSheet={characterSheet} />
+      </div>
     </div>
   );
 }

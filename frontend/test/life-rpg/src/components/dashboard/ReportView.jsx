@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Activity, BarChart2, Mic, Keyboard, Check } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { auth } from '../../config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import ReportingChat from './ReportingChat';
 
 export default function ReportView({ displayData }) {
   const [userId, setUserId] = useState(null);
@@ -10,6 +11,9 @@ export default function ReportView({ displayData }) {
     quests: [],
     performanceData: []
   });
+  const [skillTree, setSkillTree] = useState(null);
+  const [isToggling, setIsToggling] = useState({});
+  const [showChat, setShowChat] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -23,78 +27,17 @@ export default function ReportView({ displayData }) {
     return () => unsubscribe();
   }, []);
 
-  // Fetch report data for current user
-  useEffect(() => {
+  // Fetch report data function (extracted for reuse)
+  const fetchReportData = React.useCallback(async () => {
     if (!userId) return;
 
-    const fetchReportData = async () => {
-      try {
-        const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
-        const res = await fetch(`${backend}/api/profile/${userId}`);
-        
-        if (!res.ok) {
-          console.warn('Failed to fetch profile for report');
-          // Use displayData as fallback
-          if (displayData && displayData.quests) {
-            setReportData({
-              quests: displayData.quests.map(q => ({
-                ...q,
-                history: [],
-                completionRate: 0,
-                isCompletedToday: false
-              })),
-              performanceData: []
-            });
-          }
-          return;
-        }
-
-        const data = await res.json();
-        const characterSheet = data.character_sheet || data;
-        
-        // Extract quests from character sheet
-        const quests = [];
-        if (characterSheet.goals && Array.isArray(characterSheet.goals)) {
-          characterSheet.goals.forEach(goal => {
-            // Add current_quests as quests
-            if (goal.current_quests && Array.isArray(goal.current_quests)) {
-              goal.current_quests.forEach(questName => {
-                quests.push({
-                  name: questName,
-                  pillar: goal.pillars && goal.pillars.length > 0 ? goal.pillars[0] : 'UNKNOWN',
-                  history: [], // TODO: Get from daily reports
-                  completionRate: 0, // TODO: Calculate from history
-                  isCompletedToday: false // TODO: Check today's reports
-                });
-              });
-            }
-          });
-        }
-
-        // Generate performance data (TODO: Get from actual daily reports)
-        // For now, use displayData quests if available, otherwise use extracted quests
-        const finalQuests = displayData && displayData.quests ? displayData.quests : quests;
-        
-        setReportData({
-          quests: finalQuests.map((q, i) => ({
-            ...q,
-            history: [true, true, false, true, true], // TODO: Get real history
-            completionRate: 80, // TODO: Calculate from real data
-            isCompletedToday: i % 3 === 0 // TODO: Check real status
-          })),
-          performanceData: [
-            { day: 'M', score: 65 },
-            { day: 'T', score: 40 },
-            { day: 'W', score: 75 },
-            { day: 'T', score: 50 },
-            { day: 'F', score: 85 },
-            { day: 'S', score: 30 },
-            { day: 'S', score: 60 },
-          ] // TODO: Get from actual daily reports
-        });
-      } catch (error) {
-        console.error('Error fetching report data:', error);
-        // Fallback to displayData
+    try {
+      const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+      const res = await fetch(`${backend}/api/profile/${userId}`);
+      
+      if (!res.ok) {
+        console.warn('Failed to fetch profile for report');
+        // Use displayData as fallback
         if (displayData && displayData.quests) {
           setReportData({
             quests: displayData.quests.map(q => ({
@@ -106,11 +49,189 @@ export default function ReportView({ displayData }) {
             performanceData: []
           });
         }
+        return;
       }
-    };
 
-    fetchReportData();
+      const data = await res.json();
+      const characterSheet = data.character_sheet || data;
+      const treeData = data.skill_tree || { nodes: [] };
+      setSkillTree(treeData);
+      
+      // Get today's date in ISO format
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Build a map of quest name to node_id for matching tasks
+      const questToNodeId = {};
+      if (treeData.nodes && Array.isArray(treeData.nodes)) {
+        treeData.nodes.forEach(node => {
+          if (node.name) {
+            questToNodeId[node.name] = node.id;
+          }
+        });
+      }
+      
+      // Get daily reports and extract task completion data
+      const dailyReports = characterSheet.daily_reports || [];
+      
+      // Sort reports by date (most recent first)
+      const sortedReports = [...dailyReports].sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+      });
+      
+      // Extract quests from character sheet or use displayData
+      const quests = [];
+      if (characterSheet.goals && Array.isArray(characterSheet.goals)) {
+        characterSheet.goals.forEach(goal => {
+          if (goal.current_quests && Array.isArray(goal.current_quests)) {
+            goal.current_quests.forEach(questName => {
+              quests.push({
+                name: questName,
+                status: 'active', // current_quests are active
+                pillar: goal.pillars && goal.pillars.length > 0 ? goal.pillars[0] : 'UNKNOWN',
+              });
+            });
+          }
+          if (goal.needed_quests && Array.isArray(goal.needed_quests)) {
+            goal.needed_quests.forEach(questName => {
+              // Only add if not already in quests (avoid duplicates)
+              if (!quests.find(q => q.name === questName)) {
+                quests.push({
+                  name: questName,
+                  status: 'pending', // needed_quests are pending
+                  pillar: goal.pillars && goal.pillars.length > 0 ? goal.pillars[0] : 'UNKNOWN',
+                });
+              }
+            });
+          }
+        });
+      }
+      
+      // Use displayData quests if available (they have status info), otherwise use extracted quests
+      const finalQuests = displayData && displayData.quests ? displayData.quests : quests;
+      
+      // Process each quest to get completion data
+      const processedQuests = finalQuests.map(q => {
+        const nodeId = questToNodeId[q.name];
+        if (!nodeId) {
+          // No matching node found, return quest with empty history
+          return {
+            ...q,
+            history: [],
+            completionRate: 0,
+            isCompletedToday: false
+          };
+        }
+        
+        // Get today's completion status
+        const todayReport = sortedReports.find(r => r.date === today);
+        let isCompletedToday = false;
+        if (todayReport && todayReport.tasks) {
+          const todayTask = todayReport.tasks.find(t => t.node_id === nodeId);
+          if (todayTask) {
+            isCompletedToday = todayTask.status === 'COMPLETED' || 
+                               (todayTask.completed_repetitions > 0);
+          }
+        }
+        
+        // Build history from last 7 days (most recent first, then reverse for display)
+        const history = [];
+        
+        // Get last 7 days including today
+        for (let i = 0; i < 7; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = date.toISOString().split('T')[0];
+          
+          const report = sortedReports.find(r => r.date === dateStr);
+          let completed = false;
+          if (report && report.tasks) {
+            const task = report.tasks.find(t => t.node_id === nodeId);
+            if (task) {
+              completed = task.status === 'COMPLETED' || 
+                         (task.completed_repetitions > 0);
+            }
+          }
+          history.push(completed);
+        }
+        
+        // Reverse to show oldest to newest (left to right)
+        history.reverse();
+        
+        // Calculate completion rate from history
+        const completedCount = history.filter(h => h).length;
+        const completionRate = history.length > 0 
+          ? Math.round((completedCount / history.length) * 100) 
+          : 0;
+        
+        return {
+          ...q,
+          history,
+          completionRate,
+          isCompletedToday
+        };
+      });
+      
+      // Generate performance data from daily reports
+      // Calculate average completion score per day for the last 7 days
+      const performanceData = [];
+      const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        const report = sortedReports.find(r => r.date === dateStr);
+        let score = 0;
+        
+        if (report && report.tasks) {
+          const totalTasks = report.tasks.length;
+          const completedTasks = report.tasks.filter(t => 
+            t.status === 'COMPLETED' || t.completed_repetitions > 0
+          ).length;
+          score = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        }
+        
+        const dayIndex = (6 - i) % 7;
+        performanceData.push({
+          day: dayLabels[dayIndex],
+          score
+        });
+      }
+      
+      setReportData({
+        quests: processedQuests,
+        performanceData: performanceData.length > 0 ? performanceData : [
+          { day: 'M', score: 0 },
+          { day: 'T', score: 0 },
+          { day: 'W', score: 0 },
+          { day: 'T', score: 0 },
+          { day: 'F', score: 0 },
+          { day: 'S', score: 0 },
+          { day: 'S', score: 0 },
+        ]
+      });
+    } catch (error) {
+      console.error('Error fetching report data:', error);
+      // Fallback to displayData
+      if (displayData && displayData.quests) {
+        setReportData({
+          quests: displayData.quests.map(q => ({
+            ...q,
+            history: [],
+            completionRate: 0,
+            isCompletedToday: false
+          })),
+          performanceData: []
+        });
+      }
+    }
   }, [userId, displayData]);
+
+  // Fetch report data for current user
+  useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
 
   return (
     <div className="flex-1 flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500 items-center justify-center min-h-[700px]">
@@ -141,33 +262,253 @@ export default function ReportView({ displayData }) {
             </h3>
             <div className="grid grid-cols-1 gap-0 bg-white/40 border border-[#d4c5a9] rounded-sm divide-y divide-[#d4c5a9]">
               {(reportData.quests.length > 0 ? reportData.quests : (displayData?.quests || [])).map((q, i) => {
-                const history = q.history || [true, true, false, true, true]; 
-                const isCompletedToday = q.isCompletedToday !== undefined ? q.isCompletedToday : (i % 3 === 0);
+                // Get quest status - prefer from q (which may come from displayData or characterSheet)
+                // If q doesn't have status, try to get it from displayData
+                const questStatus = q.status || (displayData?.quests?.find(dq => dq.name === q.name)?.status) || 'active';
+                const isActive = questStatus === 'active';
+                
+                // Use calculated history and completion data
+                const history = q.history || []; 
+                const isCompletedToday = q.isCompletedToday !== undefined ? q.isCompletedToday : false;
+                
+                // Check circle should be filled if quest is active AND completed today
+                const shouldShowCheck = isActive && isCompletedToday;
+                
+                // Get node_id for this quest - try multiple matching strategies
+                const nodeId = (() => {
+                  if (!skillTree?.nodes || !q?.name) return null;
+                  
+                  // Try exact match first
+                  let node = skillTree.nodes.find(n => n.name === q.name);
+                  if (node) return node.id;
+                  
+                  // Try case-insensitive match
+                  node = skillTree.nodes.find(n => n.name?.toLowerCase() === q.name?.toLowerCase());
+                  if (node) return node.id;
+                  
+                  // Try matching with trimmed whitespace
+                  node = skillTree.nodes.find(n => n.name?.trim() === q.name?.trim());
+                  if (node) return node.id;
+                  
+                  return null;
+                })();
+                
+                const canToggle = isActive && nodeId && userId;
+                const isTogglingQuest = isToggling[nodeId] || false;
+
+                const handleToggle = async (e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  
+                  console.log('ReportView: handleToggle called', { nodeId, userId, isActive, questName: q.name });
+                  
+                  if (!nodeId) {
+                    console.warn('ReportView: No nodeId found for quest:', q.name, 'Available nodes:', skillTree?.nodes?.map(n => n.name));
+                    return;
+                  }
+                  
+                  if (!userId) {
+                    console.warn('ReportView: No userId provided');
+                    return;
+                  }
+                  
+                  if (!isActive) {
+                    console.warn('ReportView: Quest is not active:', questStatus);
+                    return;
+                  }
+                  
+                  if (isTogglingQuest) {
+                    console.log('ReportView: Already toggling, skipping');
+                    return;
+                  }
+
+                  setIsToggling(prev => ({ ...prev, [nodeId]: true }));
+                  const newCompleted = !isCompletedToday;
+                  
+                  console.log('ReportView: Toggling task', { userId, nodeId, questName: q.name, newCompleted });
+
+                  try {
+                    const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+                    const res = await fetch(`${backend}/api/profile/${userId}/task/${nodeId}/toggle`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ completed: newCompleted })
+                    });
+
+                    if (res.ok) {
+                      const data = await res.json();
+                      // Update local state
+                      setReportData(prev => ({
+                        ...prev,
+                        quests: prev.quests.map(quest => 
+                          quest.name === q.name 
+                            ? { ...quest, isCompletedToday: data.completed }
+                            : quest
+                        )
+                      }));
+                      // Reload data to get updated history
+                      const profileRes = await fetch(`${backend}/api/profile/${userId}`);
+                      if (profileRes.ok) {
+                        const profileData = await profileRes.json();
+                        // Re-run the data processing logic
+                        const today = new Date().toISOString().split('T')[0];
+                        const updatedCharacterSheet = profileData.character_sheet || profileData;
+                        const updatedTree = profileData.skill_tree || { nodes: [] };
+                        const updatedReports = updatedCharacterSheet.daily_reports || [];
+                        const sortedReports = [...updatedReports].sort((a, b) => {
+                          return new Date(b.date) - new Date(a.date);
+                        });
+                        
+                        // Recalculate quest data
+                        const questToNodeIdMap = {};
+                        if (updatedTree.nodes && Array.isArray(updatedTree.nodes)) {
+                          updatedTree.nodes.forEach(node => {
+                            if (node.name) {
+                              questToNodeIdMap[node.name] = node.id;
+                            }
+                          });
+                        }
+                        
+                        const finalQuests = displayData && displayData.quests ? displayData.quests : [];
+                        const processedQuests = finalQuests.map(quest => {
+                          const questNodeId = questToNodeIdMap[quest.name];
+                          if (!questNodeId) {
+                            return { ...quest, history: [], completionRate: 0, isCompletedToday: false };
+                          }
+                          
+                          const todayReport = sortedReports.find(r => r.date === today);
+                          let completedToday = false;
+                          if (todayReport && todayReport.tasks) {
+                            const todayTask = todayReport.tasks.find(t => t.node_id === questNodeId);
+                            if (todayTask) {
+                              completedToday = todayTask.status === 'COMPLETED' || todayTask.status === 'DONE' || (todayTask.completed_repetitions > 0);
+                            }
+                          }
+                          
+                          const history = [];
+                          for (let i = 0; i < 7; i++) {
+                            const date = new Date();
+                            date.setDate(date.getDate() - i);
+                            const dateStr = date.toISOString().split('T')[0];
+                            const report = sortedReports.find(r => r.date === dateStr);
+                            let completed = false;
+                            if (report && report.tasks) {
+                              const task = report.tasks.find(t => t.node_id === questNodeId);
+                              if (task) {
+                                completed = task.status === 'COMPLETED' || task.status === 'DONE' || (task.completed_repetitions > 0);
+                              }
+                            }
+                            history.push(completed);
+                          }
+                          history.reverse();
+                          
+                          const completedCount = history.filter(h => h).length;
+                          const completionRate = history.length > 0 ? Math.round((completedCount / history.length) * 100) : 0;
+                          
+                          return { ...quest, history, completionRate, isCompletedToday: completedToday };
+                        });
+                        
+                        setReportData(prev => ({
+                          ...prev,
+                          quests: processedQuests
+                        }));
+                      }
+                    } else {
+                      console.error('Failed to toggle task completion');
+                    }
+                  } catch (error) {
+                    console.error('Error toggling task completion:', error);
+                  } finally {
+                    setIsToggling(prev => ({ ...prev, [nodeId]: false }));
+                  }
+                };
 
                 return (
-                  <div key={i} className="p-4 flex items-center justify-between hover:bg-[#dcd0b9]/30 transition-colors group">
+                  <div 
+                    key={i} 
+                    className="p-4 flex items-center justify-between hover:bg-[#dcd0b9]/30 transition-colors group"
+                  >
                     <div className="flex items-center gap-4">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isCompletedToday ? 'bg-stone-800 border-stone-800 text-white' : 'border-stone-400 text-transparent'}`}>
-                        <Check size={14} strokeWidth={4} />
-                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          console.log('ReportView: RAW CLICK EVENT FIRED!', { 
+                            nodeId, 
+                            userId, 
+                            canToggle, 
+                            questName: q.name,
+                            disabled: !canToggle || isTogglingQuest,
+                            isActive,
+                            hasNodeId: !!nodeId,
+                            isTogglingQuest
+                          });
+                          e.stopPropagation();
+                          e.preventDefault();
+                          handleToggle(e);
+                        }}
+                        onMouseEnter={() => {
+                          console.log('ReportView: Mouse entered button', { nodeId, userId, canToggle, questName: q.name });
+                        }}
+                        onMouseDown={(e) => {
+                          e.stopPropagation();
+                          console.log('ReportView: Mouse down on button');
+                        }}
+                        disabled={false}
+                        style={{ 
+                          pointerEvents: 'auto',
+                          zIndex: 50,
+                          position: 'relative',
+                          minWidth: '24px',
+                          minHeight: '24px'
+                        }}
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                          shouldShowCheck 
+                            ? 'bg-stone-800 border-stone-800 text-white cursor-pointer hover:bg-stone-900 active:scale-95' 
+                            : canToggle
+                            ? 'border-stone-400 text-transparent cursor-pointer hover:border-stone-600 hover:bg-stone-100 active:scale-95'
+                            : 'border-stone-400 text-transparent cursor-not-allowed opacity-50'
+                        } ${isTogglingQuest ? 'opacity-50' : ''}`}
+                        title={
+                          !isActive ? 'Quest is not active' :
+                          !nodeId ? `No matching node found for: ${q.name}` :
+                          !userId ? 'User not logged in' :
+                          isTogglingQuest ? 'Updating...' :
+                          shouldShowCheck ? 'Mark as incomplete' : 'Mark as complete'
+                        }
+                      >
+                        {shouldShowCheck && <Check size={14} strokeWidth={4} />}
+                      </button>
                       <div>
                         <div className="font-bold text-stone-800 text-sm">{q.name}</div>
-                        <div className="text-[10px] font-mono text-stone-500 uppercase">{q.pillar} PROTOCOL</div>
+                        <div className="text-[10px] font-mono text-stone-500 uppercase">{q.pillar || 'UNKNOWN'} PROTOCOL</div>
                       </div>
                     </div>
                     
                     {/* History Visualization */}
                     <div className="flex items-center gap-4">
                       <div className="flex gap-1">
-                        {history.map((done, hIdx) => (
-                          <div 
-                            key={hIdx} 
-                            className={`w-2 h-2 rounded-full ${done ? 'bg-stone-400' : 'bg-stone-200 border border-stone-300'}`}
-                            title={done ? "Completed" : "Missed"}
-                          />
-                        ))}
+                        {history.length > 0 ? (
+                          history.map((done, hIdx) => (
+                            <div 
+                              key={hIdx} 
+                              className={`w-2 h-2 rounded-full ${done ? 'bg-stone-400' : 'bg-stone-200 border border-stone-300'}`}
+                              title={done ? "Completed" : "Missed"}
+                            />
+                          ))
+                        ) : (
+                          // Show empty dots if no history available
+                          Array.from({ length: 7 }).map((_, hIdx) => (
+                            <div 
+                              key={hIdx} 
+                              className="w-2 h-2 rounded-full bg-stone-200 border border-stone-300"
+                              title="No data"
+                            />
+                          ))
+                        )}
                       </div>
-                      <div className="text-xs font-mono text-stone-400 w-12 text-right">{q.completionRate || 80}%</div>
+                      <div className="text-xs font-mono text-stone-400 w-12 text-right">{q.completionRate || 0}%</div>
                     </div>
                   </div>
                 );
@@ -183,13 +524,13 @@ export default function ReportView({ displayData }) {
             <div className="bg-white/40 border border-[#d4c5a9] p-4 h-48 rounded-sm">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={reportData.performanceData.length > 0 ? reportData.performanceData : [
-                  { day: 'M', score: 65 },
-                  { day: 'T', score: 40 },
-                  { day: 'W', score: 75 },
-                  { day: 'T', score: 50 },
-                  { day: 'F', score: 85 },
-                  { day: 'S', score: 30 },
-                  { day: 'S', score: 60 },
+                  { day: 'M', score: 0 },
+                  { day: 'T', score: 0 },
+                  { day: 'W', score: 0 },
+                  { day: 'T', score: 0 },
+                  { day: 'F', score: 0 },
+                  { day: 'S', score: 0 },
+                  { day: 'S', score: 0 },
                 ]}>
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#78716c', fontSize: 10}} />
                   <Tooltip 
@@ -210,13 +551,30 @@ export default function ReportView({ displayData }) {
             <Mic size={18} />
             <span>INITIATE VOICE LOG</span>
           </button>
-          <button className="flex-1 bg-white border border-[#c7bba4] text-stone-800 py-3 rounded-sm font-bold flex items-center justify-center gap-3 hover:bg-[#f5efe6] transition-colors shadow-sm active:transform active:scale-[0.98]">
+          <button 
+            onClick={() => setShowChat(true)}
+            className="flex-1 bg-white border border-[#c7bba4] text-stone-800 py-3 rounded-sm font-bold flex items-center justify-center gap-3 hover:bg-[#f5efe6] transition-colors shadow-sm active:transform active:scale-[0.98]"
+          >
             <Keyboard size={18} />
             <span>MANUAL ENTRY</span>
           </button>
         </div>
 
       </div>
+
+      {/* Reporting Chat Modal */}
+      {showChat && (
+        <ReportingChat
+          userId={userId}
+          onClose={() => {
+            setShowChat(false);
+          }}
+          onReportComplete={() => {
+            // Refresh data when report is completed
+            fetchReportData();
+          }}
+        />
+      )}
     </div>
   );
 }

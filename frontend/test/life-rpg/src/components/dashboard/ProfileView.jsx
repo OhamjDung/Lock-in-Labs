@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Terminal, Paperclip, PenTool, User, Target, Brain, Swords, ShieldAlert, 
-  Clock, Video, FileText, X, Camera 
+  Clock, Video, FileText, X, Camera, Plus, Save
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import QuestItem from './QuestItem';
 import SkillItem from './SkillItem';
 import TimelineItem from './TimelineItem';
 
-export default function ProfileView({ displayData, ditheredPreviewUrl, fileInputRef, takePhotoRef, sendFile, selectedAlgorithm }) {
+export default function ProfileView({ displayData, ditheredPreviewUrl, fileInputRef, takePhotoRef, sendFile, selectedAlgorithm, skillTree, userId, characterSheet, onQuestToggle }) {
   const [showCamera, setShowCamera] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const [showNewTaskModal, setShowNewTaskModal] = useState(false);
+  const [newTaskName, setNewTaskName] = useState('');
+  const [selectedGoal, setSelectedGoal] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Start camera when modal opens
   useEffect(() => {
@@ -128,11 +132,40 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
             <span className="text-[10px] bg-red-800/10 text-red-900 px-2 py-1 rounded-sm font-bold border border-red-800/20 shadow-sm">TOP SECRET</span>
           </div>
           <div className="flex-1 overflow-y-auto custom-scrollbar bg-[linear-gradient(transparent_23px,#d4c5a9_24px)] bg-[length:100%_24px] p-0 relative z-10 max-h-[500px]">
-            {displayData.quests.map((q, idx) => <QuestItem key={idx} quest={q} />)}
+            {displayData.quests.map((q, idx) => {
+              // Check if quest is completed today
+              const nodeId = skillTree?.nodes?.find(n => n.name === q.name)?.id;
+              let isCompletedToday = false;
+              if (nodeId && characterSheet?.daily_reports) {
+                const today = new Date().toISOString().split('T')[0];
+                const todayReport = characterSheet.daily_reports.find(r => r.date === today);
+                if (todayReport?.tasks) {
+                  const todayTask = todayReport.tasks.find(t => t.node_id === nodeId);
+                  if (todayTask) {
+                    isCompletedToday = todayTask.status === 'COMPLETED' || todayTask.status === 'DONE' || (todayTask.completed_repetitions > 0);
+                  }
+                }
+              }
+              return (
+                <QuestItem 
+                  key={idx} 
+                  quest={q} 
+                  skillTree={skillTree}
+                  userId={userId}
+                  isCompletedToday={isCompletedToday}
+                  onToggle={onQuestToggle}
+                />
+              );
+            })}
             {displayData.quests.length === 0 && <div className="p-8 text-center text-stone-500 text-sm font-serif italic">No active directives found.</div>}
-            <div className="p-6 flex items-center justify-center text-stone-500 hover:text-stone-700 cursor-pointer transition-all group">
-              <span className="text-xs font-mono uppercase border-b border-dashed border-stone-400 group-hover:border-stone-600 flex items-center gap-2"><PenTool size={12} /> Log New Task</span>
-            </div>
+            <button
+              onClick={() => setShowNewTaskModal(true)}
+              className="p-6 w-full flex items-center justify-center text-stone-500 hover:text-stone-700 cursor-pointer transition-all group"
+            >
+              <span className="text-xs font-mono uppercase border-b border-dashed border-stone-400 group-hover:border-stone-600 flex items-center gap-2">
+                <PenTool size={12} /> Log New Task
+              </span>
+            </button>
           </div>
         </div>
 
@@ -298,6 +331,150 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
             </div>
           </div>
           <canvas ref={canvasRef} className="hidden" />
+        </div>
+      )}
+
+      {/* New Task Modal */}
+      {showNewTaskModal && (
+        <div className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4">
+          <div className="relative bg-[#e8dcc5] border-2 border-[#d4c5a9] rounded-sm shadow-2xl max-w-md w-full overflow-hidden">
+            {/* Texture */}
+            <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-repeat mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
+            
+            {/* Header */}
+            <div className="border-b-2 border-stone-800 p-4 flex justify-between items-center relative z-10 bg-[#dfd3bc]/30">
+              <h3 className="text-xl font-serif font-black text-stone-900 tracking-tight uppercase">Log New Task</h3>
+              <button
+                onClick={() => {
+                  setShowNewTaskModal(false);
+                  setNewTaskName('');
+                  setSelectedGoal('');
+                }}
+                className="text-stone-600 hover:text-stone-900 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 relative z-10 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-stone-800 mb-2 uppercase tracking-wide">
+                  Task Name
+                </label>
+                <input
+                  type="text"
+                  value={newTaskName}
+                  onChange={(e) => setNewTaskName(e.target.value)}
+                  placeholder="e.g., Meditate for 10 minutes"
+                  className="w-full px-4 py-2 bg-white/80 border border-[#d4c5a9] rounded-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-stone-800 mb-2 uppercase tracking-wide">
+                  Associated Goal
+                </label>
+                <select
+                  value={selectedGoal}
+                  onChange={(e) => setSelectedGoal(e.target.value)}
+                  className="w-full px-4 py-2 bg-white/80 border border-[#d4c5a9] rounded-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-800 focus:border-transparent"
+                >
+                  <option value="">Select a goal...</option>
+                  {(() => {
+                    const goals = characterSheet?.goals || [];
+                    const goalsList = Array.isArray(goals) ? goals : Object.values(goals);
+                    return goalsList.map((goal, idx) => {
+                      const goalName = typeof goal === 'string' ? goal : goal.name;
+                      const pillars = typeof goal === 'object' ? goal.pillars : null;
+                      return (
+                        <option key={idx} value={goalName}>
+                          {goalName} {pillars && pillars.length > 0 ? `(${pillars[0]})` : ''}
+                        </option>
+                      );
+                    });
+                  })()}
+                </select>
+              </div>
+
+              {(!characterSheet?.goals || characterSheet.goals.length === 0) && (
+                <div className="text-xs text-stone-600 italic">
+                  No goals available. Please complete onboarding first.
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-[#d4c5a9]/30 border-t border-[#d4c5a9] flex gap-4 relative z-10">
+              <button
+                onClick={() => {
+                  setShowNewTaskModal(false);
+                  setNewTaskName('');
+                  setSelectedGoal('');
+                }}
+                className="flex-1 bg-white border border-[#c7bba4] text-stone-800 py-2 rounded-sm font-bold flex items-center justify-center gap-2 hover:bg-[#f5efe6] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!newTaskName.trim() || !selectedGoal || !userId) {
+                    alert('Please fill in all fields');
+                    return;
+                  }
+
+                  setIsSaving(true);
+                  try {
+                    const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+                    const res = await fetch(`${backend}/api/profile/${userId}/quest/add`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        task_name: newTaskName.trim(),
+                        goal_name: selectedGoal
+                      })
+                    });
+
+                    if (res.ok) {
+                      const data = await res.json();
+                      console.log('Task added successfully:', data);
+                      setShowNewTaskModal(false);
+                      setNewTaskName('');
+                      setSelectedGoal('');
+                      
+                      // Reload profile data
+                      if (onQuestToggle) {
+                        await onQuestToggle();
+                      }
+                    } else {
+                      const errorText = await res.text();
+                      console.error('Failed to add task:', res.status, errorText);
+                      alert(`Failed to add task: ${errorText || res.statusText}`);
+                    }
+                  } catch (error) {
+                    console.error('Error adding task:', error);
+                    alert('Error adding task. Please try again.');
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                disabled={!newTaskName.trim() || !selectedGoal || isSaving}
+                className="flex-1 bg-stone-800 text-[#e8dcc5] py-2 rounded-sm font-bold flex items-center justify-center gap-2 hover:bg-stone-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <>Saving...</>
+                ) : (
+                  <>
+                    <Save size={16} />
+                    Add Task
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

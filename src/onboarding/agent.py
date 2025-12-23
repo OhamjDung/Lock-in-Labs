@@ -879,7 +879,7 @@ class CriticAgent:
             phase_instructions = """
         <phase_context>
             <phase>PHASE 2 - CURRENT QUESTS COLLECTION</phase>
-            <objective>**PRIMARY OBJECTIVE**: Extract `current_quests` (what the user is CURRENTLY doing) for goals that ALREADY EXIST in the `Current Character Sheet`.</objective>
+            <objective>**PRIMARY OBJECTIVE**: Extract `current_quests` (what the user is CURRENTLY doing) for goals that ALREADY EXIST in the `Current Character Sheet`. If user has limited or no current activities, extract their skill level self-assessment instead.</objective>
             <restriction>ONLY extract `current_quests` for goals that ALREADY EXIST in the `Current Character Sheet`.</restriction>
             <new_goals>If the user mentions a BRAND NEW goal (e.g., "I want to spike a volleyball"), extract it as a new goal, but DO NOT attach quests to it yet.</new_goals>
             <critical_distinction>
@@ -902,6 +902,30 @@ class CriticAgent:
                 4. If user lists multiple actions (e.g., "breathing exercises and listening to music"), extract ALL of them as separate quests
                 5. **CRITICAL**: Match the quest to the correct goal based on context. If user mentions managing stress, match quests to the "Manage Stress" goal.
             </quest_extraction_rules>
+            <limited_activity_detection>
+                **CRITICAL - DETECT LIMITED ACTIVITY**:
+                If the user indicates they have LIMITED or NO current activities, you MUST:
+                1. Extract whatever quests they mentioned (even if 0 or 1)
+                2. Extract their skill level self-assessment if they provide one
+                3. Look for phrases like:
+                   - "I only do X" / "I only [action]"
+                   - "I don't really do anything" / "I don't do anything for that"
+                   - "I'm just starting out" / "I haven't started yet"
+                   - "I'm a beginner" / "I'm new to this"
+                   - "I don't have any experience" / "I have no experience"
+                4. If user provides a skill level (1-10 scale), extract it in the `skill_level` field
+                5. If user says they have 0-1 quests, mark this in `feedback_for_architect` so Architect can ask for skill level
+            </limited_activity_detection>
+            <skill_level_extraction>
+                **SKILL LEVEL EXTRACTION**:
+                - If user provides a number 1-10 when asked about skill level, extract it as `skill_level`
+                - Examples: "I'd say 3/10", "maybe a 5", "around 7", "I'm at level 2"
+                - If user provides qualitative assessment, try to map it:
+                  * "beginner" / "just starting" -> 1-3
+                  * "some experience" / "intermediate" -> 4-6
+                  * "experienced" / "advanced" -> 7-9
+                  * "expert" -> 10
+            </skill_level_extraction>
             <specificity>Quests must be specific actions (e.g., "Run 5km", "Study Python 1hr", "breathing exercises", "listening to music"). Avoid vague concepts.</specificity>
             <example>
                 User says: "Currently I manage that stress with breathing exercises and listening to music"
@@ -909,6 +933,17 @@ class CriticAgent:
                 You MUST extract: "current_quests": ["breathing exercises", "listening to music"]
                 Do NOT leave current_quests empty!
             </example>
+            <example_limited_activity>
+                User says: "I don't really do anything for volleyball, I'm just starting out"
+                Goal exists: "Spike a Volleyball" (PHYSICAL)
+                You MUST extract: "current_quests": [] (empty, since they said they don't do anything)
+                In feedback_for_architect: "User indicates they have no current activities for this goal. Ask them to self-assess their skill level (1-10)."
+            </example_limited_activity>
+            <example_skill_level>
+                User says: "I'd say I'm at a 3 out of 10 for volleyball"
+                Goal exists: "Spike a Volleyball" (PHYSICAL)
+                You MUST extract: "skill_level": 3
+            </example_skill_level>
         </phase_context>
         """
         else:
@@ -946,13 +981,14 @@ class CriticAgent:
         <output_schema>
         **OUTPUT FORMAT (JSON ONLY)**:
         {{
-            "analysis_trace": "String. BRIEF reasoning. 1. What did user say? 2. Is it a Goal (Outcome) or Quest (Action)? 3. Does it imply a Problem (Debuff)?",
+            "analysis_trace": "String. BRIEF reasoning. 1. What did user say? 2. Is it a Goal (Outcome) or Quest (Action)? 3. Does it imply a Problem (Debuff)? 4. Does user have limited activity (0-1 quests)?",
             "goals": [
                 {{
                     "name": "string (concise title)",
                     "pillars": ["CAREER" | "PHYSICAL" | "MENTAL" | "SOCIAL"],
                     "current_quests": ["string"],
-                    "description": "string (context)"
+                    "description": "string (context)",
+                    "skill_level": integer_1_to_10 (optional, only if user self-assessed)
                 }}
             ],
             "stats_career": {{"StatName": integer_1_to_10}},
@@ -962,7 +998,7 @@ class CriticAgent:
             "debuffs_analysis": [
                 {{"name": "string", "evidence": "exact user quote", "confidence": "high|medium|low"}}
             ],
-            "feedback_for_architect": "String. Tell the Architect if the user was vague and needs follow-up questions. **CRITICAL - PHASE 1 ONLY**: In Phase 1, ONLY suggest asking for more specific goals or clarifying vague goals. DO NOT suggest asking about current activities, skill levels, or what they're currently doing - those are Phase 2 questions. Example (Phase 1): 'The user's goal is vague. Ask them to specify what they want to achieve.' Example (WRONG for Phase 1): 'Ask about their current volleyball skill level' or 'Ask about the type of networking they're interested in' - these are Phase 2 questions."
+            "feedback_for_architect": "String. Tell the Architect if the user was vague and needs follow-up questions. **CRITICAL - PHASE 1 ONLY**: In Phase 1, ONLY suggest asking for more specific goals or clarifying vague goals. DO NOT suggest asking about current activities, skill levels, or what they're currently doing - those are Phase 2 questions. **CRITICAL - PHASE 2 ONLY**: In Phase 2, ONLY suggest asking for more quests if the user has provided vague quests, or suggest asking for skill level if user has 0-1 quests. DO NOT suggest asking about goals, desired outcomes, or what they want to achieve - those are Phase 1 questions. If the user provides good, specific quests (like 'practicing knife skills' or 'making new recipes'), DO NOT suggest asking about goals. Example (Phase 1): 'The user's goal is vague. Ask them to specify what they want to achieve.' Example (Phase 2 - CORRECT): 'User indicates they have no current activities for this goal. Ask them to self-assess their skill level (1-10).' Example (Phase 2 - WRONG): 'Ask about the user's overall goal and desired level of expertise' - this is Phase 1, not Phase 2."
         }}
         </output_schema>
         
@@ -1062,7 +1098,8 @@ class CriticAgent:
                 
                 elif phase == "phase2":
                     # PHASE 2: New goals okay, but Quests only for existing goals
-                    existing_goal_names_before = {g.name for g in current_sheet.goals}
+                    # CRITICAL: Store all existing goals by name to ensure we don't lose any
+                    existing_goal_names_before = {g.name.lower(): g for g in current_sheet.goals}
                     
                     # First, process new goals (if any) with duplicate detection
                     for goal_data in data["goals"]:
@@ -1078,24 +1115,28 @@ class CriticAgent:
                         if not pillar_enums: continue
 
                         goal_name = goal_data.get("name", "")
+                        goal_name_lower = goal_name.lower()
                         
                         existing_goal = None
-                        for existing in current_sheet.goals:
-                            if existing.name.lower() == goal_name.lower():
-                                existing_goal = existing
-                                break
-                            similarity = difflib.SequenceMatcher(None, existing.name.lower(), goal_name.lower()).ratio()
-                            if similarity > 0.6 and any(p in existing.pillars for p in pillar_enums):
-                                if len(goal_name) > len(existing.name) or "data" in goal_name.lower() or "analysis" in goal_name.lower():
-                                    existing.name = goal_name
-                                    existing.description = goal_data.get("description", existing.description)
+                        # Check exact match first
+                        if goal_name_lower in existing_goal_names_before:
+                            existing_goal = existing_goal_names_before[goal_name_lower]
+                        else:
+                            # Check similarity with existing goals
+                            for existing in current_sheet.goals:
+                                similarity = difflib.SequenceMatcher(None, existing.name.lower(), goal_name_lower).ratio()
+                                if similarity > 0.6 and any(p in existing.pillars for p in pillar_enums):
+                                    if len(goal_name) > len(existing.name) or "data" in goal_name_lower or "analysis" in goal_name_lower:
+                                        existing.name = goal_name
+                                        existing.description = goal_data.get("description", existing.description)
                                     for p in pillar_enums:
                                         if p not in existing.pillars:
                                             existing.pillars.append(p)
-                                existing_goal = existing
-                                break
+                                    existing_goal = existing
+                                    break
                         
-                        if not existing_goal and goal_name not in existing_goal_names_before:
+                        if not existing_goal:
+                            # New goal - add it
                             new_goal = Goal(
                                 name=goal_name,
                                 pillars=pillar_enums,
@@ -1103,16 +1144,38 @@ class CriticAgent:
                                 current_quests=[]
                             )
                             current_sheet.goals.append(new_goal)
+                            existing_goal_names_before[goal_name_lower] = new_goal
                     
-                    # Then, only add current_quests to goals that existed BEFORE this turn
+                    # Then, add current_quests and skill_level to goals (both existing and newly added)
                     for goal_data in data["goals"]:
                         goal_name = goal_data.get("name", "")
-                        if goal_name in existing_goal_names_before:
-                            goal_obj = next((g for g in current_sheet.goals if g.name == goal_name), None)
-                            if goal_obj and "current_quests" in goal_data:
+                        goal_name_lower = goal_name.lower()
+                        
+                        # Find goal by name (case-insensitive)
+                        goal_obj = None
+                        for g in current_sheet.goals:
+                            if g.name.lower() == goal_name_lower:
+                                goal_obj = g
+                                break
+                        
+                        if goal_obj:
+                            # Add current_quests
+                            if "current_quests" in goal_data:
                                 for quest in goal_data["current_quests"]:
                                     if quest and quest not in goal_obj.current_quests:
                                         goal_obj.current_quests.append(quest)
+                            
+                            # Add skill_level if provided
+                            if "skill_level" in goal_data and goal_data["skill_level"] is not None:
+                                skill_level = goal_data["skill_level"]
+                                # Ensure it's between 1-10
+                                if isinstance(skill_level, (int, float)):
+                                    goal_obj.skill_level = max(1, min(10, int(skill_level)))
+                                elif isinstance(skill_level, str):
+                                    try:
+                                        goal_obj.skill_level = max(1, min(10, int(float(skill_level))))
+                                    except (ValueError, TypeError):
+                                        pass
             
             if "stats_career" in data: current_sheet.stats_career.update(data["stats_career"])
             if "stats_physical" in data: current_sheet.stats_physical.update(data["stats_physical"])
@@ -1145,6 +1208,10 @@ class ArchitectAgent:
         """
         if pending_debuffs is None: pending_debuffs = []
         if queued_goals is None: queued_goals = []
+        
+        # Phase 2 uses a completely separate, focused agent
+        if phase == "phase2":
+            return self._generate_phase2_response(history, current_sheet, feedback, current_pillar)
         
         # Calculate progress and determine missing pillars
         all_pillars_in_goals = set()
@@ -1343,11 +1410,16 @@ class ArchitectAgent:
                     current_pillar_enum = Pillar(current_pillar.upper())
                 except ValueError: pass
             
+            # Helper function to check if goal is complete for Phase 2
+            def is_goal_complete_for_phase2(goal):
+                """A goal is complete if it has 2+ quests OR has skill_level assessed (for 0-1 quest cases)."""
+                return len(goal.current_quests) >= 2 or goal.skill_level is not None
+            
             goals_for_current_pillar = []
             if current_pillar_enum:
                 goals_for_current_pillar = [
                     g for g in current_sheet.goals 
-                    if current_pillar_enum in g.pillars and len(g.current_quests) < 2
+                    if current_pillar_enum in g.pillars and not is_goal_complete_for_phase2(g)
                 ]
             
             goals_list_text = ""
@@ -1365,7 +1437,12 @@ class ArchitectAgent:
             phase_instruction = f"""
         <system_phase_control>
             <current_phase>PHASE 2 - CURRENT QUESTS COLLECTION</current_phase>
-            <objective>**PRIMARY OBJECTIVE**: Collect `current_quests` (what the user is CURRENTLY doing) for each goal. This is DATA COLLECTION ONLY - you are gathering information about their current actions, not giving advice. For existing goals, find out what the user is ALREADY doing (current quests). Determine skill level based on current activity.</objective>
+            <objective>**PRIMARY OBJECTIVE**: Collect `current_quests` (what the user is CURRENTLY doing) for each goal, OR collect their skill level self-assessment if they have limited/no activities. This is DATA COLLECTION ONLY - you are gathering information about their current actions or skill level, not giving advice.</objective>
+            <completion_criteria>
+                A goal is complete for Phase 2 if:
+                - It has 2+ current_quests, OR
+                - It has skill_level assessed (for cases where user has 0-1 quests)
+            </completion_criteria>
         </system_phase_control>
         
         <dynamic_context_data>
@@ -1380,7 +1457,7 @@ class ArchitectAgent:
             </ban_severity>
             <ban_severity="CRITICAL">
                 <rule>DO NOT END CONVERSATION.</rule>
-                <description>Always end with a question. You must collect quests for all goals. Phase 2 continues until all goals have at least 2 current_quests each.</description>
+                <description>Always end with a question. You must collect quests or skill levels for all goals. Phase 2 continues until all goals are complete (2+ quests OR skill_level assessed).</description>
             </ban_severity>
             <ban_severity="HIGH">
                 <rule>ONE GOAL AT A TIME.</rule>
@@ -1394,25 +1471,47 @@ class ArchitectAgent:
                 1. Open the &lt;current_sheet_state&gt; section in the system context above.
                 2. **UNDERSTAND WHAT THIS IS**: The Current Sheet State contains ALL goals from ALL previous messages, accumulated over the entire conversation.
                 3. **PARSE THE JSON**: Look for the "goals" array in the JSON. Extract EVERY goal from that array.
-                4. **LIST ALL GOALS**: In your thinking, you MUST write: "Current Sheet State shows: [list ALL goals with their pillars]"
-                   - Example: "Current Sheet State shows: 'Spike Volleyball' (PHYSICAL), 'Become a Chef' (CAREER), 'Be Calm Under Pressure' (MENTAL)"
+                4. **LIST ALL GOALS**: In your thinking, you MUST write: "Current Sheet State shows: [list ALL goals with their pillars, quest counts, and skill_level if assessed]"
+                   - Example: "Current Sheet State shows: 'Spike Volleyball' (PHYSICAL, 0/2 quests, skill_level: not assessed), 'Become a Chef' (CAREER, 2/2 quests), 'Be Calm Under Pressure' (MENTAL, 1/2 quests, skill_level: 3)"
             </step_1_audit_state>
             <step_2_target>
-                Target the FIRST goal in <goals_needing_quests> that has fewer than 2 quests.
+                Target the FIRST goal in <goals_needing_quests> that is incomplete (has < 2 quests AND no skill_level).
             </step_2_target>
             <step_3_inquiry>
-                Ask: "What are you currently doing to work on [Goal Name]?"
+                **FIRST ATTEMPT**: Ask: "What are you currently doing to work on [Goal Name]?"
                 If they have 1 quest already, ask: "What else do you do for [Goal Name]?"
-                **CRITICAL**: When the user describes what they currently do (e.g., "I manage stress with breathing exercises"), the Critic will extract these as quests. Your job is to ask for these current actions.
+                
+                **IF USER INDICATES LIMITED ACTIVITY** (0-1 quests):
+                - If user says "I only do X" or "I don't do anything" or "I'm just starting out":
+                  - Accept their answer (don't push for more quests)
+                  - Ask: "On a scale of 1-10, how would you rate your current skill level in [Goal Name]?"
+                  - The Critic will extract their skill level response
             </step_3_inquiry>
-            <step_4_clarification>
+            <step_4_skill_assessment>
+                **IF USER PROVIDES SKILL LEVEL**:
+                - The Critic will extract it automatically
+                - Mark this goal as complete for Phase 2
+                - Move to the next incomplete goal
+            </step_4_skill_assessment>
+            <step_5_clarification>
                 If the Critic provided feedback about a vague quest, ask for specifics (frequency, duration, specific output).
-            </step_4_clarification>
+            </step_5_clarification>
         </execution_logic>
 
         <response_instructions>
             <instruction>Output an internal reasoning block named &lt;analysis&gt;.</instruction>
-            <instruction>**MANDATORY**: Your &lt;analysis&gt; MUST start with: "Current Sheet State shows: [list ALL goals with their pillars]"</instruction>
+            <instruction>**MANDATORY FORMAT - YOU MUST FOLLOW THIS EXACTLY**:</instruction>
+            <instruction>Your &lt;analysis&gt; MUST follow this EXACT structure:</instruction>
+            <instruction>1. **FIRST LINE (MANDATORY)**: "Current Sheet State shows: [list ALL goals with their pillars and quest counts]"</instruction>
+            <instruction>   Example: "Current Sheet State shows: 'Manage Stress' (MENTAL, 2/2 quests), 'Become a Chef' (CAREER, 2/2 quests), 'Spike a Volleyball' (PHYSICAL, 0/2 quests), 'Network' (SOCIAL, 0/2 quests)"</instruction>
+            <instruction>2. **SECOND LINE**: "Missing quests/skill level: [specify EXACTLY what's missing]"</instruction>
+            <instruction>   Example: "Missing quests/skill level: We need 2 more current quests for 'Spike a Volleyball' (PHYSICAL)"</instruction>
+            <instruction>   Example: "Missing quests/skill level: We need 1 more current quest for 'Network' (SOCIAL), 2 more for 'Spike a Volleyball' (PHYSICAL)"</instruction>
+            <instruction>   Example: "Missing quests/skill level: User has 0 quests for 'Spike a Volleyball' (PHYSICAL). Need to ask for skill level assessment."</instruction>
+            <instruction>3. **THIRD LINE**: "Plan: [what you will ask about]"</instruction>
+            <instruction>   Example: "Plan: Ask about current activities for 'Spike a Volleyball' goal"</instruction>
+            <instruction>   Example: "Plan: User indicated limited activity. Ask for skill level self-assessment (1-10) for 'Spike a Volleyball' goal"</instruction>
+            <instruction>**CRITICAL**: Be SPECIFIC about quest counts. Say "We need X more current quests for [Goal Name]" OR "User has 0-1 quests, need skill level assessment" not just "Missing: [Pillar]".</instruction>
             <instruction>Verify that you are asking about exactly ONE goal.</instruction>
             <instruction>Always end with a question about current quests for that goal.</instruction>
         </response_instructions>
@@ -1535,11 +1634,26 @@ class ArchitectAgent:
         goals_summary_lines = []
         for goal in current_sheet.goals:
             pillars_str = ", ".join([p.value for p in goal.pillars])
-            goals_summary_lines.append(f"- {goal.name} ({pillars_str})")
+            if phase == "phase2":
+                quest_count = len(goal.current_quests)
+                skill_status = f", skill_level: {goal.skill_level}" if goal.skill_level else ", skill_level: not assessed"
+                goals_summary_lines.append(f"- {goal.name} ({pillars_str}, {quest_count}/2 quests{skill_status})")
+            else:
+                goals_summary_lines.append(f"- {goal.name} ({pillars_str})")
         goals_summary = "\n".join(goals_summary_lines) if goals_summary_lines else "No goals yet"
         
         # Create a super simple, impossible-to-miss goals list
-        goals_list_simple = ", ".join([f"{g.name} ({', '.join([p.value for p in g.pillars])})" for g in current_sheet.goals]) if current_sheet.goals else "No goals yet"
+        # For Phase 2, include quest counts and skill_level; for Phase 1, just pillars
+        if phase == "phase2":
+            goals_list_simple = ", ".join([
+                f"{g.name} ({', '.join([p.value for p in g.pillars])}, {len(g.current_quests)}/2 quests, skill_level: {g.skill_level if g.skill_level else 'not assessed'})"
+                for g in current_sheet.goals
+            ]) if current_sheet.goals else "No goals yet"
+            thinking_format_instruction = f"Current Sheet State shows: {goals_list_simple}. Missing quests/skill level: [check goals_needing_quests in phase instructions]."
+        else:
+            goals_list_simple = ", ".join([f"{g.name} ({', '.join([p.value for p in g.pillars])})" for g in current_sheet.goals]) if current_sheet.goals else "No goals yet"
+            thinking_format_instruction = f"Current Sheet State shows: {goals_list_simple}. Missing pillars: {', '.join(missing_pillars) if missing_pillars else 'None - All 4 pillars have goals!'}."
+        
         covered_pillars_simple = ", ".join([p.value for p in all_pillars_in_goals]) if all_pillars_in_goals else "None"
         missing_pillars_simple = ", ".join(missing_pillars) if missing_pillars else "None - All 4 pillars have goals!"
         
@@ -1554,7 +1668,7 @@ class ArchitectAgent:
         
         **ABSOLUTE RULE**: If a pillar is in "PILLARS COVERED" above, it is NOT missing. Do NOT ask about it.
         **ABSOLUTE RULE**: Only ask about pillars listed in "MISSING PILLARS" above.
-        **ABSOLUTE RULE**: In your thinking, you MUST start with: "Current Sheet State shows: {goals_list_simple}. Missing pillars: {missing_pillars_simple}."
+        **ABSOLUTE RULE**: In your thinking, you MUST start with: "{thinking_format_instruction}"
         
         {ARCHITECT_SYSTEM_PROMPT}
 
@@ -1663,7 +1777,19 @@ class ArchitectAgent:
                 print(f"[WARNING] Thinking content: {thinking_content[:200]}...")
                 
                 # ALWAYS prepend the correct format, regardless of other issues
-                correct_prefix = f"Current Sheet State shows: {goals_list_simple}. Missing pillars: {missing_pillars_simple}.\n\n[NOTE: Previous thinking was missing the required 'Current Sheet State shows:' prefix - corrected above]"
+                # For Phase 2, use quest-focused format; for Phase 1, use pillar format
+                if phase == "phase2":
+                    # Phase 2 format: focus on quest status
+                    goals_with_quests = []
+                    for g in current_sheet.goals:
+                        quest_count = len(g.current_quests)
+                        skill_status = f"skill_level: {g.skill_level}" if g.skill_level else "skill_level: not assessed"
+                        goals_with_quests.append(f"{g.name} ({', '.join([p.value for p in g.pillars])}, {quest_count}/2 quests, {skill_status})")
+                    goals_list_phase2 = ", ".join(goals_with_quests)
+                    correct_prefix = f"Current Sheet State shows: {goals_list_phase2}.\n\n[NOTE: Previous thinking was missing the required 'Current Sheet State shows:' prefix - corrected above]"
+                else:
+                    # Phase 1 format: focus on pillars
+                    correct_prefix = f"Current Sheet State shows: {goals_list_simple}. Missing pillars: {missing_pillars_simple}.\n\n[NOTE: Previous thinking was missing the required 'Current Sheet State shows:' prefix - corrected above]"
                 thinking_content = correct_prefix + "\n\n" + thinking_content
                 
                 # Check if the Architect is incorrectly saying pillars are missing when they're not
@@ -1672,6 +1798,12 @@ class ArchitectAgent:
                 for pillar in ["MENTAL", "PHYSICAL", "CAREER", "SOCIAL"]:
                     if f"Missing: {pillar}" in thinking_content or f"missing: {pillar}" in thinking_content or f"Missing: {pillar.lower()}" in thinking_content or f"missing: {pillar.lower()}" in thinking_content:
                         missing_mentions.append(pillar)
+                    # Also check for "Career and Mental" or "Career, Mental" patterns
+                    if f"Career" in thinking_content and f"Mental" in thinking_content and ("Missing" in thinking_content or "missing" in thinking_content):
+                        if "Career" not in missing_mentions:
+                            missing_mentions.append("CAREER")
+                        if "Mental" not in missing_mentions:
+                            missing_mentions.append("MENTAL")
                 
                 # Check if any of these are actually covered
                 covered_pillar_values = [p.value for p in all_pillars_in_goals]
@@ -1681,10 +1813,148 @@ class ArchitectAgent:
                     print(f"[ERROR] Architect incorrectly thinks these pillars are missing (but they're covered): {incorrectly_missing}")
                     print(f"[ERROR] Covered pillars: {covered_pillar_values}")
                     print(f"[ERROR] Actual missing pillars: {missing_pillars}")
+                    # Correct the thinking content by removing the contradiction
+                    # For Phase 2, replace with quest-focused format; for Phase 1, use pillar format
+                    if phase == "phase2":
+                        # Phase 2: Replace "Missing pillars" with "Missing quests/skill level" format
+                        thinking_content = re.sub(
+                            r"Missing.*?pillars.*?:.*?[\.\n]",
+                            "Missing quests/skill level: [check goals_needing_quests above].",
+                            thinking_content,
+                            flags=re.IGNORECASE
+                        )
+                    else:
+                        # Phase 1: Replace incorrect "Missing: X" statements with correct ones
+                        for pillar in incorrectly_missing:
+                            thinking_content = re.sub(
+                                rf"Missing:.*?{pillar}.*?[\.\n]",
+                                f"Missing pillars: {missing_pillars_simple}.",
+                                thinking_content,
+                                flags=re.IGNORECASE
+                            )
+                        # If all pillars are covered, ensure thinking says "Missing pillars: None"
+                        if not missing_pillars:
+                            thinking_content = re.sub(
+                                r"Missing.*?:.*?[\.\n]",
+                                "Missing pillars: None - All 4 pillars have goals!.",
+                                thinking_content,
+                                flags=re.IGNORECASE
+                            )
+                    print(f"[CORRECTED] Updated thinking content to remove contradiction")
         
         # Hide internal thinking traces from the user-facing chat
         visible_response = _strip_thinking_block(response)
         # Also strip analysis block if present
         visible_response = re.sub(r"<analysis>.*?</analysis>", "", visible_response, flags=re.DOTALL | re.IGNORECASE).strip()
+        
+        return visible_response, thinking_content
+    
+    def _generate_phase2_response(self, history: List[Dict[str, str]], current_sheet: CharacterSheet, feedback: str = "", current_pillar: str = None) -> Tuple[str, str]:
+        """
+        Dedicated Phase 2 agent - ONLY collects current quests and skill levels.
+        NO goal questions, NO pillar questions, ONLY quest collection.
+        """
+        from src.llm import LLMClient
+        llm_client = LLMClient()
+        
+        # Helper function to check if goal is complete for Phase 2
+        def is_goal_complete_for_phase2(goal):
+            return len(goal.current_quests) >= 2 or goal.skill_level is not None
+        
+        # Find the first incomplete goal
+        current_pillar_enum = None
+        if current_pillar:
+            try:
+                current_pillar_enum = Pillar(current_pillar.upper())
+            except ValueError:
+                pass
+        
+        incomplete_goals = []
+        if current_pillar_enum:
+            incomplete_goals = [
+                g for g in current_sheet.goals 
+                if current_pillar_enum in g.pillars and not is_goal_complete_for_phase2(g)
+            ]
+        else:
+            # If no current pillar, find first incomplete goal across all pillars
+            for p in Pillar:
+                incomplete_goals = [
+                    g for g in current_sheet.goals 
+                    if p in g.pillars and not is_goal_complete_for_phase2(g)
+                ]
+                if incomplete_goals:
+                    break
+        
+        if not incomplete_goals:
+            return "Great! I've collected all the information I need about what you're currently doing. Let's move on.", "Phase 2 complete - all goals have quests or skill levels."
+        
+        target_goal = incomplete_goals[0]
+        quest_count = len(target_goal.current_quests)
+        
+        # Build a super simple, focused prompt for Phase 2
+        goals_status = "\n".join([
+            f"- {g.name}: {len(g.current_quests)}/2 quests, skill_level: {g.skill_level if g.skill_level else 'not assessed'}"
+            for g in current_sheet.goals
+        ])
+        
+        system_prompt = f"""You are a data collector. Your ONLY job is to ask about what the user is CURRENTLY doing for their goals.
 
+**CRITICAL RULES - YOU MUST FOLLOW THESE:**
+1. **ONLY ASK ABOUT CURRENT QUESTS** - What are they ALREADY doing? NOT what they want to do.
+2. **NEVER ASK ABOUT GOALS** - All goals are already identified. Do NOT ask "what is your goal" or "what do you want to achieve".
+3. **NEVER ASK ABOUT MISSING PILLARS** - Do NOT mention pillars, missing areas, or what's not covered.
+4. **ONE GOAL AT A TIME** - Focus on ONE goal per message.
+
+**CURRENT STATUS:**
+{goals_status}
+
+**TARGET GOAL TO ASK ABOUT:**
+Goal: "{target_goal.name}"
+Current quests: {quest_count}/2
+Skill level: {'Assessed: ' + str(target_goal.skill_level) if target_goal.skill_level else 'Not assessed'}
+
+**YOUR TASK:**
+Ask the user what they are CURRENTLY doing to work on "{target_goal.name}".
+
+**EXAMPLES OF GOOD QUESTIONS:**
+- "What are you currently doing to work on [Goal Name]?"
+- "Tell me what you're already doing for [Goal Name]."
+- "What activities are you doing right now for [Goal Name]?"
+
+**EXAMPLES OF BAD QUESTIONS (DO NOT ASK THESE):**
+- "What is your goal for [area]?" ❌ (This is Phase 1, not Phase 2)
+- "What do you want to achieve?" ❌ (This is Phase 1, not Phase 2)
+- "What about your [pillar] goals?" ❌ (Do not mention pillars or goals)
+- "What else do you want to do?" ❌ (Focus on what they ARE doing, not what they WANT to do)
+
+**IF USER HAS 0-1 QUESTS:**
+If the user indicates they have limited or no current activities, ask: "On a scale of 1-10, how would you rate your current skill level in [Goal Name]?"
+
+**OUTPUT FORMAT:**
+Start with: "Current quest status: [Goal Name] has {quest_count}/2 quests."
+Then ask your question.
+
+Keep it simple and direct. No fluff, no goal questions, just quest collection."""
+
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(history)
+        
+        if feedback:
+            messages.append({"role": "system", "content": f"<critic_feedback>{feedback}</critic_feedback>"})
+        
+        response = llm_client.chat_completion(messages)
+        
+        # Extract thinking if present
+        thinking_content = ""
+        thinking_match = re.search(r"<thinking>(.*?)</thinking>", response, re.DOTALL | re.IGNORECASE)
+        if not thinking_match:
+            thinking_match = re.search(r"<analysis>(.*?)</analysis>", response, re.DOTALL | re.IGNORECASE)
+        if thinking_match:
+            thinking_content = thinking_match.group(1).strip()
+            print(f"[Phase 2 Architect Thinking]\n{thinking_content}\n")
+        
+        # Strip thinking from response
+        visible_response = re.sub(r"<thinking>.*?</thinking>", "", response, flags=re.DOTALL | re.IGNORECASE).strip()
+        visible_response = re.sub(r"<analysis>.*?</analysis>", "", visible_response, flags=re.DOTALL | re.IGNORECASE).strip()
+        
         return visible_response, thinking_content

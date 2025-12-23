@@ -2,8 +2,8 @@
     "character_sheet": {
         "calendar_events": [],
         "pomodoro_history": [],
-        "xp_social": 0,
         "skill_tree": null,
+        "xp_social": 0,
         "stats_physical": {
             "Fitness": 0
         },
@@ -12,21 +12,66 @@
             "Communication": 0
         },
         "xp_total": 0,
-        "last_report_date": null,
-        "daily_reports": [],
+        "last_report_date": "2025-12-23",
+        "debuffs": [],
         "stats_career": {
             "Data Analysis": 0,
             "Programming": 0,
             "Data Visualization": 0
         },
-        "debuffs": [],
-        "habit_progress": {},
+        "habit_progress": {
+            "habit_a2788975e0b7": {
+                "streak_days": 0,
+                "completed_since_last_report": 0,
+                "status": "ACTIVE",
+                "last_completed_date": null,
+                "node_id": "habit_a2788975e0b7",
+                "completed_total": 0
+            }
+        },
+        "daily_reports": [
+            {
+                "free_text": "",
+                "new_tasks": [],
+                "new_skill_nodes": [],
+                "date": "2025-12-23",
+                "stats_delta": {
+                    "stats_career": {},
+                    "stats_social": {},
+                    "xp_social": 0,
+                    "xp_physical": 0,
+                    "stats_physical": {},
+                    "xp_mental": 0,
+                    "xp_career": 0,
+                    "stats_mental": {},
+                    "xp_total": 0
+                },
+                "summary": "",
+                "wins": [],
+                "struggles": [],
+                "tasks": [
+                    {
+                        "user_comment": null,
+                        "task_id": "2025-12-23_habit_a2788975e0b7",
+                        "completed_repetitions": 1,
+                        "node_id": "habit_a2788975e0b7",
+                        "status": "DONE"
+                    }
+                ],
+                "sentiment": "neutral",
+                "reflections": []
+            }
+        ],
         "goals": [
             {
                 "description": "Engage in daily journaling.",
                 "current_quests": [
                     "Write in a journal for 15 minutes daily",
-                    "Write in a journal for 30 minutes daily"
+                    "Write in a journal for 30 minutes daily",
+                    "Test task"
+                ],
+                "pillars": [
+                    "MENTAL"
                 ],
                 "needed_quests": [
                     "Daily 15-Minute Journaling",
@@ -38,9 +83,6 @@
                     "Gratitude Journaling",
                     "Self-Compassion Practice"
                 ],
-                "pillars": [
-                    "MENTAL"
-                ],
                 "name": "Journaling"
             },
             {
@@ -48,9 +90,6 @@
                 "current_quests": [
                     "Go to the gym 3 times per week",
                     "Go for a 30-minute walk daily"
-                ],
-                "pillars": [
-                    "PHYSICAL"
                 ],
                 "needed_quests": [
                     "Plank Progression",
@@ -61,6 +100,9 @@
                     "Bodyweight Squat Progression",
                     "Dumbbell Deadlift Progression",
                     "Assisted Pullup Progression"
+                ],
+                "pillars": [
+                    "PHYSICAL"
                 ],
                 "name": "Exercise"
             },
@@ -89,7 +131,8 @@
                 "description": "Participate in volleyball activities.",
                 "current_quests": [
                     "Attend a volleyball game once a week",
-                    "Practice volleyball for 1 hour weekly"
+                    "Practice volleyball for 1 hour weekly",
+                    "Test Log"
                 ],
                 "needed_quests": [
                     "Initial Social Connection Assessment",
@@ -113,9 +156,6 @@
                     "Code for 1 hour daily",
                     "Complete a basic coding tutorial"
                 ],
-                "pillars": [
-                    "CAREER"
-                ],
                 "needed_quests": [
                     "Solidify Basic Coding Habits",
                     "Choose a Programming Language",
@@ -125,6 +165,9 @@
                     "Master Pandas Library",
                     "Ready for Data Science Roles"
                 ],
+                "pillars": [
+                    "CAREER"
+                ],
                 "name": "Learn to Code"
             },
             {
@@ -132,9 +175,6 @@
                 "current_quests": [
                     "Call a family member or friend once a week",
                     "Plan a weekly activity with family/friends"
-                ],
-                "pillars": [
-                    "SOCIAL"
                 ],
                 "needed_quests": [
                     "Self-Awareness & Social Anxiety",
@@ -146,6 +186,9 @@
                     "Planned Connection & Leadership",
                     "Deepening Relationships"
                 ],
+                "pillars": [
+                    "SOCIAL"
+                ],
                 "name": "Spend Time with Family and Friends"
             },
             {
@@ -153,9 +196,6 @@
                 "current_quests": [
                     "Learn Data Analysis",
                     "Complete a Data Analysis course"
-                ],
-                "pillars": [
-                    "CAREER"
                 ],
                 "needed_quests": [
                     "Define Data Analysis Goals",
@@ -167,6 +207,9 @@
                     "Small Data Analysis Project",
                     "Goal Achieved - Data Analysis"
                 ],
+                "pillars": [
+                    "CAREER"
+                ],
                 "name": "Learn Data Analysis"
             },
             {
@@ -174,9 +217,6 @@
                 "current_quests": [
                     "Learn Data Visualization",
                     "Create a simple data visualization project"
-                ],
-                "pillars": [
-                    "CAREER"
                 ],
                 "needed_quests": [
                     "Refine Learning Goals",
@@ -187,6 +227,9 @@
                     "Data Cleaning Project",
                     "Interactive Visualization Project",
                     "Data Visualization Proficiency"
+                ],
+                "pillars": [
+                    "CAREER"
                 ],
                 "name": "Learn Data Visualization"
             }
@@ -205,6 +248,18 @@
         "pomodoros_total": 0
     },
     "skill_tree": {
-        "nodes": []
+        "nodes": [
+            {
+                "description": "Daily habit: Test Log",
+                "type": "Habit",
+                "required_completions": 30,
+                "id": "habit_a2788975e0b7",
+                "xp_reward": 50,
+                "pillar": "SOCIAL",
+                "xp_multiplier": 1.0,
+                "prerequisites": [],
+                "name": "Test Log"
+            }
+        ]
     }
 }

@@ -289,7 +289,7 @@ def run_reporting_session(user_id: str = "user_01") -> None:
     agent = ReportingAgent()
 
     print("\n[Reporting] Daily check-in for", current_date)
-    print(agent.initial_message(state))
+    print(agent.initial_message(state, sheet))
 
     while True:
         try:

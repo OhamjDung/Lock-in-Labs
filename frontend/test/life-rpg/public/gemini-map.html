@@ -472,34 +472,80 @@
             <!-- History links will be added here by JS -->
         </div>
         <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
-             <select id="gemini-model-select" style="background: #0a100a; border: 1px solid #39ff14; color: #39ff14; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
-                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Latest)</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                <option value="gemini-pro">Gemini Pro</option>
+             <select id="gemini-model-select" style="background: #000000; border: 1px solid #39ff14; color: #39ff14; padding: 4px 8px; font-size: 0.7rem; font-family: 'Courier New', monospace; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; outline: none; box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);">
+                <option value="gemini-2.5-flash" style="background: #000000; color: #39ff14;">GEMINI 2.5 FLASH</option>
+                <option value="gemini-2.0-flash" style="background: #000000; color: #39ff14;">GEMINI 2.0 FLASH</option>
+                <option value="gemini-1.5-flash-latest" style="background: #000000; color: #39ff14;">GEMINI 1.5 FLASH (LATEST)</option>
+                <option value="gemini-1.5-flash" style="background: #000000; color: #39ff14;">GEMINI 1.5 FLASH</option>
+                <option value="gemini-1.5-pro-latest" style="background: #000000; color: #39ff14;">GEMINI 1.5 PRO (LATEST)</option>
+                <option value="gemini-1.5-pro" style="background: #000000; color: #39ff14;">GEMINI 1.5 PRO</option>
+                <option value="gemini-pro" style="background: #000000; color: #39ff14;">GEMINI PRO</option>
              </select>
         </div>
     </div>
 
     <!-- Start Screen -->
-    <div id="start-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a100a; z-index: 250; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 50px;">
-        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #39ff14;">Gemini Chat Map</h1>
-        <div style="width: 100%; max-width: 600px; padding: 0 20px;">
-            <textarea id="start-prompt-input" placeholder="What do you want to explore?" style="width: 100%; padding: 16px; background: #001100; border: 1px solid #39ff14; border-radius: 12px; color: #39ff14; font-size: 1.1rem; resize: none; height: 120px; margin-bottom: 16px; font-family: inherit; box-sizing: border-box;"></textarea>
-            
-            <!-- NEW: File Input for Start Screen -->
-            <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
-                <label for="start-file-input" style="cursor: pointer; background: #001100; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; color: #39ff14; border: 1px solid #39ff14;">
-                    📎 Attach File
-                </label>
-                <input type="file" id="start-file-input" style="display: none;">
-                <span id="start-file-name" style="font-size: 0.9rem; color: #39ff14; opacity: 0.7;"></span>
+    <div id="start-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a100a; z-index: 250; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 50px; font-family: 'Courier New', monospace; overflow: hidden;">
+        <!-- CRT Scan Lines Effect -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(57, 255, 20, 0.03) 0px, rgba(57, 255, 20, 0.03) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 1;"></div>
+        
+        <!-- Retro Terminal Header -->
+        <div style="position: relative; z-index: 2; text-align: center; margin-bottom: 3rem;">
+            <div style="color: #39ff14; font-size: 0.7rem; letter-spacing: 0.3em; margin-bottom: 0.5rem; text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);">╔════════════════════════════════════════╗</div>
+            <div style="color: #39ff14; font-size: 0.7rem; letter-spacing: 0.3em; margin-bottom: 0.5rem;">║   GEMINI CHAT MAP v2.5 FLASH            ║</div>
+            <div style="color: #39ff14; font-size: 0.7rem; letter-spacing: 0.3em; margin-bottom: 0.5rem;">║   NEURAL NETWORK INTERFACE              ║</div>
+            <div style="color: #39ff14; font-size: 0.7rem; letter-spacing: 0.3em; margin-bottom: 0.5rem;">╚════════════════════════════════════════╝</div>
+            <div style="color: #00cc00; font-size: 0.6rem; margin-top: 1rem; opacity: 0.8; font-family: monospace;">
+                &gt; SYSTEM READY<br/>
+                &gt; AWAITING USER INPUT...
+            </div>
+        </div>
+
+        <!-- Terminal Box Container -->
+        <div style="position: relative; z-index: 2; width: 100%; max-width: 700px; padding: 0 20px;">
+            <!-- Terminal Frame -->
+            <div style="border: 2px solid #39ff14; background: #000000; box-shadow: 0 0 20px rgba(57, 255, 20, 0.3), inset 0 0 20px rgba(57, 255, 20, 0.1); padding: 2px;">
+                <div style="border: 1px solid #39ff14; background: #001100; padding: 20px;">
+                    <!-- Terminal Prompt -->
+                    <div style="color: #39ff14; font-size: 0.75rem; margin-bottom: 12px; font-family: 'Courier New', monospace;">
+                        <span style="color: #00cc00;">user@terminal:~$</span> <span style="color: #39ff14;">ENTER_QUERY</span>
+                    </div>
+                    
+                    <!-- Text Input (Terminal Style) -->
+                    <textarea 
+                        id="start-prompt-input" 
+                        placeholder="&gt; What do you want to explore?" 
+                        style="width: 100%; padding: 12px; background: #000000; border: 1px solid #39ff14; color: #39ff14; font-size: 0.9rem; resize: none; height: 100px; margin-bottom: 16px; font-family: 'Courier New', monospace; box-sizing: border-box; outline: none; box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.1);"
+                    ></textarea>
+                    
+                    <!-- File Attachment (Retro Style) -->
+                    <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <label for="start-file-input" style="cursor: pointer; background: #000000; padding: 8px 14px; font-size: 0.75rem; color: #39ff14; border: 1px solid #39ff14; font-family: 'Courier New', monospace; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; box-shadow: 0 0 5px rgba(57, 255, 20, 0.2);" onmouseover="this.style.background='#001100'; this.style.boxShadow='0 0 10px rgba(57, 255, 20, 0.4)'" onmouseout="this.style.background='#000000'; this.style.boxShadow='0 0 5px rgba(57, 255, 20, 0.2)'">
+                            [ATTACH FILE]
+                        </label>
+                        <input type="file" id="start-file-input" style="display: none;">
+                        <span id="start-file-name" style="font-size: 0.7rem; color: #00cc00; opacity: 0.9; font-family: 'Courier New', monospace; text-transform: uppercase;"></span>
+                    </div>
+
+                    <!-- Terminal Separator -->
+                    <div style="border-top: 1px solid #39ff14; margin: 20px 0; opacity: 0.3;"></div>
+
+                    <!-- Start Button (Retro Terminal Style) -->
+                    <button 
+                        id="start-btn" 
+                        style="width: 100%; padding: 14px; background: #000000; color: #39ff14; border: 2px solid #39ff14; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: all 0.2s; font-family: 'Courier New', monospace; text-transform: uppercase; letter-spacing: 0.2em; text-shadow: 0 0 10px rgba(57, 255, 20, 0.5); box-shadow: 0 0 15px rgba(57, 255, 20, 0.3), inset 0 0 10px rgba(57, 255, 20, 0.1);"
+                        onmouseover="this.style.background='#001100'; this.style.boxShadow='0 0 25px rgba(57, 255, 20, 0.6), inset 0 0 15px rgba(57, 255, 20, 0.2)'"
+                        onmouseout="this.style.background='#000000'; this.style.boxShadow='0 0 15px rgba(57, 255, 20, 0.3), inset 0 0 10px rgba(57, 255, 20, 0.1)'"
+                    >
+                        &gt; INITIALIZE MAPPING SEQUENCE
+                    </button>
+                </div>
             </div>
 
-            <button id="start-btn" style="width: 100%; padding: 12px; background: #39ff14; color: #0a100a; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Start Mapping</button>
+            <!-- Terminal Footer Info -->
+            <div style="margin-top: 20px; text-align: center; color: #00cc00; font-size: 0.6rem; opacity: 0.6; font-family: 'Courier New', monospace;">
+                [F1] HELP | [F2] SETTINGS | [ESC] EXIT
+            </div>
         </div>
     </div>
 

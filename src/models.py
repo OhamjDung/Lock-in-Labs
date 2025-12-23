@@ -67,6 +67,7 @@ class Goal(BaseModel):
     current_quests: List[str] = Field(default_factory=list, description="Concrete habits the user is currently doing for this goal.")
     needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal.")
     description: Optional[str] = Field(None, description="A brief description of the goal.")
+    skill_level: Optional[int] = Field(None, description="User's self-assessed skill level (1-10) for this goal. Set when user has 0-1 current quests.")
 
 
 # --- Time / Focus Models ---
@@ -289,4 +290,8 @@ class ReportingState(BaseModel):
     review_feedback: List[str] = Field(
         default_factory=list,
         description="Free-text user feedback on the draft summary/schedule before final confirmation.",
+    )
+    proposed_skill_modifications: List["SkillNode"] = Field(
+        default_factory=list,
+        description="Skill tree modifications proposed during the conversation.",
     )

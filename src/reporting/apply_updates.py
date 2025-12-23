@@ -11,6 +11,7 @@ from src.models import (
     HabitProgress,
     StatsDelta,
     Pillar,
+    NodeType,
 )
 from .scheduler import mark_newly_unlocked_nodes
 
@@ -57,6 +58,29 @@ def apply_daily_report(
             # Check for mastery
             if progress.completed_total >= node.required_completions:
                 progress.status = NodeStatus.MASTERED
+
+    # Apply skill tree modifications
+    if report.new_skill_nodes:
+        for new_node in report.new_skill_nodes:
+            # Check if node already exists (by ID)
+            existing = next((n for n in tree.nodes if n.id == new_node.id), None)
+            if existing:
+                # Update existing node
+                existing.name = new_node.name
+                existing.description = new_node.description
+                existing.xp_reward = new_node.xp_reward
+                existing.xp_multiplier = new_node.xp_multiplier
+                existing.required_completions = new_node.required_completions
+            else:
+                # Add new node to tree
+                tree.nodes.append(new_node)
+                
+                # Initialize habit progress for new habit nodes
+                if new_node.type == NodeType.HABIT:
+                    sheet.habit_progress[new_node.id] = HabitProgress(
+                        node_id=new_node.id,
+                        status=NodeStatus.ACTIVE
+                    )
 
     # Unlock any nodes whose prerequisites are now satisfied (stubbed for now)
     mark_newly_unlocked_nodes(sheet, tree)

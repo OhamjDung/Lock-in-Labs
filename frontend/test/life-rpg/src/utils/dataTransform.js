@@ -35,32 +35,59 @@ export const transformCharacterData = (characterSheet, skillTree) => {
     }
   ];
 
-  const quests = [
-    ...Object.values(sheet.goals || {}).flatMap(g => 
-      g.current_quests.map(q => ({ 
-        name: q, 
-        status: 'active', 
-        pillar: g.pillar, 
-        description: g.description 
-      }))
-    ),
-    ...Object.values(sheet.goals || {}).flatMap(g => 
-      g.needed_quests.map(q => ({ 
-        name: q, 
-        status: 'pending', 
-        pillar: g.pillar, 
-        description: `Prerequisite for: ${g.name}` 
-      }))
-    )
-  ]
-  .filter((q, i, a) => a.findIndex(t => t.name === q.name) === i) // de-dupe
-  .filter(q => {
-    const progress = sheet.habit_progress || {};
-    const node = tree.nodes.find(n => n.name === q.name);
-    if (!node) return q.status === 'active'; // Keep active quests if node not found
-    const habitProgress = progress[node.id];
-    return habitProgress?.status === 'ACTIVE' || q.status === 'active';
+  const progress = sheet.habit_progress || {};
+  
+  // Get ACTIVE habits from skill tree, grouped by pillar
+  // Select 1-2 habits per pillar to show in directives
+  const pillarMap = {
+    'CAREER': 'Career',
+    'PHYSICAL': 'Physical',
+    'MENTAL': 'Mental',
+    'SOCIAL': 'Social'
+  };
+  
+  // Get all Habit nodes from skill tree
+  const habitNodes = tree.nodes.filter(n => n.type === 'Habit' || n.type === 'habit');
+  
+  // Group by pillar and filter for ACTIVE habits
+  const habitsByPillar = {};
+  habitNodes.forEach(node => {
+    const pillar = node.pillar;
+    if (!pillar) return;
+    
+    const progressData = progress[node.id];
+    // Only include ACTIVE habits (not LOCKED or MASTERED)
+    if (progressData && progressData.status === 'ACTIVE') {
+      if (!habitsByPillar[pillar]) {
+        habitsByPillar[pillar] = [];
+      }
+      habitsByPillar[pillar].push({
+        node,
+        progress: progressData
+      });
+    }
   });
+  
+  // Select 1-2 habits per pillar
+  const selectedQuests = [];
+  Object.keys(habitsByPillar).forEach(pillar => {
+    const habits = habitsByPillar[pillar];
+    // Shuffle and take up to 2
+    const shuffled = [...habits].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, Math.min(2, habits.length));
+    
+    selected.forEach(({ node, progress: progressData }) => {
+      selectedQuests.push({
+        name: node.name,
+        status: 'active',
+        pillar: pillarMap[pillar] || pillar,
+        description: node.description || '',
+        nodeId: node.id
+      });
+    });
+  });
+  
+  const quests = selectedQuests;
 
   const debuffs = (sheet.debuffs || []).map(d => ({
     name: d,

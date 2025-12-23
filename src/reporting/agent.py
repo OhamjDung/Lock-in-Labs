@@ -12,6 +12,9 @@ from src.models import (
     ReportingState,
     DailyTaskStatus,
     StatsDelta,
+    SkillNode,
+    NodeType,
+    DailyScheduleItem,
 )
 from .prompts import REPORTING_CONVERSATION_PROMPT, REPORTING_JSON_PROMPT_TEMPLATE
 
@@ -39,20 +42,74 @@ class ReportingAgent:
             )
         return "\n".join(lines) if lines else "(no tasks scheduled)"
 
-    def initial_message(self, state: ReportingState) -> str:
-        """Generate the first message explaining what to report on."""
-        intro = (
-            "Let's do a quick daily check-in. Here's what I'm tracking for you today:\n\n"
+    def initial_message(self, state: ReportingState, sheet: CharacterSheet) -> str:
+        """Generate the first message explaining what to report on, using schedule status."""
+        # Get today's schedule if it exists
+        todays_schedule = sheet.daily_schedule.get(state.current_date, [])
+        
+        # Build a map of node_id -> schedule item for quick lookup
+        schedule_by_node: Dict[str, DailyScheduleItem] = {
+            item.node_id: item for item in todays_schedule if item.node_id
+        }
+        
+        # Categorize tasks by their schedule status
+        completed_tasks: List[str] = []
+        skipped_tasks: List[str] = []
+        pending_tasks: List[str] = []
+        partial_tasks: List[str] = []
+        
+        for task in state.todays_tasks:
+            schedule_item = schedule_by_node.get(task.node_id)
+            if schedule_item:
+                status = schedule_item.status
+                time_str = schedule_item.time if schedule_item.time else ""
+                task_display = f"{task.name}"
+                if time_str:
+                    task_display = f"{time_str} - {task_display}"
+                
+                if status == DailyTaskStatus.DONE:
+                    completed_tasks.append(task_display)
+                elif status == DailyTaskStatus.SKIPPED:
+                    skipped_tasks.append(task_display)
+                elif status == DailyTaskStatus.PARTIAL:
+                    partial_tasks.append(task_display)
+                else:  # PENDING or default
+                    pending_tasks.append(task_display)
+            else:
+                # No schedule item found, assume pending
+                pending_tasks.append(task.name)
+        
+        # Build context message
+        intro = "Let's do a quick daily check-in. Here's what I see from your schedule:\n\n"
+        
+        context_parts = []
+        
+        if completed_tasks:
+            context_parts.append(f"✅ Completed: {', '.join(completed_tasks)}")
+        
+        if partial_tasks:
+            context_parts.append(f"⚠️ Partially done: {', '.join(partial_tasks)}")
+        
+        if skipped_tasks:
+            context_parts.append(f"❌ Skipped: {', '.join(skipped_tasks)}")
+        
+        if pending_tasks:
+            context_parts.append(f"⏳ Still pending: {', '.join(pending_tasks)}")
+        
+        if not context_parts:
+            # Fallback if no schedule data
+            tasks_block = self._format_tasks_for_display(state.todays_tasks)
+            context_parts.append(tasks_block)
+        
+        context = "\n".join(context_parts)
+        
+        # Single question to invite feedback
+        question = (
+            "\n\nWhat worked well today, and what didn't? "
+            "Feel free to share any adjustments you'd like to make to these habits or their timing."
         )
-        tasks_block = self._format_tasks_for_display(state.todays_tasks)
-        guidance = (
-            "\n\nFor each item, tell me:\n"
-            "- Did you do it?\n"
-            "- Roughly how many repetitions/minutes?\n"
-            "- Anything notable (easy, hard, blocked, etc.)?\n\n"
-            "You can also mention anything else that feels important, even if it's not on the list."
-        )
-        return intro + tasks_block + guidance
+        
+        return intro + context + question
 
     def generate_reply(
         self,
@@ -164,6 +221,22 @@ class ReportingAgent:
 
         # Ask one clarifying question if there was friction.
         if has_negative:
+            # Check if user wants modifications
+            modification_keywords = ["too hard", "easier", "replace", "instead", "change", "modify", "adjust"]
+            if any(kw in lowered for kw in modification_keywords):
+                # Propose skill tree modifications
+                proposed_mods = self._propose_skill_tree_modifications(
+                    state, sheet, tree, user_message
+                )
+                
+                if proposed_mods:
+                    # Store in state for later use in finalize_report
+                    state.proposed_skill_modifications.extend(proposed_mods)
+                    
+                    mod_names = [m.name for m in proposed_mods]
+                    response += f" I can create easier or alternative versions: {', '.join(mod_names)}. Should I add these to your skill tree?"
+                    return response
+            
             response += (
                 " What, specifically, made those tricky – not knowing where to start, "
                 "too many options, low energy, or something else?"
@@ -173,6 +246,98 @@ class ReportingAgent:
 
         response += " When you're ready for me to summarize the day, type 'confirm'."
         return response
+
+    def _propose_skill_tree_modifications(
+        self,
+        state: ReportingState,
+        sheet: CharacterSheet,
+        tree: SkillTree,
+        user_feedback: str,
+    ) -> List[SkillNode]:
+        """Analyze user feedback and propose skill tree modifications.
+        
+        Returns list of new/modified SkillNodes to add to the tree.
+        """
+        modifications: List[SkillNode] = []
+        lowered_feedback = user_feedback.lower()
+        
+        # Pattern: Task is too hard → suggest easier variant
+        if any(word in lowered_feedback for word in ["too hard", "too difficult", "overwhelming", "can't do"]):
+            # Find mentioned tasks and create easier variants
+            for task in state.todays_tasks:
+                task_words = set(w.lower() for w in task.name.split() if len(w) >= 4)
+                if any(word in lowered_feedback for word in task_words):
+                    # Create an easier variant node
+                    original_node = next((n for n in tree.nodes if n.id == task.node_id), None)
+                    if original_node:
+                        easier_id = f"{task.node_id}_easier_variant"
+                        # Check if variant already exists
+                        if not any(n.id == easier_id for n in tree.nodes):
+                            modifications.append(
+                                SkillNode(
+                                    id=easier_id,
+                                    name=f"{original_node.name} (Easier Variant)",
+                                    type=NodeType.HABIT,
+                                    pillar=original_node.pillar,
+                                    prerequisites=[],  # Easier variant has no prerequisites
+                                    xp_reward=max(1, original_node.xp_reward // 2),  # Half XP
+                                    xp_multiplier=original_node.xp_multiplier,
+                                    required_completions=original_node.required_completions,
+                                    description=f"Simplified version of {original_node.name} based on user feedback.",
+                                )
+                            )
+        
+        # Pattern: Task conflicts with schedule → suggest alternative time variant
+        if any(word in lowered_feedback for word in ["time", "schedule", "conflict", "can't fit"]):
+            for task in state.todays_tasks:
+                task_words = set(w.lower() for w in task.name.split() if len(w) >= 4)
+                if any(word in lowered_feedback for word in task_words):
+                    original_node = next((n for n in tree.nodes if n.id == task.node_id), None)
+                    if original_node:
+                        # Create a time-flexible variant
+                        flexible_id = f"{task.node_id}_flexible_time"
+                        if not any(n.id == flexible_id for n in tree.nodes):
+                            modifications.append(
+                                SkillNode(
+                                    id=flexible_id,
+                                    name=f"{original_node.name} (Flexible Time)",
+                                    type=NodeType.HABIT,
+                                    pillar=original_node.pillar,
+                                    prerequisites=original_node.prerequisites,
+                                    xp_reward=original_node.xp_reward,
+                                    xp_multiplier=original_node.xp_multiplier,
+                                    required_completions=original_node.required_completions,
+                                    description=f"Time-flexible version of {original_node.name} based on scheduling feedback.",
+                                )
+                            )
+        
+        # Pattern: Task consistently skipped → suggest replacement
+        if any(word in lowered_feedback for word in ["replace", "instead", "alternative", "different"]):
+            for task in state.todays_tasks:
+                task_words = set(w.lower() for w in task.name.split() if len(w) >= 4)
+                if any(word in lowered_feedback for word in task_words):
+                    original_node = next((n for n in tree.nodes if n.id == task.node_id), None)
+                    if original_node:
+                        # Extract what they want instead (simple heuristic)
+                        replacement_id = f"{task.node_id}_replacement"
+                        if not any(n.id == replacement_id for n in tree.nodes):
+                            # Create a placeholder replacement node
+                            # In a full implementation, you'd use LLM to generate the replacement
+                            modifications.append(
+                                SkillNode(
+                                    id=replacement_id,
+                                    name=f"Alternative to {original_node.name}",
+                                    type=NodeType.HABIT,
+                                    pillar=original_node.pillar,
+                                    prerequisites=original_node.prerequisites,
+                                    xp_reward=original_node.xp_reward,
+                                    xp_multiplier=original_node.xp_multiplier,
+                                    required_completions=original_node.required_completions,
+                                    description=f"User-requested replacement for {original_node.name}.",
+                                )
+                            )
+        
+        return modifications
 
     def finalize_report(
         self,
@@ -293,6 +458,26 @@ class ReportingAgent:
                     )
 
             # Additional cases for other suggestions can be added here over time.
+        
+        # Collect skill tree modifications from conversation
+        skill_modifications: List[SkillNode] = list(state.proposed_skill_modifications)
+        
+        # Also check conversation history for modification requests
+        for turn in state.conversation_history:
+            if turn.get("role") == "user":
+                mods = self._propose_skill_tree_modifications(
+                    state, sheet, tree, turn.get("content", "")
+                )
+                skill_modifications.extend(mods)
+        
+        # Deduplicate by node ID
+        seen_ids = set()
+        unique_mods = []
+        for mod in skill_modifications:
+            if mod.id not in seen_ids:
+                seen_ids.add(mod.id)
+                unique_mods.append(mod)
+        
         base_summary = "Auto-generated daily report."
         summary_lines: List[str] = [base_summary, ""]
 
@@ -388,6 +573,7 @@ class ReportingAgent:
             tasks=task_reports,
             stats_delta=stats_delta,
             new_tasks=new_tasks,
+            new_skill_nodes=unique_mods,  # Add skill tree modifications
         )
 
         state.finalized = True

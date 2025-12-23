@@ -74,22 +74,59 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
 
     useEffect(() => { setTransform({ x: 0, y: 0, k: 0.8 }); }, [pillar]);
 
-    const handleWheel = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const delta = -e.deltaY * 0.001;
-        setTransform(prev => ({ ...prev, k: Math.min(Math.max(0.2, prev.k + delta), 3) }));
-    };
+    // Use ref for wheel event to make it non-passive
+    const containerRef = React.useRef(null);
 
-    const handleMouseDown = (e) => { setIsDragging(true); setStartPan({ x: e.clientX - transform.x, y: e.clientY - transform.y }); };
-    const handleMouseMove = (e) => { if (!isDragging) return; e.preventDefault(); setTransform(prev => ({ ...prev, x: e.clientX - startPan.x, y: e.clientY - startPan.y })); };
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleWheel = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const delta = -e.deltaY * 0.001;
+            setTransform(prev => ({ ...prev, k: Math.min(Math.max(0.2, prev.k + delta), 3) }));
+        };
+
+        // Add wheel event listener with { passive: false } to allow preventDefault
+        container.addEventListener('wheel', handleWheel, { passive: false });
+        
+        return () => {
+            container.removeEventListener('wheel', handleWheel);
+        };
+    }, []);
+
+    const handleMouseDown = (e) => { 
+        if (e.button !== 0) return; // Only handle left mouse button
+        setIsDragging(true); 
+        setStartPan({ x: e.clientX - transform.x, y: e.clientY - transform.y }); 
+    };
+    const handleMouseMove = (e) => { 
+        if (!isDragging) return; 
+        e.preventDefault(); 
+        setTransform(prev => ({ ...prev, x: e.clientX - startPan.x, y: e.clientY - startPan.y })); 
+    };
     const handleMouseUp = () => setIsDragging(false);
     
     return (
-        <div className="w-full h-full relative bg-[#f0f9ff] border-t-4 border-blue-900/10 overflow-hidden cursor-grab active:cursor-grabbing select-none"
-            onWheel={handleWheel} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-            <div className="absolute origin-top-left transition-transform duration-75 ease-out"
-                style={{ transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.k})`, width: Math.max(layout.width, 2000), height: '2000px' }}>
+        <div 
+            ref={containerRef}
+            className="w-full h-full relative bg-[#f0f9ff] border-t-4 border-blue-900/10 overflow-auto cursor-grab active:cursor-grabbing select-none"
+            onMouseDown={handleMouseDown} 
+            onMouseMove={handleMouseMove} 
+            onMouseUp={handleMouseUp} 
+            onMouseLeave={handleMouseUp}
+            style={{ overscrollBehavior: 'none' }}
+        >
+            <div 
+                className="absolute origin-top-left transition-transform duration-75 ease-out"
+                style={{ 
+                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.k})`, 
+                    width: Math.max(layout.width || 2000, 2000), 
+                    height: Math.max(2000, layout.nodes.length > 0 ? 2000 : 800),
+                    position: 'relative'
+                }}
+            >
                 <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#bae6fd 1px, transparent 1px), linear-gradient(90deg, #bae6fd 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
                     {layout.edges.map(e => (

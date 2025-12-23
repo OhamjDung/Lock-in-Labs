@@ -497,14 +497,24 @@ def architect_reply(payload: ArchitectRequest):
 
     # Process ALL previous user messages through Critic to build up the character sheet
     # This ensures progress is calculated correctly based on accumulated goals
+    # Process conversation history to build up the sheet state
+    # CRITICAL: This must preserve ALL goals from previous messages
     for msg in state.conversation_history:
         if msg["role"] == "user":
+            # Store goals before processing to ensure we don't lose any
+            goals_before_processing = {g.name.lower(): g for g in sheet.goals}
             sheet, _, _, _ = critic.analyze(
                 msg["content"], 
                 sheet, 
                 state.conversation_history[:state.conversation_history.index(msg) + 1],
                 state.phase
             )
+            # Ensure all previous goals are still present (safety check)
+            for goal_name, goal_obj in goals_before_processing.items():
+                if not any(g.name.lower() == goal_name for g in sheet.goals):
+                    # Goal was lost - restore it
+                    print(f"[WARNING] Goal '{goal_obj.name}' was lost during processing, restoring it")
+                    sheet.goals.append(goal_obj)
 
     # Determine current phase based on sheet state
     # Count pillars that have at least 1 goal (accounting for multi-pillar goals)
@@ -639,13 +649,17 @@ def architect_reply(payload: ArchitectRequest):
         state.phase = "phase2"
         phase_transition_debug["transition"] = "phase1 -> phase2"
     
-    # Check if all goals have at least 2 quests (to assess user skill level) - for phase2->phase3 transition
-    all_goals_have_quests = all_4_pillars_covered and all(
-        len(g.current_quests) >= 2 
+    # Check if all goals are complete for Phase 2
+    # A goal is complete if it has 2+ quests OR has skill_level assessed (for 0-1 quest cases)
+    def is_goal_complete_for_phase2(goal):
+        return len(goal.current_quests) >= 2 or goal.skill_level is not None
+    
+    all_goals_complete = all_4_pillars_covered and all(
+        is_goal_complete_for_phase2(g) 
         for g in sheet.goals
     )
     
-    if state.phase == "phase2" and all_goals_have_quests:
+    if state.phase == "phase2" and all_goals_complete:
         # Check if there are pending debuffs
         if len(state.pending_debuffs) > 0:
             state.phase = "phase3"
@@ -728,10 +742,10 @@ def architect_reply(payload: ArchitectRequest):
     elif state.phase == "phase2":
         # Determine which pillar to ask about next (first pillar with incomplete goals)
         def get_pillars_with_incomplete_goals(goals):
-            """Get pillars that have goals with < 2 quests."""
+            """Get pillars that have goals that are incomplete (need 2+ quests OR skill_level)."""
             pillars_with_incomplete = set()
             for goal in goals:
-                if len(goal.current_quests) < 2:
+                if not is_goal_complete_for_phase2(goal):
                     pillars_with_incomplete.update(goal.pillars)
             return pillars_with_incomplete
         
@@ -789,7 +803,7 @@ def architect_reply(payload: ArchitectRequest):
         # Determine current pillar with incomplete goals
         incomplete_pillars = set()
         for goal in sheet.goals:
-            if len(goal.current_quests) < 2:
+            if not is_goal_complete_for_phase2(goal):
                 incomplete_pillars.update(goal.pillars)
         for p in Pillar:
             if p in incomplete_pillars:
@@ -798,9 +812,24 @@ def architect_reply(payload: ArchitectRequest):
     
     # Generate phase transition message if phase changed (do this BEFORE calling Architect)
     phase_transition_message = None
+    custom_phase2_message = None  # For phase1->phase2, we'll create a custom message with the first goal
     if previous_phase != state.phase:
         if previous_phase == "phase1" and state.phase == "phase2":
-            phase_transition_message = "Now that I've gotten a good grasp of your goals, let's talk about what you're currently doing to achieve them."
+            # For phase2 transition, create a custom message that includes the first goal
+            # Find the first goal to ask about (cycle through pillars)
+            first_goal_for_phase2 = None
+            first_pillar_for_phase2 = None
+            for p in Pillar:
+                goals_for_pillar = [g for g in sheet.goals if p in g.pillars]
+                if goals_for_pillar:
+                    first_goal_for_phase2 = goals_for_pillar[0]
+                    first_pillar_for_phase2 = p.value
+                    break
+            
+            if first_goal_for_phase2:
+                custom_phase2_message = f"Now that I've gotten a good grasp of your goals, let's talk about what you're currently doing to achieve them. Let's start with your {first_pillar_for_phase2.lower()} goal: '{first_goal_for_phase2.name}'. Tell me what you're currently doing to get closer to this goal."
+            else:
+                phase_transition_message = "Now that I've gotten a good grasp of your goals, let's talk about what you're currently doing to achieve them."
         elif previous_phase == "phase2" and state.phase == "phase3":
             phase_transition_message = "Good. I've noted what you're currently doing. Now, I noticed a few things we should confirm. Let me ask you about them one at a time."
         elif previous_phase == "phase2" and state.phase == "phase3.5":
@@ -832,6 +861,10 @@ def architect_reply(payload: ArchitectRequest):
         # For phase4, use transition message if available, otherwise simple acknowledgment
         reply = phase_transition_message if phase_transition_message else "Perfect! I've got everything I need. Your skill tree is being generated now."
         architect_thinking = "Phase 4 - Skill tree generation in progress. No further questions needed."
+    elif custom_phase2_message:
+        # For phase1->phase2, use the custom message instead of calling Architect
+        reply = custom_phase2_message
+        architect_thinking = "Phase 1->2 transition - using custom message with first goal."
     else:
         # DEBUG: Log what goals are in sheet.goals before passing to Architect
         print(f"[DEBUG] Sheet goals before Architect call: {[(g.name, [p.value for p in g.pillars]) for g in sheet.goals]}")
@@ -852,9 +885,15 @@ def architect_reply(payload: ArchitectRequest):
         if phase_transition_message:
             reply = f"{phase_transition_message}\n\n{reply}"
 
-    # Get accumulated goals for logging (include current_quests)
+    # Get accumulated goals for logging (include current_quests and skill_level)
     accumulated_goals = [
-        {"name": g.name, "pillars": [p.value for p in g.pillars], "description": g.description, "current_quests": g.current_quests}
+        {
+            "name": g.name, 
+            "pillars": [p.value for p in g.pillars], 
+            "description": g.description, 
+            "current_quests": g.current_quests,
+            "skill_level": g.skill_level
+        }
         for g in sheet.goals
     ]
     
@@ -885,6 +924,11 @@ def architect_reply(payload: ArchitectRequest):
 class ExtractProfileRequest(BaseModel):
     history: List[Message]
     user_id: str
+
+class ReportingChatRequest(BaseModel):
+    user_id: str
+    message: str
+    conversation_history: List[Message] = []
 
 
 @app.post("/api/onboarding/extract-profile")
@@ -949,6 +993,9 @@ def extract_profile(payload: ExtractProfileRequest):
         skill_tree_generator = SkillTreeGenerator()
         skill_tree = skill_tree_generator.generate_skill_tree(sheet)
         
+        # Activate 1-2 habits per pillar automatically
+        _activate_initial_habits(sheet, skill_tree)
+        
         # Return the complete profile
         return {
             "character_sheet": sheet.model_dump(),
@@ -960,6 +1007,50 @@ def extract_profile(payload: ExtractProfileRequest):
         print(f"[ERROR] Failed to extract profile: {str(e)}")
         print(f"[ERROR] Traceback: {error_trace}")
         raise HTTPException(status_code=500, detail=f"Failed to extract profile: {str(e)}")
+
+
+def _activate_initial_habits(sheet, skill_tree):
+    """Activate 1-2 habits per pillar from the skill tree.
+    
+    This should be called after skill tree generation to automatically
+    unlock some habits for the user to start working on.
+    """
+    import random
+    from src.models import HabitProgress, NodeStatus, NodeType
+    
+    # Group habit nodes by pillar
+    habits_by_pillar = {}
+    for node in skill_tree.nodes:
+        if node.type == NodeType.HABIT:
+            pillar = node.pillar.value if hasattr(node.pillar, 'value') else str(node.pillar)
+            if pillar not in habits_by_pillar:
+                habits_by_pillar[pillar] = []
+            habits_by_pillar[pillar].append(node)
+    
+    # Initialize habit_progress if it doesn't exist
+    if not hasattr(sheet, 'habit_progress') or sheet.habit_progress is None:
+        sheet.habit_progress = {}
+    
+    # Activate 1-2 habits per pillar
+    for pillar, habit_nodes in habits_by_pillar.items():
+        if not habit_nodes:
+            continue
+        
+        # Randomly select 1-2 habits to activate
+        num_to_activate = min(2, len(habit_nodes))
+        selected_habits = random.sample(habit_nodes, num_to_activate)
+        
+        for habit_node in habit_nodes:
+            node_id = habit_node.id
+            if node_id not in sheet.habit_progress:
+                # Create new progress entry
+                sheet.habit_progress[node_id] = HabitProgress(node_id=node_id)
+            
+            # Activate if selected, otherwise keep as LOCKED
+            if habit_node in selected_habits:
+                sheet.habit_progress[node_id].status = NodeStatus.ACTIVE
+            else:
+                sheet.habit_progress[node_id].status = NodeStatus.LOCKED
 
 
 @app.get("/api/profile/{user_id}")
@@ -1002,6 +1093,44 @@ def save_profile_endpoint(user_id: str, payload: dict):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/profile/{user_id}/activate-habits")
+def activate_habits_endpoint(user_id: str):
+    """Manually activate 1-2 habits per pillar for an existing profile.
+    
+    This is useful if the skill tree exists but habits weren't activated
+    during onboarding.
+    """
+    from src.storage import load_profile, save_profile
+    from src.models import CharacterSheet, SkillTree
+    
+    data = load_profile(user_id) or {}
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Load character sheet and skill tree
+    cs_dict = data.get("character_sheet", {})
+    tree_dict = data.get("skill_tree", {})
+    
+    if not tree_dict or not tree_dict.get("nodes"):
+        raise HTTPException(status_code=400, detail="Skill tree not found or empty")
+    
+    sheet = CharacterSheet(**cs_dict)
+    skill_tree = SkillTree(**tree_dict)
+    
+    # Activate habits
+    _activate_initial_habits(sheet, skill_tree)
+    
+    # Save updated profile
+    data["character_sheet"] = sheet.model_dump()
+    save_profile(data, user_id)
+    
+    return {
+        "ok": True,
+        "message": f"Activated habits for {user_id}",
+        "character_sheet": sheet.model_dump()
+    }
 
 
 @app.get("/api/profile/{user_id}/calendar")
@@ -1096,6 +1225,277 @@ def delete_calendar_event(user_id: str, event_id: str):
             return {"message": "Event deleted", "event_id": event_id}
 
     raise HTTPException(status_code=404, detail="Event not found")
+
+
+@app.post("/api/profile/{user_id}/task/{node_id}/toggle")
+def toggle_task_completion(user_id: str, node_id: str, payload: dict = None):
+    """Toggle completion status of a task for today.
+    
+    Creates or updates a daily report entry for today with the task completion status.
+    If payload.completed is True, marks as completed; if False, marks as not completed.
+    """
+    from datetime import date
+    from src.models import DailyTaskStatus, DailyTaskReport, DailyReport
+    
+    data = load_profile(user_id) or {}
+    cs = data.setdefault("character_sheet", {})
+    skill_tree = data.get("skill_tree", {})
+    
+    # Get today's date
+    today = date.today().isoformat()
+    
+    # Get the node to find the task name
+    node = None
+    if skill_tree.get("nodes"):
+        node = next((n for n in skill_tree["nodes"] if n.get("id") == node_id), None)
+    
+    task_name = node.get("name", "Unknown Task") if node else "Unknown Task"
+    
+    # Get or create today's daily report
+    daily_reports = cs.setdefault("daily_reports", [])
+    today_report = next((r for r in daily_reports if r.get("date") == today), None)
+    
+    if not today_report:
+        # Create a new daily report for today
+        today_report = {
+            "date": today,
+            "summary": "",
+            "sentiment": "neutral",
+            "wins": [],
+            "struggles": [],
+            "reflections": [],
+            "free_text": "",
+            "tasks": [],
+            "stats_delta": {
+                "stats_career": {},
+                "stats_physical": {},
+                "stats_mental": {},
+                "stats_social": {},
+                "xp_career": 0,
+                "xp_physical": 0,
+                "xp_mental": 0,
+                "xp_social": 0,
+                "xp_total": 0
+            },
+            "new_tasks": [],
+            "new_skill_nodes": []
+        }
+        daily_reports.append(today_report)
+    
+    # Get completion status from payload, default to toggle
+    completed = payload.get("completed") if payload else None
+    if completed is None:
+        # Toggle: check if already completed
+        existing_task = next((t for t in today_report.get("tasks", []) if t.get("node_id") == node_id), None)
+        completed = not (existing_task and (existing_task.get("status") == "DONE" or existing_task.get("status") == "COMPLETED" or existing_task.get("completed_repetitions", 0) > 0))
+    
+    # Find or create task report
+    tasks = today_report.setdefault("tasks", [])
+    task_report = next((t for t in tasks if t.get("node_id") == node_id), None)
+    
+    if not task_report:
+        # Create new task report
+        task_report = {
+            "task_id": f"{today}_{node_id}",
+            "node_id": node_id,
+            "status": DailyTaskStatus.DONE.value if completed else DailyTaskStatus.PENDING.value,
+            "completed_repetitions": 1 if completed else 0,
+            "user_comment": None
+        }
+        tasks.append(task_report)
+    else:
+        # Update existing task report
+        task_report["status"] = DailyTaskStatus.DONE.value if completed else DailyTaskStatus.PENDING.value
+        task_report["completed_repetitions"] = 1 if completed else 0
+    
+    # Update last_report_date
+    cs["last_report_date"] = today
+    
+    # Save the profile
+    from src.storage import save_profile
+    save_profile(data, user_id)
+    
+    return {
+        "ok": True,
+        "completed": completed,
+        "task_id": task_report["task_id"],
+        "node_id": node_id
+    }
+
+
+@app.post("/api/reporting/chat")
+def reporting_chat(payload: ReportingChatRequest):
+    """Handle reporting agent conversation.
+    
+    Processes user messages through the ReportingAgent and returns responses.
+    """
+    from datetime import date
+    from src.reporting import ReportingAgent
+    from src.reporting.scheduler import get_todays_tasks, ensure_daily_schedule_for_date
+    from src.models import ReportingState, CharacterSheet, SkillTree
+    from src.storage import load_profile, save_profile
+    
+    # Load user profile
+    data = load_profile(payload.user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    
+    # Load character sheet and skill tree
+    cs_dict = data.get("character_sheet", {})
+    tree_dict = data.get("skill_tree", {})
+    
+    sheet = CharacterSheet(**cs_dict) if cs_dict else CharacterSheet(user_id=payload.user_id)
+    tree = SkillTree(**tree_dict) if tree_dict else SkillTree(nodes=[])
+    
+    current_date = date.today().isoformat()
+    
+    # Get today's tasks
+    todays_tasks = get_todays_tasks(sheet, tree, current_date=current_date)
+    ensure_daily_schedule_for_date(sheet, todays_tasks, current_date=current_date)
+    
+    # Initialize or restore reporting state
+    # For simplicity, we'll create a fresh state each time, but in production
+    # you might want to persist this in the user's profile
+    state = ReportingState(
+        user_id=payload.user_id,
+        current_date=current_date,
+        todays_tasks=todays_tasks,
+        phase="collecting",
+        conversation_history=payload.conversation_history,
+    )
+    
+    agent = ReportingAgent()
+    
+    # Handle the message
+    user_message = payload.message.strip()
+    
+    # Check if this is the first message (initial greeting)
+    if not state.conversation_history:
+        # Return initial greeting
+        initial_msg = agent.initial_message(state, sheet)
+        state.conversation_history.append({"role": "assistant", "content": initial_msg})
+        
+        # If user provided a message, process it
+        if user_message:
+            state.conversation_history.append({"role": "user", "content": user_message})
+            reply = agent.generate_reply(state, sheet, tree, user_message)
+            state.conversation_history.append({"role": "assistant", "content": reply})
+        else:
+            # Just return the initial message
+            reply = initial_msg
+    else:
+        # Add user message to history
+        state.conversation_history.append({"role": "user", "content": user_message})
+        
+        # Check for confirmation
+        lowered = user_message.lower()
+        if "confirm" in lowered or "done" in lowered:
+            if state.phase == "collecting":
+                # Generate draft report
+                draft = agent.finalize_report(state, sheet, tree)
+                state.pending_report = draft
+                state.phase = "review"
+                reply = f"Here's a draft summary of your day:\n\n{draft.summary}\n\nDoes this work for you? Type 'confirm' again to save."
+            elif state.phase == "review":
+                # Finalize and save
+                draft = state.pending_report
+                if draft:
+                    from src.reporting.apply_updates import apply_daily_report
+                    apply_daily_report(sheet, tree, draft)
+                    save_profile({
+                        "character_sheet": sheet.model_dump(),
+                        "skill_tree": tree.model_dump(),
+                    }, payload.user_id)
+                    reply = f"Report saved for {current_date}. Summary: {draft.summary}"
+                    state.phase = "complete"
+                else:
+                    reply = "No draft report found. Starting over."
+                    state.phase = "collecting"
+            else:
+                reply = agent.generate_reply(state, sheet, tree, user_message)
+        else:
+            # Regular conversation
+            reply = agent.generate_reply(state, sheet, tree, user_message)
+        
+        state.conversation_history.append({"role": "assistant", "content": reply})
+    
+    return {
+        "reply": reply,
+        "conversation_history": state.conversation_history,
+        "phase": state.phase,
+        "is_complete": state.phase == "complete"
+    }
+
+
+@app.post("/api/profile/{user_id}/quest/add")
+def add_quest_to_goal(user_id: str, payload: dict):
+    """Add a new quest/task to a goal's current_quests list.
+    
+    Expects payload with:
+    - task_name: str (the name of the new task/quest)
+    - goal_name: str (the name of the goal to add it to)
+    """
+    data = load_profile(user_id) or {}
+    cs = data.setdefault("character_sheet", {})
+    
+    task_name = payload.get("task_name", "").strip()
+    goal_name = payload.get("goal_name", "").strip()
+    
+    if not task_name or not goal_name:
+        raise HTTPException(status_code=400, detail="task_name and goal_name are required")
+    
+    # Find the goal - handle both array and dict formats
+    goals = cs.get("goals", [])
+    if isinstance(goals, dict):
+        goals = list(goals.values())
+    elif not isinstance(goals, list):
+        goals = []
+    
+    goal = None
+    goal_index = None
+    for idx, g in enumerate(goals):
+        if isinstance(g, dict) and g.get("name") == goal_name:
+            goal = g
+            goal_index = idx
+            break
+        elif isinstance(g, str) and g == goal_name:
+            # Handle case where goals might be a list of strings
+            goal = {"name": g, "current_quests": []}
+            goal_index = idx
+            break
+    
+    if not goal:
+        raise HTTPException(status_code=404, detail=f"Goal '{goal_name}' not found")
+    
+    # If goal was a string, convert it to a dict
+    if isinstance(goal, str):
+        goal = {"name": goal, "current_quests": []}
+        if goal_index is not None:
+            goals[goal_index] = goal
+    
+    # Ensure current_quests exists and is a list
+    if "current_quests" not in goal:
+        goal["current_quests"] = []
+    if not isinstance(goal["current_quests"], list):
+        goal["current_quests"] = list(goal["current_quests"]) if goal["current_quests"] else []
+    
+    # Check if task already exists
+    if task_name in goal["current_quests"]:
+        raise HTTPException(status_code=400, detail=f"Task '{task_name}' already exists in goal '{goal_name}'")
+    
+    # Add the task
+    goal["current_quests"].append(task_name)
+    
+    # Save the profile
+    from src.storage import save_profile
+    save_profile(data, user_id)
+    
+    return {
+        "ok": True,
+        "task_name": task_name,
+        "goal_name": goal_name,
+        "message": f"Task '{task_name}' added to goal '{goal_name}'"
+    }
 
 
 @app.post("/api/chat/gemini")

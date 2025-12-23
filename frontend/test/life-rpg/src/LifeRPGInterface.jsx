@@ -257,7 +257,7 @@ export default function LifeRPGInterface() {
       <main className="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto min-h-screen flex flex-col relative z-10">
         
         {/* VIEW 1: PROFILE DASHBOARD */}
-        {activeTab === 'sheet' && (
+        <div style={{ display: activeTab === 'sheet' ? 'block' : 'none' }}>
           <ProfileView 
             displayData={displayData}
             ditheredPreviewUrl={ditheredPreviewUrl}
@@ -265,38 +265,61 @@ export default function LifeRPGInterface() {
             takePhotoRef={takePhotoRef}
             sendFile={sendFile}
             selectedAlgorithm={selectedAlgorithm}
+            skillTree={skillTree}
+            userId={characterSheet?.user_id}
+            characterSheet={characterSheet}
+            onQuestToggle={async () => {
+              // Reload profile data after toggle
+              if (characterSheet?.user_id) {
+                try {
+                  const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+                  const res = await fetch(`${backend}/api/profile/${characterSheet.user_id}`);
+                  if (res.ok) {
+                    const data = await res.json();
+                    setCharacterSheet(data.character_sheet || data);
+                    if (data.skill_tree) {
+                      setSkillTree(data.skill_tree);
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error reloading profile:', error);
+                }
+              }
+            }}
           />
-        )}
+              </div>
 
         {/* VIEW 2: SKILL MAP (Dynamic Blueprint) */}
-        {activeTab === 'map' && (
+        <div style={{ display: activeTab === 'map' ? 'block' : 'none' }}>
           <BlueprintView 
             skillTree={skillTree} 
             characterSheet={characterSheet} 
           />
-        )}
+                </div>
 
         {/* VIEW 3: REPORT PAGE */}
-        {activeTab === 'report' && (
+        <div style={{ display: activeTab === 'report' ? 'block' : 'none' }}>
           <ReportView displayData={displayData} />
-        )}
+                </div>
 
         {/* VIEW 4: CALENDAR */}
-        {activeTab === 'calendar' && <CalendarView />}
-
+        <div style={{ display: activeTab === 'calendar' ? 'block' : 'none' }}>
+          <CalendarView />
+                                        </div>
+                                        
         {/* VIEW 5: LOCK-IN */}
-        {activeTab === 'lockin' && (
+        <div style={{ display: activeTab === 'lockin' ? 'block' : 'none' }}>
           <LockInView 
             availableQuests={displayData.quests || []} 
             sendFile={sendFile} 
             selectedAlgorithm={selectedAlgorithm} 
             setSelectedAlgorithm={setSelectedAlgorithm}
             ditheredPreviewUrl={ditheredPreviewUrl} 
-            setDitheredPreviewUrl={setDitheredPreviewUrl} 
+            setDitheredPreviewUrl={setDitheredPreviewUrl}
             fileInputRef={fileInputRef} 
             takePhotoRef={takePhotoRef} 
           />
-        )}
+                    </div>
 
       </main>
     </div>
