@@ -813,6 +813,129 @@ def _strip_thinking_block(text: str) -> str:
     return cleaned.strip()
 
 class CriticAgent:
+    def _normalize_goal_name(self, name: str) -> str:
+        """Normalize goal name by removing common prefixes and suffixes."""
+        name = name.lower().strip()
+        # Remove common prefixes
+        prefixes = [
+            "become a ", "be a ", "become ", "be able to ", "be able ",
+            "learn to ", "learn ", "master ", "improve ", "get better at ",
+            "start ", "begin ", "develop ", "build ", "create "
+        ]
+        for prefix in prefixes:
+            if name.startswith(prefix):
+                name = name[len(prefix):].strip()
+        # Remove common suffixes
+        suffixes = [" skill", " skills", " ability", " abilities"]
+        for suffix in suffixes:
+            if name.endswith(suffix):
+                name = name[:-len(suffix)].strip()
+        return name
+    
+    def _get_root_words(self, text: str) -> set:
+        """Extract root words from text, handling common suffixes."""
+        words = text.split()
+        root_words = set()
+        for word in words:
+            # Simple stemming: remove common suffixes
+            suffixes_to_remove = ["ing", "er", "ed", "s", "es", "ly"]
+            for suffix in suffixes_to_remove:
+                if word.endswith(suffix) and len(word) > len(suffix) + 2:
+                    word = word[:-len(suffix)]
+                    break
+            root_words.add(word)
+        return root_words
+    
+    def _is_goal_mentioned_in_message(self, goal_name: str, user_message: str) -> bool:
+        """Check if a goal name is explicitly mentioned in the user's message.
+        
+        This is strict validation to prevent hallucinated goals.
+        Returns True only if the goal is clearly mentioned, False otherwise.
+        """
+        user_lower = user_message.lower()
+        goal_lower = goal_name.lower()
+        
+        # Check if goal name appears directly (exact substring match)
+        if goal_lower in user_lower:
+            return True
+        
+        # Normalize both and check if normalized goal appears
+        goal_normalized = self._normalize_goal_name(goal_name)
+        if goal_normalized and goal_normalized in user_lower:
+            return True
+        
+        # For multi-word goals, check if all significant words appear
+        goal_words = goal_normalized.split() if goal_normalized else goal_lower.split()
+        
+        # Remove stop words
+        stop_words = {"a", "an", "the", "to", "of", "and", "or", "at", "in", "on", "be", "become"}
+        goal_significant_words = [w for w in goal_words if w not in stop_words and len(w) > 2]
+        
+        if not goal_significant_words:
+            # If no significant words after normalization, check original
+            goal_significant_words = [w for w in goal_lower.split() if w not in stop_words and len(w) > 2]
+        
+        if not goal_significant_words:
+            # Very short goal name, check direct match only
+            return goal_lower in user_lower
+        
+        # Check if ALL significant words from the goal appear in user message
+        # This is strict - all key words must be present
+        user_words_set = set(user_lower.split())
+        all_words_present = all(word in user_lower for word in goal_significant_words)
+        
+        return all_words_present
+    
+    def _goal_names_similar(self, name1: str, name2: str, threshold: float = 0.65) -> bool:
+        """Check if two goal names are semantically similar."""
+        # Normalize both names
+        norm1 = self._normalize_goal_name(name1)
+        norm2 = self._normalize_goal_name(name2)
+        
+        # Exact match after normalization
+        if norm1 == norm2:
+            return True
+        
+        # Check if one normalized name contains the other (e.g., "network" contains "networker")
+        if norm1 in norm2 or norm2 in norm1:
+            return True
+        
+        # Word-based similarity (check if they share significant words)
+        words1 = set(norm1.split())
+        words2 = set(norm2.split())
+        
+        # Remove common stop words
+        stop_words = {"a", "an", "the", "to", "of", "and", "or", "at", "in", "on"}
+        words1 = words1 - stop_words
+        words2 = words2 - stop_words
+        
+        if not words1 or not words2:
+            # Fallback to character similarity if no meaningful words
+            similarity = difflib.SequenceMatcher(None, norm1, norm2).ratio()
+            return similarity >= threshold
+        
+        # Get root words (handle network/networker/networking)
+        roots1 = self._get_root_words(" ".join(words1))
+        roots2 = self._get_root_words(" ".join(words2))
+        
+        # Check if any root word from one set is contained in or matches any from the other
+        for root1 in roots1:
+            for root2 in roots2:
+                if root1 == root2 or root1 in root2 or root2 in root1:
+                    # If they share a root word, likely the same goal
+                    return True
+        
+        # Check word overlap (Jaccard similarity)
+        intersection = roots1 & roots2
+        union = roots1 | roots2
+        jaccard = len(intersection) / len(union) if union else 0
+        
+        # Also check character similarity on normalized names
+        char_similarity = difflib.SequenceMatcher(None, norm1, norm2).ratio()
+        
+        # Match if either word overlap is high OR character similarity is high
+        return jaccard >= 0.5 or char_similarity >= threshold
+    
     def _deduplicate_list(self, items: List[str], similarity_threshold: float = 0.8) -> List[str]:
         """
         Deduplicates a list of strings based on semantic similarity.
@@ -881,7 +1004,13 @@ class CriticAgent:
             <phase>PHASE 2 - CURRENT QUESTS COLLECTION</phase>
             <objective>**PRIMARY OBJECTIVE**: Extract `current_quests` (what the user is CURRENTLY doing) for goals that ALREADY EXIST in the `Current Character Sheet`. If user has limited or no current activities, extract their skill level self-assessment instead.</objective>
             <restriction>ONLY extract `current_quests` for goals that ALREADY EXIST in the `Current Character Sheet`.</restriction>
-            <new_goals>If the user mentions a BRAND NEW goal (e.g., "I want to spike a volleyball"), extract it as a new goal, but DO NOT attach quests to it yet.</new_goals>
+            <new_goals>
+                **CRITICAL - ONLY EXTRACT IF EXPLICITLY MENTIONED**:
+                If the user mentions a BRAND NEW goal (e.g., "I want to spike a volleyball"), extract it as a new goal, but DO NOT attach quests to it yet.
+                **ABSOLUTE RULE**: Do NOT extract goals that are NOT explicitly mentioned in the user's message. 
+                **EXAMPLE OF WHAT NOT TO DO**: User says "I approach people first and I try to listen more than I talk" → This describes networking activities, NOT a new career goal. Do NOT extract "Become a Senior Dev" or any other goal.
+                **VALIDATION**: Only extract goals if the user explicitly states "I want to X", "I want to become X", "my goal is X", or similar explicit goal statements.
+            </new_goals>
             <critical_distinction>
                 **CRITICAL - GOAL vs QUEST in Phase 2**:
                 - "I want to spike a volleyball" -> GOAL (desired outcome), NOT a quest
@@ -1004,7 +1133,10 @@ class CriticAgent:
         
         <extraction_rules>
         1. **GOAL EXTRACTION (The "What")**:
-           - Extract high-level outcomes (e.g., "Become a Senior Dev", "Run a Marathon").
+           - Extract high-level outcomes (e.g., "Become a Software Engineer", "Run a Marathon").
+           - **CRITICAL - EXPLICIT MENTION ONLY**: ONLY extract goals that are EXPLICITLY mentioned in the user's message. Do NOT infer, assume, or create goals based on context, examples, or conversation history.
+           - **ABSOLUTE PROHIBITION**: Do NOT extract goals that the user did NOT mention. If the user says "I approach people first", do NOT extract "Become a Senior Dev" or any other goal - they only mentioned networking activities.
+           - **VALIDATION**: For each goal you extract, you MUST be able to point to an explicit phrase in the user's message that states or implies that goal (e.g., "I want to X", "I want to become X", "my goal is X").
            - **Duplicate Check**: If a goal is similar to an existing one, MERGE them.
            - **Pillar Logic**: Assign pillars based STRICTLY on context.
         
@@ -1066,20 +1198,35 @@ class CriticAgent:
                         
                         goal_name = goal_data.get("name", "")
                         
+                        # VALIDATION: Check if this goal was actually mentioned in the user's message
+                        # Skip goals that weren't explicitly mentioned (prevents hallucination)
+                        # Exception: if goal already exists, allow it (might be a paraphrase of existing goal)
+                        is_existing = any(
+                            self._goal_names_similar(existing.name, goal_name) 
+                            for existing in current_sheet.goals
+                        )
+                        
+                        if not is_existing and not self._is_goal_mentioned_in_message(goal_name, user_input):
+                            print(f"[CRITIC VALIDATION] ❌ REJECTING hallucinated goal '{goal_name}' - not explicitly mentioned in user message: '{user_input}'")
+                            print(f"[CRITIC VALIDATION] This goal appears to be inferred/hallucinated. Only extracting goals explicitly stated by the user.")
+                            continue
+                        
                         # Check for duplicate/overlapping goals
                         existing_goal = None
                         for existing in current_sheet.goals:
                             if existing.name.lower() == goal_name.lower():
                                 existing_goal = existing
                                 break
-                            similarity = difflib.SequenceMatcher(None, existing.name.lower(), goal_name.lower()).ratio()
-                            if similarity > 0.6 and any(p in existing.pillars for p in pillar_enums):
-                                if len(goal_name) > len(existing.name) or "data" in goal_name.lower() or "analysis" in goal_name.lower():
-                                    existing.name = goal_name
+                            # Use semantic similarity check that normalizes names
+                            if self._goal_names_similar(existing.name, goal_name) and any(p in existing.pillars for p in pillar_enums):
+                                # PRESERVE original goal name - only update description and pillars
+                                # Don't overwrite the name unless it's a clear, significant improvement
+                                # (e.g., "Learn Code" -> "Become a Software Engineer" is OK, but "Networking" -> "Network" is NOT)
+                                if existing.description:
                                     existing.description = goal_data.get("description", existing.description)
-                                    for p in pillar_enums:
-                                        if p not in existing.pillars:
-                                            existing.pillars.append(p)
+                                for p in pillar_enums:
+                                    if p not in existing.pillars:
+                                        existing.pillars.append(p)
                                 existing_goal = existing
                                 break
                         
@@ -1091,6 +1238,7 @@ class CriticAgent:
                                 current_quests=[] 
                             )
                             current_sheet.goals.append(new_goal)
+                            print(f"[CRITIC] Added new goal: '{goal_name}' (validated: mentioned in user message)")
                         else:
                             existing_goal.pillars = list(set(existing_goal.pillars + pillar_enums))
                             if goal_data.get("description"):
@@ -1117,25 +1265,42 @@ class CriticAgent:
                         goal_name = goal_data.get("name", "")
                         goal_name_lower = goal_name.lower()
                         
+                        # VALIDATION: Check if this goal was actually mentioned in the user's message
+                        # Skip goals that weren't explicitly mentioned (prevents hallucination)
+                        # Exception: if goal already exists, allow it (might be a paraphrase of existing goal)
+                        is_existing = goal_name_lower in existing_goal_names_before or any(
+                            self._goal_names_similar(existing.name, goal_name) 
+                            for existing in current_sheet.goals
+                        )
+                        
+                        if not is_existing and not self._is_goal_mentioned_in_message(goal_name, user_input):
+                            print(f"[CRITIC VALIDATION] ❌ REJECTING hallucinated goal '{goal_name}' - not explicitly mentioned in user message: '{user_input}'")
+                            print(f"[CRITIC VALIDATION] This goal appears to be inferred/hallucinated. Only extracting goals explicitly stated by the user.")
+                            continue
+                        
                         existing_goal = None
                         # Check exact match first
                         if goal_name_lower in existing_goal_names_before:
                             existing_goal = existing_goal_names_before[goal_name_lower]
                         else:
-                            # Check similarity with existing goals
+                            # Check similarity with existing goals using semantic matching
                             for existing in current_sheet.goals:
-                                similarity = difflib.SequenceMatcher(None, existing.name.lower(), goal_name_lower).ratio()
-                                if similarity > 0.6 and any(p in existing.pillars for p in pillar_enums):
-                                    if len(goal_name) > len(existing.name) or "data" in goal_name_lower or "analysis" in goal_name_lower:
-                                        existing.name = goal_name
+                                if self._goal_names_similar(existing.name, goal_name) and any(p in existing.pillars for p in pillar_enums):
+                                    # PRESERVE original goal name - only update description and pillars
+                                    # Don't overwrite the name unless it's a clear, significant improvement
+                                    # (e.g., "Learn Code" -> "Become a Software Engineer" is OK, but "Networking" -> "Network" is NOT)
+                                    if goal_data.get("description"):
                                         existing.description = goal_data.get("description", existing.description)
                                     for p in pillar_enums:
                                         if p not in existing.pillars:
                                             existing.pillars.append(p)
                                     existing_goal = existing
+                                    # Update the lookup dict with the matched goal
+                                    existing_goal_names_before[goal_name_lower] = existing
                                     break
                         
                         if not existing_goal:
+                            # New goal - validate it's mentioned in user input
                             # New goal - add it
                             new_goal = Goal(
                                 name=goal_name,
@@ -1145,18 +1310,27 @@ class CriticAgent:
                             )
                             current_sheet.goals.append(new_goal)
                             existing_goal_names_before[goal_name_lower] = new_goal
+                            print(f"[CRITIC] Added new goal: '{goal_name}' (validated: mentioned in user message)")
                     
                     # Then, add current_quests and skill_level to goals (both existing and newly added)
                     for goal_data in data["goals"]:
                         goal_name = goal_data.get("name", "")
                         goal_name_lower = goal_name.lower()
                         
-                        # Find goal by name (case-insensitive)
+                        # Find goal by name (case-insensitive, with semantic similarity fallback)
                         goal_obj = None
+                        # First try exact match
                         for g in current_sheet.goals:
                             if g.name.lower() == goal_name_lower:
                                 goal_obj = g
                                 break
+                        
+                        # If no exact match, try semantic similarity matching (for when LLM paraphrases goal names)
+                        if not goal_obj:
+                            for g in current_sheet.goals:
+                                if self._goal_names_similar(g.name, goal_name):
+                                    goal_obj = g
+                                    break
                         
                         if goal_obj:
                             # Add current_quests
@@ -1869,6 +2043,7 @@ class ArchitectAgent:
             except ValueError:
                 pass
         
+        # Collect all incomplete goals
         incomplete_goals = []
         if current_pillar_enum:
             incomplete_goals = [
@@ -1888,7 +2063,45 @@ class ArchitectAgent:
         if not incomplete_goals:
             return "Great! I've collected all the information I need about what you're currently doing. Let's move on.", "Phase 2 complete - all goals have quests or skill levels."
         
-        target_goal = incomplete_goals[0]
+        # Check conversation history to see if we already asked about a goal in the last turn
+        # Skip that goal and move to the next one
+        last_asked_goal = None
+        if len(history) >= 2:
+            # Check the last assistant message to see which goal was mentioned
+            last_assistant_msg = None
+            for msg in reversed(history):
+                if msg.get("role") == "assistant":
+                    last_assistant_msg = msg.get("content", "")
+                    break
+            
+            if last_assistant_msg:
+                # Check if any goal name appears in the last assistant message
+                for goal in incomplete_goals:
+                    # Check if goal name is mentioned in the assistant's last message
+                    goal_name_lower = goal.name.lower()
+                    if goal_name_lower in last_assistant_msg.lower():
+                        last_asked_goal = goal
+                        break
+        
+        # Select target goal
+        target_goal = None
+        if last_asked_goal and last_asked_goal in incomplete_goals:
+            # We just asked about this goal. Check if we should:
+            # 1. Ask for skill level (if 0-1 quests and no skill_level)
+            # 2. Move to next goal (if we already asked for skill level or goal is now complete)
+            if len(last_asked_goal.current_quests) < 2 and last_asked_goal.skill_level is None:
+                # Still need skill level - ask for it on the same goal
+                target_goal = last_asked_goal
+            else:
+                # Goal is complete or we already asked for skill level - move to next goal
+                try:
+                    last_idx = incomplete_goals.index(last_asked_goal)
+                    next_idx = (last_idx + 1) % len(incomplete_goals)
+                    target_goal = incomplete_goals[next_idx]
+                except ValueError:
+                    target_goal = incomplete_goals[0]
+        else:
+            target_goal = incomplete_goals[0]
         quest_count = len(target_goal.current_quests)
         
         # Build a super simple, focused prompt for Phase 2
@@ -1897,6 +2110,16 @@ class ArchitectAgent:
             for g in current_sheet.goals
         ])
         
+        # Determine what task to perform
+        just_asked_about_this = last_asked_goal and last_asked_goal.name == target_goal.name
+        if just_asked_about_this:
+            if quest_count < 2 and target_goal.skill_level is None:
+                task_instruction = f"⚠️ CRITICAL: You JUST asked about '{target_goal.name}' and the user already responded. Since this goal has {quest_count} quests and no skill level, ask for skill level assessment (1-10) instead of asking about the goal again."
+            else:
+                task_instruction = f"⚠️ CRITICAL: You JUST asked about '{target_goal.name}' and the user already responded. Move on to a different incomplete goal."
+        else:
+            task_instruction = f'Ask the user what they are CURRENTLY doing to work on "{target_goal.name}".'
+        
         system_prompt = f"""You are a data collector. Your ONLY job is to ask about what the user is CURRENTLY doing for their goals.
 
 **CRITICAL RULES - YOU MUST FOLLOW THESE:**
@@ -1904,6 +2127,7 @@ class ArchitectAgent:
 2. **NEVER ASK ABOUT GOALS** - All goals are already identified. Do NOT ask "what is your goal" or "what do you want to achieve".
 3. **NEVER ASK ABOUT MISSING PILLARS** - Do NOT mention pillars, missing areas, or what's not covered.
 4. **ONE GOAL AT A TIME** - Focus on ONE goal per message.
+5. **NEVER REPEAT QUESTIONS** - Check conversation history. If you just asked about a goal and the user responded, do NOT ask about that same goal again. Either ask for skill level (if needed) or move to the next goal.
 
 **CURRENT STATUS:**
 {goals_status}
@@ -1914,7 +2138,7 @@ Current quests: {quest_count}/2
 Skill level: {'Assessed: ' + str(target_goal.skill_level) if target_goal.skill_level else 'Not assessed'}
 
 **YOUR TASK:**
-Ask the user what they are CURRENTLY doing to work on "{target_goal.name}".
+{task_instruction}
 
 **EXAMPLES OF GOOD QUESTIONS:**
 - "What are you currently doing to work on [Goal Name]?"
@@ -1931,8 +2155,7 @@ Ask the user what they are CURRENTLY doing to work on "{target_goal.name}".
 If the user indicates they have limited or no current activities, ask: "On a scale of 1-10, how would you rate your current skill level in [Goal Name]?"
 
 **OUTPUT FORMAT:**
-Start with: "Current quest status: [Goal Name] has {quest_count}/2 quests."
-Then ask your question.
+Do NOT include quest status in your response. Just ask your question directly.
 
 Keep it simple and direct. No fluff, no goal questions, just quest collection."""
 
@@ -1956,5 +2179,9 @@ Keep it simple and direct. No fluff, no goal questions, just quest collection.""
         # Strip thinking from response
         visible_response = re.sub(r"<thinking>.*?</thinking>", "", response, flags=re.DOTALL | re.IGNORECASE).strip()
         visible_response = re.sub(r"<analysis>.*?</analysis>", "", visible_response, flags=re.DOTALL | re.IGNORECASE).strip()
+        
+        # Strip quest status message if it appears (safety measure)
+        quest_status_pattern = r"Current quest status:\s*[^\n]+\n?"
+        visible_response = re.sub(quest_status_pattern, "", visible_response, flags=re.IGNORECASE).strip()
         
         return visible_response, thinking_content

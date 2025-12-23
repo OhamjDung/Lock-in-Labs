@@ -10,43 +10,69 @@ load_dotenv()
 
 class LLMClient:
     def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
+        # Support multiple API keys for better rate limit handling
+        self.api_keys = []
+        api_key_1 = os.getenv("GEMINI_API_KEY")
+        api_key_2 = os.getenv("GEMINI_API_KEY_2")
+        
+        if api_key_1:
+            self.api_keys.append(api_key_1)
+        if api_key_2:
+            self.api_keys.append(api_key_2)
+        
+        if not self.api_keys:
+            print("Warning: No GEMINI_API_KEY found in environment variables.")
+            self.current_key_index = 0
+            self.client = None
+        else:
+            self.current_key_index = 0
+            self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
+            if len(self.api_keys) > 1:
+                print(f"[LLM] Loaded {len(self.api_keys)} API keys for rate limit rotation")
+        
         # Allow model to be configured via environment variable, default to gemma-3-4b-it
         self.default_model = os.getenv("GEMINI_MODEL", "gemma-3-4b-it")
         print(f"[LLM] Using model: {self.default_model}")
         
         # Define fallback models in order of preference (will try these if primary model hits rate limit)
-        # Note: gemini-pro doesn't exist, removed from list
+        # Only include models that actually exist
         self.fallback_models = [
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-latest",
-            "gemini-2.0-flash",
-            "gemini-2.5-flash",
-            "gemini-1.5-pro",
-            "gemini-1.5-pro-latest"
+            "gemini-1.5-flash-001",  # Explicit version
+            "gemini-1.5-flash",      # Try without version
+            "gemini-2.0-flash-exp",  # Experimental version
+            "gemini-1.5-pro-001",    # Explicit version
+            "gemini-1.5-pro",        # Try without version
         ]
         
         # Track cooldowns for each model: {model_name: (cooldown_until_timestamp, cooldown_duration)}
         # Cooldown starts at 15s, increases to 30s max
         self.model_cooldowns = defaultdict(lambda: (0, 0))  # (cooldown_until, current_cooldown_duration)
         
-        if not self.api_key:
-            print("Warning: GEMINI_API_KEY not found in environment variables.")
-        else:
-            self.client = genai.Client(api_key=self.api_key)
+        # Track which models don't exist (404 errors) to avoid retrying them
+        self.invalid_models = set()
 
+    def _rotate_api_key(self):
+        """Rotate to the next API key if we have multiple."""
+        if len(self.api_keys) > 1:
+            self.current_key_index = (self.current_key_index + 1) % len(self.api_keys)
+            self.client = genai.Client(api_key=self.api_keys[self.current_key_index])
+            print(f"[LLM] Rotated to API key {self.current_key_index + 1}/{len(self.api_keys)}")
+    
     def _get_available_models(self, primary_model):
-        """Get list of models to try, excluding those in cooldown."""
+        """Get list of models to try, excluding those in cooldown or invalid."""
         models_to_try = [primary_model]
         # Add fallback models, but exclude the primary model if it's already in fallbacks
         for fallback in self.fallback_models:
             if fallback != primary_model and fallback not in models_to_try:
                 models_to_try.append(fallback)
         
-        # Filter out models that are in cooldown
+        # Filter out invalid models (404 errors) and models that are in cooldown
         current_time = time.time()
         available_models = []
         for m in models_to_try:
+            # Skip models we know don't exist
+            if m in self.invalid_models:
+                continue
             cooldown_until, _ = self.model_cooldowns[m]
             if current_time >= cooldown_until:
                 available_models.append(m)
@@ -91,7 +117,7 @@ class LLMClient:
         # Use instance default model if not specified
         if model is None:
             model = self.default_model
-        if not self.api_key:
+        if not self.api_keys or not self.client:
             return "Error: GEMINI_API_KEY not configured."
 
         # Prepare messages and config (this is model-agnostic, so we do it once)
@@ -243,18 +269,27 @@ class LLMClient:
                 is_connection_error = "connection" in error_str.lower() or "timeout" in error_str.lower() or "10060" in error_str or "failed to respond" in error_str.lower()
                 is_model_not_found = "404" in error_str or "NOT_FOUND" in error_str or "not found" in error_str.lower()
                 
-                # Set cooldown for this model (15s first time, 30s if already in cooldown)
-                cooldown_duration = self._set_model_cooldown(current_model)
-                
-                # Log the error
+                # If model not found, mark it as invalid and rotate API key
                 if is_model_not_found:
-                    print(f"[LLM] Model {current_model} not found (404). Moving to next model.")
+                    self.invalid_models.add(current_model)
+                    print(f"[LLM] Model {current_model} not found (404). Marking as invalid and moving to next model.")
+                    # Rotate API key in case the issue is API-key specific
+                    if len(self.api_keys) > 1:
+                        self._rotate_api_key()
                 elif is_rate_limit:
-                    print(f"[LLM] Rate limit exceeded for model {current_model}. Moving to next model.")
-                elif is_connection_error:
-                    print(f"[LLM] Connection error for model {current_model}: {error_str}. Moving to next model.")
+                    # Set cooldown for this model (15s first time, 30s if already in cooldown)
+                    self._set_model_cooldown(current_model)
+                    print(f"[LLM] Rate limit exceeded for model {current_model}. Rotating API key and moving to next model.")
+                    # Rotate to next API key when we hit rate limits
+                    if len(self.api_keys) > 1:
+                        self._rotate_api_key()
                 else:
-                    print(f"[LLM] Error calling Gemini API with model {current_model}: {e}. Moving to next model.")
+                    # Set cooldown for other errors
+                    self._set_model_cooldown(current_model)
+                    if is_connection_error:
+                        print(f"[LLM] Connection error for model {current_model}: {error_str}. Moving to next model.")
+                    else:
+                        print(f"[LLM] Error calling Gemini API with model {current_model}: {e}. Moving to next model.")
                 
                 # Continue to next iteration (will try next available model)
                 continue

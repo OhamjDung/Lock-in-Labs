@@ -444,7 +444,10 @@ const OnboardingModule = ({ onFinish }) => {
           }
         }
         if (data.debug.architect_thinking) {
-          console.log('%c[Architect Thinking]', 'color: #10b981; font-weight: bold; font-size: 14px;', data.debug.architect_thinking);
+          // Label differently for Phase 2
+          const thinkingLabel = data.phase === 'phase2' ? '[Phase 2 Architect Thinking]' : '[Architect Thinking]';
+          const thinkingColor = data.phase === 'phase2' ? '#8b5cf6' : '#10b981';
+          console.log(`%c${thinkingLabel}`, `color: ${thinkingColor}; font-weight: bold; font-size: 14px;`, data.debug.architect_thinking);
         }
         if (data.debug.phase_transition) {
           const pt = data.debug.phase_transition;
@@ -463,6 +466,19 @@ const OnboardingModule = ({ onFinish }) => {
           if (pt.transition) {
             console.log('%c[Phase Transition]', 'color: #10b981; font-weight: bold; font-size: 16px;', 
               `Transitioning: ${pt.transition}!`);
+          }
+        }
+        if (data.debug.quest_status) {
+          console.log('%c[Phase 2 Quest Status]', 'color: #8b5cf6; font-weight: bold; font-size: 14px;', data.debug.quest_status);
+        }
+        if (data.debug.phase2_debug) {
+          const p2d = data.debug.phase2_debug;
+          console.log('%c[Phase 2 Debug]', 'color: #a855f7; font-weight: bold; font-size: 14px;', 
+            `Target goal: ${p2d.target_goal || 'None'}, Quest count: ${p2d.target_quest_count ?? 'N/A'}/2`);
+          console.log('%c[Phase 2 Debug]', 'color: #a855f7; font-weight: bold; font-size: 14px;',
+            `Incomplete goals (${p2d.incomplete_goals_count}):`, p2d.incomplete_goals);
+          if (p2d.all_goals_status) {
+            console.log('%c[Phase 2 Debug - All Goals Status]', 'color: #a855f7; font-weight: bold; font-size: 14px;', p2d.all_goals_status);
           }
         }
       }

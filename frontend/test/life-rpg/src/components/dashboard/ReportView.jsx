@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { auth } from '../../config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import ReportingChat from './ReportingChat';
+import VoiceReporting from './VoiceReporting';
 
 export default function ReportView({ displayData }) {
   const [userId, setUserId] = useState(null);
@@ -14,6 +15,7 @@ export default function ReportView({ displayData }) {
   const [skillTree, setSkillTree] = useState(null);
   const [isToggling, setIsToggling] = useState({});
   const [showChat, setShowChat] = useState(false);
+  const [showVoiceLog, setShowVoiceLog] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -547,7 +549,10 @@ export default function ReportView({ displayData }) {
 
         {/* Footer: Input Controls */}
         <div className="p-6 bg-[#d4c5a9]/30 border-t border-[#d4c5a9] flex gap-4 relative z-20">
-          <button className="flex-1 bg-stone-800 text-[#e8dcc5] py-3 rounded-sm font-bold flex items-center justify-center gap-3 hover:bg-stone-900 transition-colors shadow-lg active:transform active:scale-[0.98]">
+          <button 
+            onClick={() => setShowVoiceLog(true)}
+            className="flex-1 bg-stone-800 text-[#e8dcc5] py-3 rounded-sm font-bold flex items-center justify-center gap-3 hover:bg-stone-900 transition-colors shadow-lg active:transform active:scale-[0.98]"
+          >
             <Mic size={18} />
             <span>INITIATE VOICE LOG</span>
           </button>
@@ -568,6 +573,20 @@ export default function ReportView({ displayData }) {
           userId={userId}
           onClose={() => {
             setShowChat(false);
+          }}
+          onReportComplete={() => {
+            // Refresh data when report is completed
+            fetchReportData();
+          }}
+        />
+      )}
+
+      {/* Voice Reporting Modal */}
+      {showVoiceLog && (
+        <VoiceReporting
+          userId={userId}
+          onClose={() => {
+            setShowVoiceLog(false);
           }}
           onReportComplete={() => {
             // Refresh data when report is completed

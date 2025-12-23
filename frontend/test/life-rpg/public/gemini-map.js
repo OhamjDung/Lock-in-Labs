@@ -571,7 +571,7 @@ function reflowFocusedView(focusedRootNode) {
 
 // --- API Call Function (Uses Backend) ---
 async function callGeminiAPI(prompt, context, attachment = null) {
-    const model = localStorage.getItem('gemini_model') || 'gemini-2.5-flash';
+    const model = localStorage.getItem('gemini_model') || 'gemini-2.0-flash-exp';
     
     let fullPrompt = `Context: "${context}"\n\nUser Prompt: ${prompt}\n\nPlease provide a concise and helpful response. With thinking steps that you do behind the scene`;
     

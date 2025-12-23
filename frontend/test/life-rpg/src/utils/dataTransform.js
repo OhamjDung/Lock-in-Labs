@@ -1,37 +1,77 @@
 // Data transformation utilities for character sheet and skill tree
 
+// Generate sample value based on stat names (deterministic hash)
+function generateSampleValue(statNames) {
+  if (!statNames || statNames.length === 0) return 0;
+  
+  // Create a hash from stat names to generate consistent values
+  const hash = statNames.join('|').split('').reduce((acc, char) => {
+    return ((acc << 5) - acc) + char.charCodeAt(0);
+  }, 0);
+  
+  // Generate value between 1-10 based on hash
+  return Math.abs(hash % 10) + 1;
+}
+
 export const transformCharacterData = (characterSheet, skillTree) => {
   const sheet = characterSheet || {};
   const tree = skillTree || { nodes: [] };
 
+  // Get stat names for each pillar
+  const careerStatNames = Object.keys(sheet.stats_career || {});
+  const physicalStatNames = Object.keys(sheet.stats_physical || {});
+  const mentalStatNames = Object.keys(sheet.stats_mental || {});
+  const socialStatNames = Object.keys(sheet.stats_social || {});
+
+  // Calculate averages, or use sample data if all zeros
+  const careerValues = Object.values(sheet.stats_career || {});
+  const careerAvg = careerValues.length > 0 
+    ? Math.round(careerValues.reduce((a, b) => a + b, 0) / careerValues.length)
+    : 0;
+  const careerSample = careerAvg === 0 && careerStatNames.length > 0
+    ? generateSampleValue(careerStatNames)
+    : careerAvg;
+
+  const physicalValues = Object.values(sheet.stats_physical || {});
+  const physicalAvg = physicalValues.length > 0
+    ? Math.round(physicalValues.reduce((a, b) => a + b, 0) / physicalValues.length)
+    : 0;
+  const physicalSample = physicalAvg === 0 && physicalStatNames.length > 0
+    ? generateSampleValue(physicalStatNames)
+    : physicalAvg;
+
+  const mentalValues = Object.values(sheet.stats_mental || {});
+  const mentalAvg = mentalValues.length > 0
+    ? Math.round(mentalValues.reduce((a, b) => a + b, 0) / mentalValues.length)
+    : 0;
+  const mentalSample = mentalAvg === 0 && mentalStatNames.length > 0
+    ? generateSampleValue(mentalStatNames)
+    : mentalAvg;
+
+  const socialValues = Object.values(sheet.stats_social || {});
+  const socialAvg = socialValues.length > 0
+    ? Math.round(socialValues.reduce((a, b) => a + b, 0) / socialValues.length)
+    : 0;
+  const socialSample = socialAvg === 0 && socialStatNames.length > 0
+    ? generateSampleValue(socialStatNames)
+    : socialAvg;
+
   const pillarStats = [
     { 
       name: 'Career', 
-      value: Math.round(
-        Object.values(sheet.stats_career || {}).reduce((a, b) => a + b, 0) / 
-        (Object.keys(sheet.stats_career || {}).length || 1)
-      ) 
+      value: careerSample
     },
     { 
       name: 'Physical', 
-      value: Math.round(
-        Object.values(sheet.stats_physical || {}).reduce((a, b) => a + b, 0) / 
-        (Object.keys(sheet.stats_physical || {}).length || 1)
-      ) 
+      value: physicalSample
     },
     { 
       name: 'Mental', 
-      value: Math.round(
-        Object.values(sheet.stats_mental || {}).reduce((a, b) => a + b, 0) / 
-        (Object.keys(sheet.stats_mental || {}).length || 1)
-      ) 
+      value: mentalSample
     },
     { 
       name: 'Social', 
-      value: Math.round(
-        Object.values(sheet.stats_social || {}).reduce((a, b) => a + b, 0) / 
-        (Object.keys(sheet.stats_social || {}).length || 1)
-      ) 
+      value: socialSample
     }
   ];
 

@@ -885,6 +885,69 @@ def architect_reply(payload: ArchitectRequest):
         if phase_transition_message:
             reply = f"{phase_transition_message}\n\n{reply}"
 
+    # Generate and log quest status and debugging info for Phase 2
+    quest_status_message = None
+    phase2_debug_info = None
+    if state.phase == "phase2":
+        # Find the first incomplete goal (same logic as in Phase 2 agent)
+        def is_goal_complete_for_phase2(goal):
+            return len(goal.current_quests) >= 2 or goal.skill_level is not None
+        
+        current_pillar_enum = None
+        if current_pillar_value:
+            try:
+                current_pillar_enum = Pillar(current_pillar_value.upper())
+            except ValueError:
+                pass
+        
+        incomplete_goals = []
+        if current_pillar_enum:
+            incomplete_goals = [
+                g for g in sheet.goals 
+                if current_pillar_enum in g.pillars and not is_goal_complete_for_phase2(g)
+            ]
+        else:
+            # If no current pillar, find first incomplete goal across all pillars
+            for p in Pillar:
+                incomplete_goals = [
+                    g for g in sheet.goals 
+                    if p in g.pillars and not is_goal_complete_for_phase2(g)
+                ]
+                if incomplete_goals:
+                    break
+        
+        # Build comprehensive Phase 2 debug info
+        all_goals_status = [
+            {
+                "name": g.name,
+                "pillars": [p.value for p in g.pillars],
+                "quest_count": len(g.current_quests),
+                "skill_level": g.skill_level,
+                "is_complete": is_goal_complete_for_phase2(g)
+            }
+            for g in sheet.goals
+        ]
+        
+        target_goal_name = None
+        target_quest_count = None
+        if incomplete_goals:
+            target_goal = incomplete_goals[0]
+            target_goal_name = target_goal.name
+            target_quest_count = len(target_goal.current_quests)
+            quest_status_message = f"Current quest status: \"{target_goal.name}\" has {target_quest_count}/2 quests."
+            # Log to backend console
+            print(f"[Phase 2 Quest Status] {quest_status_message}")
+        
+        phase2_debug_info = {
+            "target_goal": target_goal_name,
+            "target_quest_count": target_quest_count,
+            "incomplete_goals_count": len(incomplete_goals),
+            "incomplete_goals": [g.name for g in incomplete_goals],
+            "all_goals_status": all_goals_status,
+            "current_pillar": current_pillar_value
+        }
+        print(f"[Phase 2 Debug] Target goal: {target_goal_name}, Incomplete goals: {[g.name for g in incomplete_goals]}")
+
     # Get accumulated goals for logging (include current_quests and skill_level)
     accumulated_goals = [
         {
@@ -916,7 +979,9 @@ def architect_reply(payload: ArchitectRequest):
         "debug": {
             "critic_analysis": critic_analysis,
             "architect_thinking": architect_thinking,
-            "phase_transition": phase_transition_debug
+            "phase_transition": phase_transition_debug,
+            "quest_status": quest_status_message,
+            "phase2_debug": phase2_debug_info
         }
     }
 
@@ -1524,28 +1589,137 @@ async def gemini_map_generate(payload: dict):
     import urllib.request
     import urllib.parse
     import json
+    import traceback
+    import time
+    import re
     
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
+    # Support multiple API keys for rate limit rotation (like LLMClient)
+    api_keys = []
+    api_key_1 = os.getenv("GEMINI_API_KEY")
+    api_key_2 = os.getenv("GEMINI_API_KEY_2")
+    if api_key_1:
+        api_keys.append(api_key_1)
+    if api_key_2:
+        api_keys.append(api_key_2)
+    
+    if not api_keys:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
     
-    model = payload.get("model", "gemini-2.5-flash")
-    contents = payload.get("contents", [])
+    # Map invalid model names to valid ones
+    model_mapping = {
+        "gemini-2.5-flash": "gemini-2.0-flash-exp",
+        "gemini-2.5-pro": "gemini-1.5-pro-001",
+    }
     
-    try:
-        # Use the REST API directly to match the original HTML implementation
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-        
-        request_data = {
-            "contents": contents
-        }
-        
-        req = urllib.request.Request(url, data=json.dumps(request_data).encode('utf-8'), headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(req) as response:
-            data = json.loads(response.read().decode('utf-8'))
-            return data
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    requested_model = payload.get("model", "gemini-2.0-flash-exp")
+    model = model_mapping.get(requested_model, requested_model)
+    
+    # Fallback to other valid models if the requested one fails
+    fallback_models = [
+        "gemini-2.0-flash-exp",
+        "gemini-1.5-flash-001",
+        "gemini-1.5-flash",
+        "gemini-1.5-pro-001",
+        "gemini-1.5-pro"
+    ]
+    
+    contents = payload.get("contents", [])
+    if not contents:
+        raise HTTPException(status_code=400, detail="No contents provided in request")
+    
+    # Try the requested model, then fallback models
+    models_to_try = [model] + [m for m in fallback_models if m != model]
+    last_error = None
+    
+    # Try each API key
+    for api_key_idx, api_key in enumerate(api_keys):
+        for model_to_try in models_to_try:
+            try:
+                # Use the REST API directly to match the original HTML implementation
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_to_try}:generateContent?key={api_key}"
+                
+                request_data = {
+                    "contents": contents
+                }
+                
+                req = urllib.request.Request(
+                    url, 
+                    data=json.dumps(request_data).encode('utf-8'), 
+                    headers={'Content-Type': 'application/json'}
+                )
+                
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+                    # Check for API errors in response
+                    if 'error' in data:
+                        error_msg = data['error'].get('message', 'Unknown API error')
+                        raise Exception(f"Gemini API error: {error_msg}")
+                    return data
+                    
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode('utf-8') if hasattr(e, 'read') else ""
+                error_data = {}
+                retry_after = None
+                
+                try:
+                    error_data = json.loads(error_body) if error_body else {}
+                    error_msg = error_data.get('error', {}).get('message', str(e))
+                except:
+                    error_msg = str(e)
+                
+                # Handle rate limiting (429)
+                if e.code == 429:
+                    # Extract retry-after time from error message
+                    retry_match = re.search(r'retry in ([\d.]+)s', error_msg, re.IGNORECASE)
+                    if retry_match:
+                        retry_after = float(retry_match.group(1))
+                    
+                    # If we have multiple API keys, try the next one
+                    if api_key_idx < len(api_keys) - 1:
+                        print(f"[Gemini Map] Rate limit on API key {api_key_idx + 1}, trying next key...")
+                        break  # Break out of model loop, try next API key
+                    else:
+                        # Last API key, return rate limit error with retry info
+                        detail = f"Rate limit exceeded. {error_msg}"
+                        if retry_after:
+                            detail += f" Please retry after {int(retry_after)} seconds."
+                        raise HTTPException(
+                            status_code=429, 
+                            detail=detail,
+                            headers={"Retry-After": str(int(retry_after)) if retry_after else "60"}
+                        )
+                
+                # Handle model not found (404)
+                if e.code == 404 and model_to_try != models_to_try[-1]:
+                    print(f"[Gemini Map] Model {model_to_try} not found, trying fallback...")
+                    continue
+                
+                # For other errors, try next API key if available
+                if api_key_idx < len(api_keys) - 1 and e.code >= 500:
+                    print(f"[Gemini Map] Error {e.code} on API key {api_key_idx + 1}, trying next key...")
+                    break
+                
+                # Last attempt or non-retryable error
+                last_error = f"HTTP {e.code}: {error_msg}"
+                raise HTTPException(status_code=500, detail=f"Gemini API error with model {model_to_try}: {last_error}")
+                
+            except Exception as e:
+                last_error = str(e)
+                error_trace = traceback.format_exc()
+                print(f"[Gemini Map] Error with model {model_to_try} on API key {api_key_idx + 1}: {error_trace}")
+                
+                # If this is the last model and last API key, raise the error
+                if model_to_try == models_to_try[-1] and api_key_idx == len(api_keys) - 1:
+                    raise HTTPException(status_code=500, detail=f"All models and API keys failed. Last error: {last_error}")
+                
+                # Otherwise, try next model or API key
+                if model_to_try != models_to_try[-1]:
+                    continue
+                elif api_key_idx < len(api_keys) - 1:
+                    break  # Try next API key
+    
+    # Should never reach here, but just in case
+    raise HTTPException(status_code=500, detail=f"Failed to generate content: {last_error}")
 
 
 @app.websocket("/ws/voice")

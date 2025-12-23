@@ -4,6 +4,8 @@ import {
   Clock, Video, FileText, X, Camera, Plus, Save
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { auth } from '../../config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import QuestItem from './QuestItem';
 import SkillItem from './SkillItem';
 import TimelineItem from './TimelineItem';
@@ -17,6 +19,19 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
   const [newTaskName, setNewTaskName] = useState('');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
+
+  // Get user email
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email) {
+        setUserEmail(user.email);
+      } else {
+        setUserEmail(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Start camera when modal opens
   useEffect(() => {
@@ -206,7 +221,9 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
               </div>
             </div>
             <div className="mt-4 px-2 pb-2 text-center relative z-10">
-              <h1 className="text-4xl font-serif font-bold text-stone-900 tracking-tight uppercase">{displayData.user_id}</h1>
+              <h1 className="text-4xl font-serif font-bold text-stone-900 tracking-tight uppercase">
+                {userEmail ? userEmail.split('@')[0] : (displayData.user_id || 'OPERATIVE')}
+              </h1>
               <div className="flex justify-center gap-2 mt-2 text-xs font-mono text-stone-600 uppercase"><span>CL: {displayData.class}</span><span>•</span><span>LVL: {displayData.level}</span></div>
               <div className="mt-6 bg-[#f7e6a1] rotate-[-2deg] shadow-md p-4 inline-block relative max-w-[95%] mx-auto transform hover:scale-105 transition-transform">
                 <div className="absolute -top-3 left-[40%] w-8 h-4 bg-white/30 rotate-2 backdrop-blur-sm border border-white/20 shadow-sm"></div>
