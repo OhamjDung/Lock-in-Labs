@@ -124,7 +124,7 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:min-h-[600px] items-stretch perspective-1000">
         
         {/* LEFT: QUEST LOG */}
-        <div className="bg-[#e8dcc5] rounded-sm shadow-[0_3px_10px_rgb(0,0,0,0.2)] flex flex-col overflow-hidden relative -rotate-1 hover:rotate-0 transition-transform duration-300 h-full border border-[#d4c5a9]">
+        <div className="bg-[#e8dcc5] rounded-sm shadow-[0_8px_30px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden relative -rotate-1 hover:rotate-0 transition-transform duration-300 h-full border border-[#d4c5a9]">
           <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-repeat mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
           <div className="absolute -top-3 left-6 text-stone-400 z-20 drop-shadow-lg"><Paperclip size={28} className="rotate-12 text-[#5c564b]" /></div>
           <div className="p-5 border-b-2 border-[#d4c5a9] bg-[#dfd3bc]/30 flex justify-between items-center mt-3 relative z-10">

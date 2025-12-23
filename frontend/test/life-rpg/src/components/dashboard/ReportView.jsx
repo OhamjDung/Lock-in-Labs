@@ -235,7 +235,7 @@ export default function ReportView({ displayData }) {
 
   return (
     <div className="flex-1 flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500 items-center justify-center min-h-[700px]">
-      <div className="bg-[#e8dcc5] border border-[#d4c5a9] rounded-sm shadow-[0_25px_50px_-12px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden relative rotate-0 transition-transform duration-300 w-full max-w-4xl p-0 min-h-[70vh]">
+      <div className="bg-[#e8dcc5] border border-[#d4c5a9] rounded-sm shadow-[0_12px_40px_rgba(0,0,0,0.5),0_4px_12px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden relative rotate-0 transition-transform duration-300 w-full max-w-4xl p-0 min-h-[70vh]">
         {/* Texture */}
         <div className="absolute inset-0 opacity-[0.06] pointer-events-none bg-repeat mix-blend-multiply" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}></div>
         

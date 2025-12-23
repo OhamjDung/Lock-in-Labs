@@ -245,9 +245,31 @@ export default function LifeRPGInterface() {
         .clip-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
       `}</style>
 
-      {/* BACKGROUND */}
-      <div className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1615800098779-1be32e60cca3?q=80&w=2574&auto=format&fit=crop')` }}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.6)_100%)]" />
+      {/* BACKGROUND - Detective Table */}
+      <div className="fixed inset-0 z-0 pointer-events-none" 
+           style={{ 
+             backgroundImage: `url('/detective-table.png')`, // Change this path to your table image
+             backgroundSize: '200% 200%',
+             backgroundPosition: 'center',
+             backgroundAttachment: 'fixed', // Keeps it in place when scrolling
+             backgroundRepeat: 'no-repeat',
+             filter: 'saturate(0.5) brightness(1.0) contrast(1.0)' // Adjust vibrance: saturate(0.5-2.0), brightness(0.5-1.5), contrast(0.8-1.2)
+           }}>
+        {/* Optional: Darken the background slightly so content stands out */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.4)_100%)]" />
+      </div>
+
+      {/* LIGHTING OVERLAY - Image overlay for lighting effect (on top of everything) */}
+      <div className="fixed inset-0 z-[100] pointer-events-none"
+           style={{
+             backgroundImage: `url('/lighting-overlay.png')`, // Change this path to your overlay image
+             backgroundSize: '120% 140%',
+             backgroundPosition: 'center',
+             backgroundAttachment: 'fixed',
+             backgroundRepeat: 'no-repeat',
+             mixBlendMode: 'overlay', // Try: 'overlay', 'screen', 'soft-light', 'multiply', or 'normal'
+             opacity: 0.8 // Adjust opacity (0.0 to 1.0)
+           }}>
       </div>
 
       {/* HEADER */}
