@@ -1,12 +1,29 @@
 {
     "character_sheet": {
-        "user_id": "kK6R32MEZghS5HNMpijNevrRZfF2",
+        "calendar_events": [],
+        "pomodoro_history": [],
+        "xp_social": 0,
+        "skill_tree": null,
+        "stats_physical": {
+            "Fitness": 0
+        },
+        "daily_schedule": {},
+        "stats_social": {
+            "Communication": 0
+        },
+        "xp_total": 0,
+        "last_report_date": null,
+        "daily_reports": [],
+        "stats_career": {
+            "Data Analysis": 0,
+            "Programming": 0,
+            "Data Visualization": 0
+        },
+        "debuffs": [],
+        "habit_progress": {},
         "goals": [
             {
-                "name": "Journaling",
-                "pillars": [
-                    "MENTAL"
-                ],
+                "description": "Engage in daily journaling.",
                 "current_quests": [
                     "Write in a journal for 15 minutes daily",
                     "Write in a journal for 30 minutes daily"
@@ -21,16 +38,19 @@
                     "Gratitude Journaling",
                     "Self-Compassion Practice"
                 ],
-                "description": "Engage in daily journaling."
+                "pillars": [
+                    "MENTAL"
+                ],
+                "name": "Journaling"
             },
             {
-                "name": "Exercise",
-                "pillars": [
-                    "PHYSICAL"
-                ],
+                "description": "Engage in regular physical exercise.",
                 "current_quests": [
                     "Go to the gym 3 times per week",
                     "Go for a 30-minute walk daily"
+                ],
+                "pillars": [
+                    "PHYSICAL"
                 ],
                 "needed_quests": [
                     "Plank Progression",
@@ -42,13 +62,10 @@
                     "Dumbbell Deadlift Progression",
                     "Assisted Pullup Progression"
                 ],
-                "description": "Engage in regular physical exercise."
+                "name": "Exercise"
             },
             {
-                "name": "Improve Communication Skills",
-                "pillars": [
-                    "SOCIAL"
-                ],
+                "description": "Practice vocal exercises to enhance communication abilities.",
                 "current_quests": [
                     "Practice vocal exercises for 20 minutes daily",
                     "Record yourself speaking and analyze it"
@@ -63,14 +80,13 @@
                     "Increase Social Interaction",
                     "Self-Awareness & Validation"
                 ],
-                "description": "Practice vocal exercises to enhance communication abilities."
+                "pillars": [
+                    "SOCIAL"
+                ],
+                "name": "Improve Communication Skills"
             },
             {
-                "name": "Play Volleyball",
-                "pillars": [
-                    "SOCIAL",
-                    "PHYSICAL"
-                ],
+                "description": "Participate in volleyball activities.",
                 "current_quests": [
                     "Attend a volleyball game once a week",
                     "Practice volleyball for 1 hour weekly"
@@ -85,16 +101,20 @@
                     "Observe Social Leaders",
                     "Confidence Building Activities"
                 ],
-                "description": "Participate in volleyball activities."
+                "pillars": [
+                    "SOCIAL",
+                    "PHYSICAL"
+                ],
+                "name": "Play Volleyball"
             },
             {
-                "name": "Learn to Code",
-                "pillars": [
-                    "CAREER"
-                ],
+                "description": "Dedicate time to learning and practicing coding.",
                 "current_quests": [
                     "Code for 1 hour daily",
                     "Complete a basic coding tutorial"
+                ],
+                "pillars": [
+                    "CAREER"
                 ],
                 "needed_quests": [
                     "Solidify Basic Coding Habits",
@@ -105,16 +125,16 @@
                     "Master Pandas Library",
                     "Ready for Data Science Roles"
                 ],
-                "description": "Dedicate time to learning and practicing coding."
+                "name": "Learn to Code"
             },
             {
-                "name": "Spend Time with Family and Friends",
-                "pillars": [
-                    "SOCIAL"
-                ],
+                "description": "Prioritize and engage in activities with loved ones.",
                 "current_quests": [
                     "Call a family member or friend once a week",
                     "Plan a weekly activity with family/friends"
+                ],
+                "pillars": [
+                    "SOCIAL"
                 ],
                 "needed_quests": [
                     "Self-Awareness & Social Anxiety",
@@ -126,16 +146,16 @@
                     "Planned Connection & Leadership",
                     "Deepening Relationships"
                 ],
-                "description": "Prioritize and engage in activities with loved ones."
+                "name": "Spend Time with Family and Friends"
             },
             {
-                "name": "Learn Data Analysis",
-                "pillars": [
-                    "CAREER"
-                ],
+                "description": "Acquire skills in data analysis.",
                 "current_quests": [
                     "Learn Data Analysis",
                     "Complete a Data Analysis course"
+                ],
+                "pillars": [
+                    "CAREER"
                 ],
                 "needed_quests": [
                     "Define Data Analysis Goals",
@@ -147,16 +167,16 @@
                     "Small Data Analysis Project",
                     "Goal Achieved - Data Analysis"
                 ],
-                "description": "Acquire skills in data analysis."
+                "name": "Learn Data Analysis"
             },
             {
-                "name": "Learn Data Visualization",
-                "pillars": [
-                    "CAREER"
-                ],
+                "description": "Develop skills in data visualization.",
                 "current_quests": [
                     "Learn Data Visualization",
                     "Create a simple data visualization project"
+                ],
+                "pillars": [
+                    "CAREER"
                 ],
                 "needed_quests": [
                     "Refine Learning Goals",
@@ -168,41 +188,21 @@
                     "Interactive Visualization Project",
                     "Data Visualization Proficiency"
                 ],
-                "description": "Develop skills in data visualization."
+                "name": "Learn Data Visualization"
             }
         ],
-        "stats_career": {
-            "Programming": 0,
-            "Data Analysis": 0,
-            "Data Visualization": 0
-        },
-        "stats_physical": {
-            "Fitness": 0
-        },
+        "user_facts": [],
+        "phone_distractions_total": 0,
+        "xp_physical": 0,
+        "lockin_history": [],
+        "xp_mental": 0,
+        "xp_career": 0,
         "stats_mental": {
             "Self-Reflection": 0
         },
-        "stats_social": {
-            "Communication": 0
-        },
-        "debuffs": [],
-        "skill_tree": null,
-        "xp_total": 0,
-        "xp_career": 0,
-        "xp_physical": 0,
-        "xp_mental": 0,
-        "xp_social": 0,
-        "habit_progress": {},
-        "calendar_events": [],
-        "pomodoro_history": [],
-        "pomodoros_total": 0,
-        "lockin_history": [],
+        "user_id": "kK6R32MEZghS5HNMpijNevrRZfF2",
         "lockin_total_time_seconds": 0,
-        "phone_distractions_total": 0,
-        "user_facts": [],
-        "daily_schedule": {},
-        "daily_reports": [],
-        "last_report_date": null
+        "pomodoros_total": 0
     },
     "skill_tree": {
         "nodes": []

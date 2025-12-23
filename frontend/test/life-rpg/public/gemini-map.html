@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pannable Chat Map Mockup</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Load 'Inter' font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 3. Load KaTeX for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #39ff14;
+            /* Use a dark, subtly patterned background for the viewport */
+            background-color: #0a100a;
+            background-image: linear-gradient(rgba(57, 255, 20, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(57, 255, 20, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden; /* Prevent body scroll */
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- NEW: History Bar --- */
+        #history-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(10, 16, 10, 0.95);
+            border-bottom: 1px solid #39ff14;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            z-index: 300;
+            backdrop-filter: blur(5px);
+        }
+        .history-link {
+            color: #39ff14;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background: transparent;
+            border: none;
+        }
+        .history-link:hover {
+            background-color: rgba(57, 255, 20, 0.1);
+        }
+        .history-link[disabled] {
+            color: #39ff14;
+            font-weight: 600;
+            background-color: rgba(57, 255, 20, 0.2);
+            cursor: default;
+        }
+        .history-separator {
+            color: #39ff14;
+            font-size: 0.9rem;
+            user-select: none;
+            opacity: 0.5;
+        }
+        /* --- END: History Bar --- */
+
+
+        /* The viewport fills the screen and hides overflow */
+        #viewport {
+            position: fixed;
+            top: 45px; /* Space for history bar */
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 45px);
+            overflow: hidden;
+            cursor: grab;
+        }
+        #viewport.is-panning {
+            cursor: grabbing;
+        }
+
+        /* The canvas is the pannable element inside the viewport */
+        #canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            /* --- UPDATED: Transform origin top-left for zoom --- */
+            transform-origin: 0 0;
+            /* transition: transform 0.1s ease-out; */ /* Disabling for smoother zoom/pan */
+        }
+
+        /* --- NEW: SVG layer for connectors --- */
+        #connector-svg {
+            position: absolute;
+            /* --- START OF FIX --- */
+            /* Give the SVG a huge size and center it on the canvas's (0,0) */
+            /* This way, lines can be drawn in all directions without clipping */
+            width: 20000px; 
+            height: 20000px;
+            top: -10000px;
+            left: -10000px;
+            /* --- END OF FIX --- */
+            z-index: 1; /* Behind nodes */
+            pointer-events: none; /* Lets clicks pass through */
+        }
+
+        /* Base style for all chat nodes */
+        .chat-node {
+            position: absolute;
+            width: 500px; /* --- UPDATED: Wider nodes --- */
+            background-color: #0a100a;
+            border: 1px solid #39ff14;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: visible; /* --- UPDATED: Allow buttons to show --- */
+            /* Add a subtle glow */
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+            z-index: 10; /* --- UPDATED: Ensure nodes are above lines --- */
+            transition: width 0.2s ease, height 0.2s ease; /* --- NEW: Animate layout changes (removed top/left) --- */
+        }
+
+        /* --- NEW: Base Button Styles --- */
+        .node-btn {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background-color: rgba(10, 16, 10, 0.8);
+            color: #39ff14;
+            border: 1px solid #39ff14;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+        .node-btn:hover {
+            background-color: rgba(57, 255, 20, 0.2);
+            color: #39ff14;
+            border-color: #39ff14;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+
+        /* --- NEW: Collapse Button --- */
+        .node-collapse-btn {
+            top: 8px;
+            left: 8px;
+            font-family: monospace; /* Ensure + and - look right */
+            font-size: 1.2rem;
+            padding-bottom: 2px; /* Visual centering */
+        }
+
+        /* --- NEW: Root Button --- */
+        .node-root-btn {
+            top: 8px;
+            right: 38px; /* Moved left to make room for remove btn */
+            font-size: 0.9rem; /* Smaller icon */
+            padding: 0;
+        }
+
+        /* --- NEW: Remove Button --- */
+        .node-remove-btn {
+            top: 8px;
+            right: 8px;
+            font-size: 1.1rem;
+            color: #ff6b6b;
+            border-color: #5a2a2a;
+            line-height: 0.8;
+            padding-bottom: 3px;
+        }
+        .node-remove-btn:hover {
+            background-color: rgba(255, 107, 107, 0.15);
+            color: #ff8888;
+            border-color: #ff6b6b;
+        }
+
+        /* --- NEW: Collapsed Node Styles --- */
+        .chat-node.collapsed {
+            width: 250px; /* Shrink width */
+            height: auto; /* Shrink height */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .chat-node.collapsed .node-response,
+        .chat-node.collapsed .node-prompt p.prompt-text,
+        .chat-node.collapsed .node-prompt p.prompt-context,
+        .chat-node.collapsed .node-debug-id { /* --- NEW: Hide debug ID --- */
+            display: none; /* Hide response and prompt text */
+        }
+        .chat-node.collapsed .node-prompt {
+            border-bottom: none; /* Remove border when collapsed */
+        }
+        /* --- END: Collapse Styles --- */
+
+        /* User's prompt section within a node */
+        .node-prompt {
+            padding: 12px 16px;
+            background-color: #001100;
+            border-bottom: 1px solid #39ff14;
+            /* --- NEW: Make room for buttons --- */
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+        .node-prompt p:first-child {
+            font-weight: 600;
+            color: #39ff14;
+        }
+        .node-prompt p.prompt-text {
+            font-style: italic;
+            color: #39ff14;
+            opacity: 0.9;
+        }
+
+        /* AI's response section within a node */
+        .node-response {
+            padding: 16px;
+        }
+        .node-response p:first-child {
+            font-weight: 600;
+            color: #39ff14;
+            margin-bottom: 8px;
+        }
+
+        /* This is the key part: make the response text selectable */
+        .node-response-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #39ff14;
+            opacity: 0.9;
+            /* This ensures the user can select the text */
+            user-select: text; 
+            cursor: text;
+        }
+        
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(10, 16, 10, 0.9);
+            color: #39ff14;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 100;
+            pointer-events: none;
+            border: 1px solid #39ff14;
+        }
+
+        /* --- UPDATED: New styles for the highlight confirmation popup --- */
+        #highlight-popup {
+            position: absolute; /* UPDATED: Was 'fixed', now 'absolute' to move with canvas */
+            display: none; /* Hidden by default */
+            background-color: #0a100a; /* Match node background */
+            border: 1px solid #39ff14; /* Match node border */
+            color: #39ff14;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 200;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 20px rgba(57, 255, 20, 0.3);
+            transition: opacity 0.1s ease-out;
+            width: 300px; /* Give it a fixed width */
+            /* UPDATED: Was 'display: flex' in thought, but must be 'none' by default */
+            flex-direction: column; /* Stack items vertically */
+            gap: 10px; /* Add spacing between items */
+            transform-origin: top left; /* NEW: For scaling from top-left corner */
+        }
+
+        .popup-highlight-context {
+            font-size: 0.8rem;
+            color: #39ff14;
+            opacity: 0.8;
+        }
+        .popup-highlight-context strong {
+            color: #39ff14;
+        }
+
+        #popup-highlighted-text {
+            font-style: italic;
+            color: #39ff14;
+            opacity: 0.9;
+            /* Add text truncation for long highlights */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 4px; /* Spacing from "Highlighted:" */
+        }
+
+        #popup-prompt-input {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background-color: #001100;
+            border: 1px solid #39ff14;
+            color: #39ff14;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        #popup-prompt-input::placeholder {
+            color: #39ff14;
+            opacity: 0.5;
+        }
+
+        #popup-create-branch-btn {
+            background-color: #39ff14; /* Green */
+            color: #0a100a;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            border: none; /* Ensure no default button border */
+        }
+        #popup-create-branch-btn:hover {
+            background-color: #4aff2a;
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+        /* --- END OF POPUP STYLE UPDATES --- */
+
+        /* --- UPDATED: New styles for the highlight confirmation popup --- */
+
+        /* --- NEW: Node Footer & Reprompt Styles --- */
+        .node-footer {
+            padding: 8px 16px;
+            border-top: 1px solid #39ff14;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            background-color: #0a100a; /* Match node bg */
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .node-action-btn {
+            background: transparent;
+            border: 1px solid #39ff14;
+            color: #39ff14;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .node-action-btn:hover {
+            background-color: rgba(57, 255, 20, 0.2);
+            color: #39ff14;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
+        }
+        .node-reprompt-form {
+            padding: 12px;
+            background-color: #001100;
+            border-top: 1px solid #39ff14;
+        }
+        .reprompt-input {
+            width: 100%;
+            background: #0a100a;
+            border: 1px solid #39ff14;
+            color: #39ff14;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 60px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+        .reprompt-input::placeholder {
+            color: #39ff14;
+            opacity: 0.5;
+        }
+        .reprompt-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .confirm-reprompt {
+            background-color: #39ff14;
+            color: #0a100a;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .confirm-reprompt:hover {
+            background-color: #4aff2a;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+        }
+        .cancel-reprompt {
+            background-color: transparent;
+            border: 1px solid #39ff14;
+            color: #39ff14;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .cancel-reprompt:hover {
+            background-color: rgba(57, 255, 20, 0.1);
+        }
+        /* --- NEW: Quick Branch Styles --- */
+        .node-quick-branch {
+            padding: 10px 16px;
+            border-top: 1px solid #39ff14;
+            background-color: #0a100a;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .quick-branch-input {
+            flex: 1;
+            background: #001100;
+            border: 1px solid #39ff14;
+            color: #39ff14;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .quick-branch-input::placeholder {
+            color: #39ff14;
+            opacity: 0.5;
+        }
+        .quick-branch-input:focus {
+            border-color: #4aff2a;
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
+        }
+        .quick-branch-btn {
+            background-color: #39ff14;
+            color: #0a100a;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .quick-branch-btn:hover {
+            background-color: #4aff2a;
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+        /* --- END: Node Footer Styles --- */
+    </style>
+</head>
+<body>
+
+    <!-- --- NEW: History Bar --- -->
+    <div id="history-bar">
+        <div id="history-links-container" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <!-- History links will be added here by JS -->
+        </div>
+        <div style="margin-left: auto; display: flex; gap: 8px; align-items: center;">
+             <select id="gemini-model-select" style="background: #0a100a; border: 1px solid #39ff14; color: #39ff14; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem;">
+                <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash (Latest)</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                <option value="gemini-1.5-pro-latest">Gemini 1.5 Pro (Latest)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                <option value="gemini-pro">Gemini Pro</option>
+             </select>
+        </div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a100a; z-index: 250; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 50px;">
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #39ff14;">Gemini Chat Map</h1>
+        <div style="width: 100%; max-width: 600px; padding: 0 20px;">
+            <textarea id="start-prompt-input" placeholder="What do you want to explore?" style="width: 100%; padding: 16px; background: #001100; border: 1px solid #39ff14; border-radius: 12px; color: #39ff14; font-size: 1.1rem; resize: none; height: 120px; margin-bottom: 16px; font-family: inherit; box-sizing: border-box;"></textarea>
+            
+            <!-- NEW: File Input for Start Screen -->
+            <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                <label for="start-file-input" style="cursor: pointer; background: #001100; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; color: #39ff14; border: 1px solid #39ff14;">
+                    📎 Attach File
+                </label>
+                <input type="file" id="start-file-input" style="display: none;">
+                <span id="start-file-name" style="font-size: 0.9rem; color: #39ff14; opacity: 0.7;"></span>
+            </div>
+
+            <button id="start-btn" style="width: 100%; padding: 12px; background: #39ff14; color: #0a100a; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">Start Mapping</button>
+        </div>
+    </div>
+
+    <!-- This viewport fills the screen and allows panning -->
+    <div id="viewport">
+        <!-- The canvas holds all the nodes and is the element that moves -->
+        <div id="canvas">
+
+            <!-- 
+                ================================================
+                NEW: SVG Layer for Connectors
+                This must come *before* the nodes so it's behind them.
+                ================================================
+            -->
+            <svg id="connector-svg">
+                <!-- Lines will be dynamically added here by JavaScript -->
+            </svg>
+
+            <!-- 
+                ================================================
+                ROOT NODE (Response A)
+                This is the starting point of the map.
+                ================================================
+            -->
+            <!-- Node A will be created dynamically -->
+
+            <!-- New HTML element for the popup button -->
+            <!-- UPDATED: This is now a div container, not just a button -->
+            <!-- UPDATED: Moved inside #canvas -->
+            <div id="highlight-popup">
+                <div class="popup-highlight-context">
+                    <strong>Highlighted:</strong>
+                    <div id="popup-highlighted-text"></div>
+                </div>
+                <input type="text" id="popup-prompt-input" placeholder="Ask a follow-up question...">
+                
+                <!-- NEW: File Input for Popup -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label for="popup-file-input" style="cursor: pointer; color: #a0c4ff; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                        <span>📎</span> Add File
+                    </label>
+                    <input type="file" id="popup-file-input" style="display: none;">
+                    <span id="popup-file-name" style="font-size: 0.8rem; color: #ccc; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+                </div>
+
+                <button id="popup-create-branch-btn">Create Branch</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="instructions">
+        Click and drag to pan. Scroll to zoom.
+    </div>
+
+    <script src="/gemini-map.js"></script>
+</body>
+</html>
+

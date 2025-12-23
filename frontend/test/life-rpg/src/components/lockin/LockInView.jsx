@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { RotateCcw, Download, Radio, Send, Power, Video, VideoOff, Check, Play, ClipboardList, Clock, ArrowRight, Plus, Minus, Lock } from 'lucide-react';
+import GeminiMapView from './GeminiMapView';
 
 export default function LockInView({ availableQuests = [], sendFile, selectedAlgorithm, setSelectedAlgorithm, ditheredPreviewUrl, setDitheredPreviewUrl, fileInputRef, takePhotoRef }) {
   const [showSetup, setShowSetup] = useState(true);
@@ -19,11 +20,18 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
 
   const DETECTOR_WS_URL = useMemo(() => {
     try {
+      const hostname = window.location?.hostname || '127.0.0.1';
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
+      
+      if (isLocalhost) {
+        return 'ws://127.0.0.1:8000/ws/phone-detect';
+      }
+      
+      // In production, construct from current origin
       const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      const host = window.location.hostname || '127.0.0.1';
-      const port = 8000;
-      return `${proto}://${host}:${port}/ws/phone-detect`;
+      return `${proto}://${hostname}/ws/phone-detect`;
     } catch (e) {
+      console.warn('Failed to construct WebSocket URL, using default:', e);
       return 'ws://127.0.0.1:8000/ws/phone-detect';
     }
   }, []);
@@ -40,6 +48,15 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   const [chatLog, setChatLog] = useState([{ sender: 'HANDLER', text: 'Comms link established. Ready for tasking.' }]);
   const [chatInput, setChatInput] = useState('');
   const [powerOn, setPowerOn] = useState(true);
+  const [pomodoroCount, setPomodoroCount] = useState(0);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editingTaskText, setEditingTaskText] = useState('');
+  const [phoneDetectionCount, setPhoneDetectionCount] = useState(0);
+  const [showPhoneNotification, setShowPhoneNotification] = useState(false);
+  const lastPhoneDetectionRef = useRef(null);
+  const tabs = ['lockin', 'gemini-map', 'placeholder2']; // Array of tab identifiers
+  const [activeTabIndex, setActiveTabIndex] = useState(0); // Index of current tab
 
   const toggleCamera = async () => {
     if (cameraActive) {
@@ -120,30 +137,64 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   };
 
   const connectWS = () => {
-    if (detectionWsRef.current) return;
+    // Don't connect if camera is not active or if already connected
+    if (!cameraActive || detectionWsRef.current) return;
+    
+    // Don't connect if WebSocket is already in connecting state
+    if (detectionConnState === 'connecting') return;
+    
     setDetectionConnState('connecting');
     try {
       const ws = new WebSocket(DETECTOR_WS_URL);
       detectionWsRef.current = ws;
+      
       ws.onopen = () => {
         setDetectionConnState('connected');
         backoffRef.current = 1000;
         if (detectionIntervalRef.current) clearInterval(detectionIntervalRef.current);
         detectionIntervalRef.current = setInterval(sendFrame, 333);
       };
+      
       ws.onmessage = (ev) => {
-        try { const msg = JSON.parse(ev.data); if (msg.type === 'detection') setDetectionState(msg); } catch (e) { }
+        try { 
+          const msg = JSON.parse(ev.data); 
+          if (msg.type === 'detection') setDetectionState(msg); 
+        } catch (e) { 
+          console.debug('Failed to parse WebSocket message:', e);
+        }
       };
-      ws.onclose = () => {
+      
+      ws.onclose = (event) => {
         setDetectionConnState('offline');
-        if (detectionIntervalRef.current) { clearInterval(detectionIntervalRef.current); detectionIntervalRef.current = null; }
+        if (detectionIntervalRef.current) { 
+          clearInterval(detectionIntervalRef.current); 
+          detectionIntervalRef.current = null; 
+        }
         detectionWsRef.current = null;
-        if (cameraActive) scheduleReconnect();
+        // Only reconnect if camera is still active
+        if (cameraActive && event.code !== 1000) { // Don't reconnect on normal close
+          scheduleReconnect();
+        }
       };
-      ws.onerror = () => { try { ws.close(); } catch (e) {} };
+      
+      ws.onerror = (error) => {
+        console.debug('WebSocket error:', error);
+        try { 
+          if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+            ws.close();
+          }
+        } catch (e) {
+          console.debug('Error closing WebSocket:', e);
+        }
+      };
     } catch (e) {
+      console.debug('Failed to create WebSocket:', e);
       setDetectionConnState('offline');
-      scheduleReconnect();
+      detectionWsRef.current = null;
+      // Only schedule reconnect if camera is still active
+      if (cameraActive) {
+        scheduleReconnect();
+      }
     }
   };
 
@@ -173,11 +224,21 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
         video.addEventListener('playing', onPlaying);
         if (!video.paused && (video.readyState >= 2 || video.currentTime > 0)) setVideoReady(true);
       }
-      connectWS();
+      // Only connect WebSocket when camera becomes active
+      if (!detectionWsRef.current) {
+        connectWS();
+      }
+    } else {
+      // Stop detection when camera is turned off
+      stopDetection();
     }
-    if (!cameraActive) stopDetection();
-    return () => { stopDetection(); if (video) video.removeEventListener('playing', onPlaying); };
-  }, [cameraActive, videoReady]);
+    return () => { 
+      if (!cameraActive) {
+        stopDetection();
+      }
+      if (video) video.removeEventListener('playing', onPlaying); 
+    };
+  }, [cameraActive]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -200,6 +261,26 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
     canvas.width = w; canvas.height = h;
     ctx.clearRect(0, 0, w, h);
     const dets = detectionState && detectionState.detections ? detectionState.detections : [];
+    
+    // Check for phone detections
+    const phoneDetections = dets.filter(d => {
+      const className = (d.class || '').toLowerCase();
+      return className.includes('phone') || className.includes('cell phone') || className.includes('mobile phone');
+    });
+    
+    // If phone detected and camera is active, show notification and increment counter
+    if (phoneDetections.length > 0 && cameraActive) {
+      const now = Date.now();
+      // Only trigger notification if it's been at least 3 seconds since last detection (to avoid spam)
+      if (!lastPhoneDetectionRef.current || (now - lastPhoneDetectionRef.current) > 3000) {
+        lastPhoneDetectionRef.current = now;
+        setPhoneDetectionCount(prev => prev + 1);
+        setShowPhoneNotification(true);
+        // Auto-hide notification after 5 seconds
+        setTimeout(() => setShowPhoneNotification(false), 5000);
+      }
+    }
+    
     dets.forEach(d => {
       const bb = d.bbox || {};
       const x = (bb.x || 0) * w;
@@ -207,22 +288,39 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
       const bw = (bb.w || 0) * w;
       const bh = (bb.h || 0) * h;
       ctx.lineWidth = 3;
-      ctx.strokeStyle = 'rgba(57,255,20,0.9)';
+      // Use red color for phone detections
+      const isPhone = (d.class || '').toLowerCase().includes('phone');
+      ctx.strokeStyle = isPhone ? 'rgba(255,0,0,0.9)' : 'rgba(57,255,20,0.9)';
       ctx.strokeRect(x, y, bw, bh);
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(x, y - 18, Math.max(60, ctx.measureText(d.class || '').width + 12), 18);
-      ctx.fillStyle = '#39ff14';
+      ctx.fillStyle = isPhone ? '#ff0000' : '#39ff14';
       ctx.font = '12px monospace';
       ctx.fillText(`${d.class || ''} ${(d.confidence||0).toFixed(2)}`, x + 6, y - 4);
     });
-  }, [detectionState]);
+  }, [detectionState, cameraActive]);
 
   useEffect(() => {
     let interval = null;
-    if (timerRunning && timeLeft > 0) interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
-    else if (timeLeft === 0) setTimerRunning(false);
+    if (timerRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(t => {
+          if (t <= 1) {
+            setTimerRunning(false);
+            // Increment pomodoro count when work session completes
+            if (timerMode === 'WORK') {
+              setPomodoroCount(prev => prev + 1);
+            }
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setTimerRunning(false);
+    }
     return () => clearInterval(interval);
-  }, [timerRunning, timeLeft]);
+  }, [timerRunning, timeLeft, timerMode]);
 
   // Lockdown countdown timer
   useEffect(() => {
@@ -270,9 +368,101 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   const toggleTimerMode = () => { const newMode = timerMode === 'WORK' ? 'BREAK' : 'WORK'; setTimerMode(newMode); setTimerRunning(false); setTimeLeft(newMode === 'WORK' ? 25 * 60 : 5 * 60); };
   const toggleTask = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
   const importTasks = () => { const newTasks = availableQuests.map(q => ({ id: Math.random(), text: q.name || q.title || 'Quest', completed: false })); setTasks([...tasks, ...newTasks]); };
-  const sendChatMessage = (e) => { e.preventDefault(); if (!chatInput.trim()) return; const newLog = [...chatLog, { sender: 'OPERATIVE', text: chatInput }]; setChatLog(newLog); const captured = chatInput; setChatInput(''); setTimeout(() => setChatLog(prev => [...prev, { sender: 'HANDLER', text: `Copy that. Logging: "${captured}".` }]), 1000); };
+  const sendChatMessage = async (e) => {
+    e.preventDefault();
+    if (!chatInput.trim() || isChatLoading) return;
+    
+    const userMessage = chatInput.trim();
+    setChatInput('');
+    setIsChatLoading(true);
+    
+    // Add user message to chat log
+    setChatLog(prev => [...prev, { sender: 'OPERATIVE', text: userMessage }]);
+    
+    try {
+      const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+      
+      // Build messages array from chat history
+      const messages = chatLog.map(msg => ({
+        role: msg.sender === 'OPERATIVE' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+      // Add current user message
+      messages.push({ role: 'user', content: userMessage });
+      
+      const response = await fetch(`${backend}/api/chat/gemini`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+      
+      const data = await response.json();
+      setChatLog(prev => [...prev, { sender: 'HANDLER', text: data.response || 'No response received.' }]);
+    } catch (error) {
+      console.error('Error sending chat message:', error);
+      setChatLog(prev => [...prev, { sender: 'HANDLER', text: 'Error: Connection failed. Please try again.' }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+  
+  const addNewTask = () => {
+    const newTask = {
+      id: Date.now(),
+      text: 'New task',
+      completed: false
+    };
+    setTasks([...tasks, newTask]);
+    setEditingTaskId(newTask.id);
+    setEditingTaskText('New task');
+  };
+  
+  const handleTaskTextChange = (id, newText) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, text: newText } : t));
+  };
+  
+  const handleTaskBlur = () => {
+    setEditingTaskId(null);
+    setEditingTaskText('');
+  };
+  
+  const handleTaskKeyDown = (e, id) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleTaskBlur();
+    } else if (e.key === 'Escape') {
+      handleTaskBlur();
+    }
+  };
 
   return (
+    <>
+    <style dangerouslySetInnerHTML={{__html: `
+        .uplink-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .uplink-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .uplink-scrollbar::-webkit-scrollbar-thumb {
+            background: #666;
+            border-radius: 10px;
+            border: none;
+        }
+        .uplink-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+        .uplink-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #666 transparent;
+        }
+    `}} />
     <div className="fixed left-0 right-0 top-16 bottom-0 flex items-stretch justify-center p-0 bg-transparent z-40">
        <div className="relative bg-[#dcdcdc] p-6 md:p-8 rounded-none shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.4),inset_0_-5px_10px_rgba(0,0,0,0.1)] w-full h-full flex flex-col border-b-[12px] border-r-[12px] border-[#b0b0b0] transition-all overflow-hidden">
           <div className="w-full flex justify-between items-center mb-4 px-4">
@@ -283,6 +473,12 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
              <div className="relative w-full h-full bg-[#0a100a] rounded-[1.5rem] overflow-hidden shadow-[inset_0_0_80px_rgba(0,0,0,0.9)] ring-1 ring-white/5 flex font-mono">
                 <div className="absolute inset-0 z-50 pointer-events-none mix-blend-overlay bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]"></div>
                 
+                {/* Tab Content - Render all tabs but hide inactive ones */}
+                {/* Lock-in Tab */}
+                <div 
+                  className="w-full h-full absolute inset-0"
+                  style={{ display: tabs[activeTabIndex] === 'lockin' ? 'block' : 'none' }}
+                >
                 {/* Setup Screen */}
                 {showSetup ? (
                   <div className="w-full h-full flex items-center justify-center p-8 relative z-10">
@@ -396,17 +592,22 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                             {detectionConnState === 'offline' && <span className="text-[#ff6b6b]">DETECTOR: offline</span>}
                             {detectionConnState === 'idle' && <span className="text-[#888]">DETECTOR: idle</span>}
                           </div>
+                          {phoneDetectionCount > 0 && (
+                            <div className="ml-3 text-[10px] text-red-400">
+                              PHONE_DETECTIONS: <span className="font-bold">{phoneDetectionCount}</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 bg-[#020a02] rounded-sm mt-4 overflow-hidden relative border border-[#39ff14]/20 shadow-[inset_0_0_20px_rgba(57,255,20,0.05)]">
                              {cameraActive ? (
                                 <>
-                                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover opacity-80 contrast-125 saturate-0 sepia hue-rotate-[50deg] brightness-125" />
+                                  <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-80 contrast-125 saturate-0 sepia hue-rotate-[50deg] brightness-125" style={{ objectFit: 'cover' }} />
                                   <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" />
                                 </>
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-[#004400]"><VideoOff size={32} className="mb-2 opacity-50" /><span className="text-xs tracking-widest">NO SIGNAL</span></div>
                             )}
-                            <button onClick={toggleCamera} className="absolute bottom-4 right-4 text-[#39ff14] hover:text-white transition-colors p-2 border border-[#39ff14]/30 bg-[#002200]/50 rounded-sm">
+                            <button onClick={toggleCamera} className="absolute bottom-4 right-4 text-[#39ff14] hover:text-white transition-colors p-2 border border-[#39ff14]/30 bg-[#002200]/50 rounded-sm z-10">
                               {cameraActive ? <VideoOff size={16} /> : <Video size={16} />}
                             </button>
                         </div>
@@ -423,19 +624,48 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                         <div className="mt-6 flex gap-2 text-[10px] uppercase tracking-widest">
                             <button onClick={toggleTimerMode} className={`px-3 py-1 border border-[#39ff14]/30 transition-all ${timerMode === 'WORK' ? 'bg-[#39ff14] text-black font-bold shadow-[0_0_15px_#39ff14]' : 'text-[#008800] hover:text-[#39ff14]'}`}>{timerMode}</button>
                         </div>
+                        <div className="mt-4 text-[#39ff14] text-xs font-mono">
+                            <span className="text-[#005500]">POMODOROS:</span> <span className="font-bold">{pomodoroCount}</span>
+                        </div>
                     </div>
                     {/* OBJECTIVES */}
                     <div className="relative border-r border-[#39ff14]/30 p-6 flex flex-col text-xs overflow-hidden bg-black">
                         <div className="flex justify-between items-center mb-4 pb-2 border-b border-[#39ff14]/30 text-[#39ff14]">
                              <span className="font-bold tracking-[0.2em] flex items-center gap-2"><ClipboardList size={14} /> ACTIVE_DIRECTIVES</span>
-                             <button onClick={importTasks} className="hover:text-white hover:drop-shadow-[0_0_5px_white] transition-all"><Download size={14} /></button>
+                             <div className="flex gap-2">
+                                <button onClick={addNewTask} className="hover:text-white hover:drop-shadow-[0_0_5px_white] transition-all" title="Add new task"><Plus size={14} /></button>
+                                <button onClick={importTasks} className="hover:text-white hover:drop-shadow-[0_0_5px_white] transition-all" title="Import quests"><Download size={14} /></button>
+                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
                              {tasks.length === 0 && <div className="text-[#004400] italic text-center py-4">:: NO DATA ::</div>}
                              {tasks.map(task => (
-                                <div key={task.id} onClick={() => toggleTask(task.id)} className={`cursor-pointer group flex items-start gap-3 p-2 border border-transparent hover:border-[#39ff14]/40 hover:bg-[#002200]/50 transition-all ${task.completed ? 'opacity-40' : 'opacity-100'}`}>
-                                    <div className={`w-3 h-3 mt-0.5 border border-[#39ff14] flex items-center justify-center ${task.completed ? 'bg-[#39ff14] text-black' : ''}`}>{task.completed && <Check size={10} strokeWidth={4} />}</div>
-                                    <span className={`${task.completed ? 'line-through text-[#006600]' : 'text-[#00dd00] group-hover:text-[#39ff14] group-hover:drop-shadow-[0_0_5px_#39ff14]'}`}>{task.text}</span>
+                                <div key={task.id} className={`cursor-pointer group flex items-start gap-3 p-2 border border-transparent hover:border-[#39ff14]/40 hover:bg-[#002200]/50 transition-all ${task.completed ? 'opacity-40' : 'opacity-100'}`}>
+                                    <div onClick={() => toggleTask(task.id)} className={`w-3 h-3 mt-0.5 border border-[#39ff14] flex items-center justify-center flex-shrink-0 ${task.completed ? 'bg-[#39ff14] text-black' : ''}`}>{task.completed && <Check size={10} strokeWidth={4} />}</div>
+                                    {editingTaskId === task.id ? (
+                                      <input
+                                        type="text"
+                                        value={editingTaskText}
+                                        onChange={(e) => {
+                                          setEditingTaskText(e.target.value);
+                                          handleTaskTextChange(task.id, e.target.value);
+                                        }}
+                                        onBlur={handleTaskBlur}
+                                        onKeyDown={(e) => handleTaskKeyDown(e, task.id)}
+                                        className="flex-1 bg-[#001100] border border-[#39ff14]/50 text-[#39ff14] px-2 py-1 outline-none focus:border-[#39ff14]"
+                                        autoFocus
+                                      />
+                                    ) : (
+                                      <span 
+                                        onClick={() => {
+                                          setEditingTaskId(task.id);
+                                          setEditingTaskText(task.text);
+                                        }}
+                                        className={`flex-1 ${task.completed ? 'line-through text-[#006600]' : 'text-[#00dd00] group-hover:text-[#39ff14] group-hover:drop-shadow-[0_0_5px_#39ff14]'}`}
+                                      >
+                                        {task.text}
+                                      </span>
+                                    )}
                                 </div>
                              ))}
                         </div>
@@ -446,7 +676,7 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                              <span className="font-bold tracking-[0.2em] flex items-center gap-2"><Radio size={14} className="animate-pulse" /> UPLINK_ESTABLISHED</span>
                              <span className="text-[9px] text-[#005500]">CH_04</span>
                         </div>
-                        <div className="flex-1 overflow-y-auto space-y-3 mb-4 custom-scrollbar pr-2">
+                        <div className="overflow-y-auto space-y-3 mb-4 pr-2 uplink-scrollbar" style={{ height: '200px' }}>
                             {chatLog.map((msg, i) => (
                                 <div key={i} className="flex flex-col animate-in slide-in-from-left-2 duration-300">
                                     <span className="text-[9px] text-[#006600] uppercase mb-0.5 tracking-wider">{msg.sender} &gt;</span>
@@ -456,16 +686,59 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                         </div>
                         <form onSubmit={sendChatMessage} className="flex gap-3 pt-2 bg-[#001100] p-2 border border-[#003300]">
                             <span className="text-[#39ff14] animate-pulse">&gt;</span>
-                            <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} className="flex-1 bg-transparent border-none outline-none text-[#39ff14] placeholder-[#004400] font-bold" placeholder="ENTER_COMMAND..." autoFocus />
-                            <button type="submit" className="text-[#005500] hover:text-[#39ff14]"><Send size={14} /></button>
+                            <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} disabled={isChatLoading} className="flex-1 bg-transparent border-none outline-none text-[#39ff14] placeholder-[#004400] font-bold disabled:opacity-50" placeholder={isChatLoading ? "PROCESSING..." : "ENTER_COMMAND..."} autoFocus />
+                            <button type="submit" disabled={isChatLoading} className="text-[#005500] hover:text-[#39ff14] disabled:opacity-50"><Send size={14} /></button>
                         </form>
                     </div>
                     </div>
                   </>
                 )}
+                </div>
+                
+                {/* Gemini Map Tab */}
+                <div 
+                  className="w-full h-full absolute inset-0"
+                  style={{ display: tabs[activeTabIndex] === 'gemini-map' ? 'block' : 'none' }}
+                >
+                  <GeminiMapView />
+                </div>
+                
+                {/* Placeholder Tabs */}
+                {tabs.map((tab, index) => {
+                  if (tab === 'lockin' || tab === 'gemini-map') return null;
+                  return (
+                    <div 
+                      key={tab}
+                      className="w-full h-full absolute inset-0 flex items-center justify-center p-8 relative z-10"
+                      style={{ display: activeTabIndex === index ? 'flex' : 'none' }}
+                    >
+                      <div className="text-center">
+                        <div className="text-[#39ff14] text-2xl font-mono font-bold mb-4 tracking-wider">TAB {index + 1}</div>
+                        <div className="text-[#00cc00] text-sm font-mono">Placeholder content for {tab}</div>
+                      </div>
+                    </div>
+                  );
+                })}
                 {!powerOn && <div className="absolute inset-0 bg-[#080808] z-40 flex items-center justify-center"><div className="w-1 h-1 bg-white rounded-full opacity-50 shadow-[0_0_20px_white] animate-ping duration-[3000ms]"></div></div>}
              </div>
           </div>
+          
+          {/* Phone Detection Notification */}
+          {showPhoneNotification && (
+            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-2 duration-300">
+              <div className="bg-red-900/95 border-2 border-red-500 rounded-sm p-4 shadow-[0_0_20px_rgba(255,0,0,0.5)] backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="text-[#39ff14] font-mono text-sm font-bold">
+                    ⚠️ PHONE DETECTED - TURN OFF CAMERA ⚠️
+                  </div>
+                </div>
+                <div className="mt-2 text-[#ff6b6b] text-xs font-mono">
+                  Detections: {phoneDetectionCount} | Please turn off your camera to maintain focus.
+                </div>
+              </div>
+            </div>
+          )}
           <div className="w-full mt-6 flex justify-between items-center px-8 md:px-12">
               <div className="flex items-center gap-4">
                   <button onClick={() => setPowerOn(!powerOn)} className="group relative w-12 h-12 bg-[#202020] rounded-full shadow-[0_5px_10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] flex items-center justify-center active:translate-y-1 active:shadow-inner transition-all border border-[#333]">
@@ -476,12 +749,33 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
               <div className="flex gap-6">
                  <div className="hidden md:flex gap-2">{[1,2,3,4].map(i => <div key={i} className="w-2 h-8 bg-[#151515] rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,1)] border-b border-white/10"></div>)}</div>
                  <div className="flex gap-2">
-                     <button className="w-8 h-8 bg-[#252525] rounded shadow-[0_2px_4px_rgba(0,0,0,0.4)] border-t border-white/10 active:translate-y-0.5 text-[8px] font-mono text-stone-500 font-bold flex items-center justify-center">A</button>
-                     <button className="w-8 h-8 bg-[#252525] rounded shadow-[0_2px_4px_rgba(0,0,0,0.4)] border-t border-white/10 active:translate-y-0.5 text-[8px] font-mono text-stone-500 font-bold flex items-center justify-center">B</button>
+                     <button 
+                       onClick={(e) => {
+                         e.preventDefault();
+                         e.stopPropagation();
+                         // Cycle to previous tab (wrap around)
+                         setActiveTabIndex((prev) => (prev - 1 + tabs.length) % tabs.length);
+                       }}
+                       className="w-8 h-8 bg-[#252525] rounded shadow-[0_2px_4px_rgba(0,0,0,0.4)] border-t border-white/10 active:translate-y-0.5 text-[8px] font-mono text-stone-500 font-bold flex items-center justify-center transition-all cursor-pointer hover:bg-[#353535]"
+                     >
+                       A
+                     </button>
+                     <button 
+                       onClick={(e) => {
+                         e.preventDefault();
+                         e.stopPropagation();
+                         // Cycle to next tab (wrap around)
+                         setActiveTabIndex((prev) => (prev + 1) % tabs.length);
+                       }}
+                       className="w-8 h-8 bg-[#252525] rounded shadow-[0_2px_4px_rgba(0,0,0,0.4)] border-t border-white/10 active:translate-y-0.5 text-[8px] font-mono text-stone-500 font-bold flex items-center justify-center transition-all cursor-pointer hover:bg-[#353535]"
+                     >
+                       B
+                     </button>
                  </div>
               </div>
           </div>
        </div>
     </div>
+    </>
   );
 }

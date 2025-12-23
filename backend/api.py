@@ -1081,6 +1081,73 @@ def update_calendar_event(user_id: str, event_id: str, event: dict):
     raise HTTPException(status_code=404, detail="Event not found")
 
 
+@app.delete("/api/profile/{user_id}/calendar/{event_id}")
+def delete_calendar_event(user_id: str, event_id: str):
+    """Delete a single calendar event by id."""
+    data = load_profile(user_id) or {}
+    cs = data.setdefault("character_sheet", {})
+    events = cs.setdefault("calendar_events", [])
+
+    for i, e in enumerate(events):
+        if e.get("id") == event_id:
+            events.pop(i)
+            from src.storage import save_profile
+            save_profile(data, user_id)
+            return {"message": "Event deleted", "event_id": event_id}
+
+    raise HTTPException(status_code=404, detail="Event not found")
+
+
+@app.post("/api/chat/gemini")
+def gemini_chat(payload: dict):
+    """Chat endpoint using Gemini API for lock-in mode."""
+    from src.llm import LLMClient
+    
+    messages = payload.get("messages", [])
+    if not messages:
+        raise HTTPException(status_code=400, detail="Messages are required")
+    
+    try:
+        llm_client = LLMClient()
+        # Use the default model from LLMClient (which is configured via env var)
+        # Don't specify a model, let it use the default
+        response = llm_client.chat_completion(messages)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/gemini-map/generate")
+async def gemini_map_generate(payload: dict):
+    """Endpoint for Gemini map view - proxies to Gemini API with file attachments support."""
+    import os
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+    
+    model = payload.get("model", "gemini-2.5-flash")
+    contents = payload.get("contents", [])
+    
+    try:
+        # Use the REST API directly to match the original HTML implementation
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        
+        request_data = {
+            "contents": contents
+        }
+        
+        req = urllib.request.Request(url, data=json.dumps(request_data).encode('utf-8'), headers={'Content-Type': 'application/json'})
+        with urllib.request.urlopen(req) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.websocket("/ws/voice")
 async def voice_ws(websocket: WebSocket):
     """Relay architect text to ElevenLabs TTS and send back audio.

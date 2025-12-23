@@ -83,6 +83,7 @@ class CalendarEvent(BaseModel):
     start_time: str  # ISO 8601 datetime
     end_time: str    # ISO 8601 datetime
     type: CalendarEventType
+    category: Optional[str] = None  # User-defined category (can create new or use existing)
     node_id: Optional[str] = None  # Link to a SkillNode if relevant
     description: Optional[str] = None
     is_completed: bool = False
