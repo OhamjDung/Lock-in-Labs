@@ -166,7 +166,7 @@ class CharacterSheet(BaseModel):
 
     def get_goal_list(self) -> List[Goal]:
         """Returns a flat list of all goals."""
-        return list(self.goals.values())
+        return self.goals  # goals is already a List[Goal], not a dict
 
 class PendingDebuff(BaseModel):
     """A debuff waiting for user confirmation."""

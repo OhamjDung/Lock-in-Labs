@@ -20,6 +20,12 @@ current gym routine huh, i just go in there and do shoulder machines, do leg mac
 
 i have a group of friends i play vollyball with yes, its very fun
 
+like what i actually spend my time towards, what i WANT to spend my time towards, seeing actual progress in myself, tracking my goals and how long it takes
+
+with journaling i want to be able to not just plan out my day but i want to be more organized and have a better understanding of myself like i said before
+
+yea i want to get a job, a job in data visualizations 
+
   uvicorn backend.api:app --reload --port 8000
 
   fQmr8dTaOQq116mo2X7F

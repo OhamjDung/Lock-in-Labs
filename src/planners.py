@@ -163,8 +163,11 @@ class MentalPlanner(BasePlanner):
 class ConnectionPlanner(BasePlanner):
     def generate_roadmap(self, north_star: str, current_quests: List[str], debuffs: List[str]) -> List[SkillNode]:
         prompt = f"""
-        You are a Social Dynamics Coach using NVC (Nonviolent Communication) principles.
-       
+        You are a Social Dynamics Coach using multiple frameworks:
+        - NVC (Nonviolent Communication) principles for clear, empathetic communication
+        - Social Penetration Theory (layers of intimacy) for relationship depth and progression
+        - O*NET Social Skills database for professional interpersonal competencies
+        
         **GOAL:** {north_star}
         **CURRENT HABITS:** {json.dumps(current_quests)}
         **DEBUFFS:** {json.dumps(debuffs)}
@@ -172,7 +175,10 @@ class ConnectionPlanner(BasePlanner):
         **TASK:**
         Create a roadmap (7+ steps) to improve social connection and leadership.
         - Address social anxiety or isolation first.
-        - Use terms like 'Active Listening', 'Empathy', 'Conflict Resolution'.
+        - Use Social Penetration Theory to structure relationship building from superficial to deep connections.
+        - Apply NVC principles for effective communication (observations, feelings, needs, requests).
+        - Reference O*NET Social Skills (e.g., 'Active Listening', 'Empathy', 'Conflict Resolution', 'Social Perceptiveness').
+        - Progress from basic social skills to advanced relationship building and leadership.
         - STRICTLY use "Social" as the pillar for all nodes.
        
         **OUTPUT SCHEMA (JSON):**
@@ -185,7 +191,7 @@ class ConnectionPlanner(BasePlanner):
                     "pillar": "Social",
                     "prerequisites": ["prev_node_id"],
                     "xp_reward": 100,
-                    "description": "Fully concentrating on what is being said."
+                    "description": "Fully concentrating on what is being said (O*NET Social Skills)."
                 }}
             ]
         }}

@@ -130,9 +130,13 @@ export default function LifeRPGInterface() {
               console.log('[Profile] No existing profile found, showing onboarding');
               setShowOnboarding(true);
             }
+          } else if (res.status === 404) {
+            // Profile doesn't exist (404) - this is normal for new users, show onboarding
+            console.log('[Profile] No existing profile found (new user), showing onboarding');
+            setShowOnboarding(true);
           } else {
-            // Profile doesn't exist (404 or other error), show onboarding
-            console.log('[Profile] No existing profile found (API error), showing onboarding');
+            // Other API error (not 404), show onboarding but log the error
+            console.warn('[Profile] Error checking for profile:', res.status, res.statusText);
             setShowOnboarding(true);
           }
         } catch (e) {

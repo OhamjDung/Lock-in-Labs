@@ -210,12 +210,14 @@ class SkillTreeGenerator:
 
             # 1) Goals per pillar and their needed_quests as skills (branches)
             for goal in goals_list:
+                # Use the first pillar for the goal node (goals can have multiple pillars)
+                goal_pillar = goal.pillars[0] if goal.pillars else Pillar.CAREER
                 goal_id = self._make_unique_id(used_ids, "goal", goal.name)
                 goal_node = SkillNode(
                     id=goal_id,
                     name=goal.name,
                     type=NodeType.GOAL,
-                    pillar=goal.pillar,
+                    pillar=goal_pillar,
                     prerequisites=[],
                     xp_reward=100,
                     xp_multiplier=1.0,
@@ -235,7 +237,7 @@ class SkillTreeGenerator:
                             id=skill_id,
                             name=quest,
                             type=NodeType.SUB_SKILL,
-                            pillar=goal.pillar,
+                            pillar=goal_pillar,  # Use the same pillar as the goal
                             prerequisites=[],
                             xp_reward=150,
                             xp_multiplier=1.0,

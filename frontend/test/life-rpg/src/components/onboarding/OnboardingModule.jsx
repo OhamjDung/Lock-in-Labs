@@ -446,6 +446,25 @@ const OnboardingModule = ({ onFinish }) => {
         if (data.debug.architect_thinking) {
           console.log('%c[Architect Thinking]', 'color: #10b981; font-weight: bold; font-size: 14px;', data.debug.architect_thinking);
         }
+        if (data.debug.phase_transition) {
+          const pt = data.debug.phase_transition;
+          console.log('%c[Phase Transition Check]', 'color: #ef4444; font-weight: bold; font-size: 14px;', 
+            `Current phase: ${pt.current_phase}`);
+          console.log('%c[Phase Transition Check]', 'color: #ef4444; font-weight: bold; font-size: 14px;', 
+            `All 4 pillars covered: ${pt.all_4_pillars_covered} (pillars: ${pt.pillars_covered.join(', ')})`);
+          console.log('%c[Phase Transition Check]', 'color: #ef4444; font-weight: bold; font-size: 14px;', 
+            `All pillars have pure goals: ${pt.all_pillars_have_pure_goals}`);
+          if (pt.pillar_pure_goals && Object.keys(pt.pillar_pure_goals).length > 0) {
+            Object.entries(pt.pillar_pure_goals).forEach(([pillar, has_pure]) => {
+              console.log('%c[Phase Transition Check]', 'color: #ef4444; font-weight: bold; font-size: 14px;', 
+                `Pillar ${pillar} has pure goal: ${has_pure}`);
+            });
+          }
+          if (pt.transition) {
+            console.log('%c[Phase Transition]', 'color: #10b981; font-weight: bold; font-size: 16px;', 
+              `Transitioning: ${pt.transition}!`);
+          }
+        }
       }
 
       let reply = data.reply || "";

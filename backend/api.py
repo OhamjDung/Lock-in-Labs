@@ -422,7 +422,7 @@ def architect_reply(payload: ArchitectRequest):
 
     from src.onboarding.agent import CriticAgent
     from src.models import PendingDebuff, PendingGoal, Pillar
-    
+
     sheet = CharacterSheet(user_id="user_01")
     state = ConversationState(
         missing_fields=[
@@ -525,33 +525,9 @@ def architect_reply(payload: ArchitectRequest):
     # Track previous phase to detect transitions
     previous_phase = state.phase
     
-    # Phase transition logic
-    # Check if all 4 pillars have at least 1 goal AND each has at least one pure goal
-    all_pillars_in_goals_set = set()
-    for goal in sheet.goals:
-        all_pillars_in_goals_set.update(goal.pillars)
+    # Phase transition logic will be checked AFTER processing the current message (see below after critic.analyze)
     
-    def has_pure_goal_for_pillar(goals, pillar):
-        """Check if a pillar has at least one pure goal (single-pillar goal)."""
-        return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
-    
-    all_4_pillars_covered = len(all_pillars_in_goals_set) >= 4
-    all_pillars_have_pure_goals = all(
-        has_pure_goal_for_pillar(sheet.goals, p) for p in Pillar if p in all_pillars_in_goals_set
-    ) if all_4_pillars_covered else False
-    
-    if state.phase == "phase1" and all_4_pillars_covered and all_pillars_have_pure_goals:
-        state.phase = "phase2"
-    elif state.phase == "phase2" and all_goals_have_quests:
-        # Check if there are pending debuffs
-        if len(state.pending_debuffs) > 0:
-            state.phase = "phase3"
-        else:
-            state.phase = "phase3.5"
-    elif state.phase == "phase3" and len(state.pending_debuffs) == 0:
-        state.phase = "phase3.5"
-    
-    # Handle goal prioritization in phase3.5
+    # Handle goal prioritization in phase3.5 (this needs to happen before processing current message to check for ranking)
     if state.phase == "phase3.5" and not state.goals_prioritized:
         # Check if user provided a ranking
         user_input_lower = payload.user_input.lower()
@@ -624,6 +600,60 @@ def architect_reply(payload: ArchitectRequest):
         state.phase
     )
     
+    # Phase transition logic - Check AFTER processing current message
+    # Check if all 4 pillars have at least 1 goal AND each has at least one pure goal
+    all_pillars_in_goals_set = set()
+    for goal in sheet.goals:
+        all_pillars_in_goals_set.update(goal.pillars)
+    
+    def has_pure_goal_for_pillar(goals, pillar):
+        """Check if a pillar has at least one pure goal (single-pillar goal)."""
+        return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
+    
+    all_4_pillars_covered = len(all_pillars_in_goals_set) >= 4
+    all_pillars_have_pure_goals = all(
+        has_pure_goal_for_pillar(sheet.goals, p) for p in Pillar if p in all_pillars_in_goals_set
+    ) if all_4_pillars_covered else False
+    
+    # Debug phase transition - ALWAYS initialize this
+    phase_transition_debug = {
+        "current_phase": state.phase,
+        "all_4_pillars_covered": all_4_pillars_covered,
+        "pillars_covered": [p.value for p in all_pillars_in_goals_set],
+        "all_pillars_have_pure_goals": all_pillars_have_pure_goals,
+        "pillar_pure_goals": {}
+    }
+    if all_4_pillars_covered:
+        for p in Pillar:
+            if p in all_pillars_in_goals_set:
+                has_pure = has_pure_goal_for_pillar(sheet.goals, p)
+                phase_transition_debug["pillar_pure_goals"][p.value] = has_pure
+                print(f"[Phase Transition Check] Pillar {p.value} has pure goal: {has_pure}")
+    
+    print(f"[Phase Transition Check] Current phase: {state.phase}")
+    print(f"[Phase Transition Check] All 4 pillars covered: {all_4_pillars_covered} (pillars: {[p.value for p in all_pillars_in_goals_set]})")
+    print(f"[Phase Transition Check] All pillars have pure goals: {all_pillars_have_pure_goals}")
+    
+    if state.phase == "phase1" and all_4_pillars_covered and all_pillars_have_pure_goals:
+        print(f"[Phase Transition] Transitioning from phase1 to phase2!")
+        state.phase = "phase2"
+        phase_transition_debug["transition"] = "phase1 -> phase2"
+    
+    # Check if all goals have at least 2 quests (to assess user skill level) - for phase2->phase3 transition
+    all_goals_have_quests = all_4_pillars_covered and all(
+        len(g.current_quests) >= 2 
+        for g in sheet.goals
+    )
+    
+    if state.phase == "phase2" and all_goals_have_quests:
+        # Check if there are pending debuffs
+        if len(state.pending_debuffs) > 0:
+            state.phase = "phase3"
+        else:
+            state.phase = "phase3.5"
+    elif state.phase == "phase3" and len(state.pending_debuffs) == 0:
+        state.phase = "phase3.5"
+    
     # Handle Phase 1 goal queuing logic
     if state.phase == "phase1":
         # Determine which pillar is currently being asked about
@@ -653,7 +683,6 @@ def architect_reply(payload: ArchitectRequest):
         current_pillar = determine_current_pillar(state.pillars_asked_about, sheet.goals)
         
         # Process newly extracted goals
-        goals_to_remove = []
         goals_to_confirm = []
         new_goals_for_current_pillar = []
         
@@ -671,36 +700,22 @@ def architect_reply(payload: ArchitectRequest):
                     # Goal for already-asked pillar - mark for confirmation
                     goals_to_confirm.append(goal)
                 else:
-                    # Goal for not-yet-asked pillar - queue it
+                    # Goal for not-yet-asked pillar - queue it for presentation, but KEEP IT IN sheet.goals
+                    # This ensures the Architect can see all accumulated goals to determine what's missing
                     if not any(pg.name == goal.name for pg in state.pending_goals):
                         state.pending_goals.append(PendingGoal(
                             name=goal.name,
                             pillars=goal.pillars,
                             description=goal.description
                         ))
-                    # Remove from sheet temporarily (will be added back when we ask about this pillar)
-                    goals_to_remove.append(goal)
+                    # DO NOT remove from sheet - keep all goals in sheet.goals so Architect can see them
         
-        # Remove queued goals from sheet
-        for goal in goals_to_remove:
-            if goal in sheet.goals:
-                sheet.goals.remove(goal)
-        
-        # When we ask about a new pillar, restore its queued goals
+        # When we ask about a new pillar, mark its queued goals as presented (but they're already in sheet.goals)
         if current_pillar:
             queued_goals_for_pillar = [pg for pg in state.pending_goals if current_pillar in pg.pillars]
             if queued_goals_for_pillar:
                 for pg in queued_goals_for_pillar:
-                    # Check if goal already exists
-                    if not any(g.name == pg.name for g in sheet.goals):
-                        from src.models import Goal
-                        sheet.goals.append(Goal(
-                            name=pg.name,
-                            pillars=pg.pillars,
-                            description=pg.description,
-                            current_quests=[]
-                        ))
-                    # Remove from pending queue
+                    # Goal is already in sheet.goals, just remove from pending queue to mark it as presented
                     state.pending_goals.remove(pg)
         
         # After processing all goals, check if current pillar has a pure goal
@@ -818,6 +833,10 @@ def architect_reply(payload: ArchitectRequest):
         reply = phase_transition_message if phase_transition_message else "Perfect! I've got everything I need. Your skill tree is being generated now."
         architect_thinking = "Phase 4 - Skill tree generation in progress. No further questions needed."
     else:
+        # DEBUG: Log what goals are in sheet.goals before passing to Architect
+        print(f"[DEBUG] Sheet goals before Architect call: {[(g.name, [p.value for p in g.pillars]) for g in sheet.goals]}")
+        print(f"[DEBUG] Sheet JSON: {sheet.model_dump_json()}")
+        
         reply, architect_thinking = architect.generate_response(
             history_plus_user, 
             sheet, 
@@ -857,7 +876,8 @@ def architect_reply(payload: ArchitectRequest):
         "should_extract_profile": state.phase == "phase4" and state.goals_prioritized,
         "debug": {
             "critic_analysis": critic_analysis,
-            "architect_thinking": architect_thinking
+            "architect_thinking": architect_thinking,
+            "phase_transition": phase_transition_debug
         }
     }
 
