@@ -1,11 +1,13 @@
 """Integration helpers to connect semantic memory with existing Life OS components."""
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime, timedelta
 
 from .vector_store import SemanticMemory
-from .schema import MemoryChunk
+from .schema import MemoryChunk, MemoryMetadata
 from .consolidation import ConsolidationAgent
+from .significance import SignificanceScorer, DEFAULT_SIGNIFICANCE_THRESHOLD
+from .pattern_file import PatternFile
 from src.models import CharacterSheet, DailyReport
 
 
@@ -13,8 +15,13 @@ def sync_daily_report_to_memory(
     memory: SemanticMemory,
     report: DailyReport,
     user_id: str,
-) -> List[str]:
-    """Convert a DailyReport into memory chunks and add to vector store.
+    significance_scorer: Optional[SignificanceScorer] = None,
+    skip_significance_check: bool = False,
+) -> Dict[str, any]:
+    """Convert a DailyReport into memory chunks with significance scoring.
+    
+    CRITICAL: Only high-significance chunks (>= threshold) go to Vector DB.
+    Low-significance chunks are returned for audit trail storage (JSON/SQL).
     
     This is the main integration point: call this after saving a DailyReport.
     
@@ -22,10 +29,16 @@ def sync_daily_report_to_memory(
         memory: SemanticMemory instance
         report: DailyReport to sync
         user_id: User ID
+        significance_scorer: SignificanceScorer instance (creates new if None)
+        skip_significance_check: Skip significance scoring (use with caution)
         
     Returns:
-        List of chunk IDs that were added
+        Dict with:
+            - vector_db_chunks: List of chunk IDs added to Vector DB (high significance)
+            - audit_trail_chunks: List of chunks for audit trail (all chunks, low + high sig)
     """
+    scorer = significance_scorer or SignificanceScorer()
+    
     # Convert DailyReport to MemoryChunks
     chunks = MemoryChunk.from_daily_report(
         report_id=f"report_{report.date}",
@@ -49,10 +62,46 @@ def sync_daily_report_to_memory(
         pillar_stats=None,  # Could extract from stats_delta if needed
     )
     
-    # Add all chunks to memory
-    chunk_ids = memory.add_chunks(chunks)
+    # Calculate significance scores for each chunk
+    if not skip_significance_check:
+        # Get context (existing user facts) for better scoring
+        from src.storage import load_profile
+        try:
+            profile = load_profile(user_id)
+            if profile and "character_sheet" in profile:
+                sheet = CharacterSheet(**profile["character_sheet"])
+                context = "\n".join(sheet.user_facts[-10:])  # Last 10 facts
+            else:
+                context = ""
+        except:
+            context = ""
+        
+        # Score each chunk
+        for chunk in chunks:
+            score = scorer.calculate_significance(chunk.text, context=context)
+            # Update metadata with significance score
+            chunk.metadata.significance_score = score
     
-    return chunk_ids
+    # Add chunks to Vector DB (only high-significance ones will be added)
+    vector_db_chunk_ids = memory.add_chunks(chunks, skip_significance_check=skip_significance_check)
+    
+    # All chunks (including low-significance) should be stored in audit trail
+    # Return them for caller to store in JSON/SQL
+    audit_trail_chunks = [
+        {
+            "id": chunk.id,
+            "text": chunk.text,
+            "date": chunk.metadata.date,
+            "significance_score": chunk.metadata.significance_score,
+            "metadata": chunk.metadata.model_dump(),
+        }
+        for chunk in chunks
+    ]
+    
+    return {
+        "vector_db_chunks": vector_db_chunk_ids,
+        "audit_trail_chunks": audit_trail_chunks,
+    }
 
 
 def sync_all_reports_to_memory(
@@ -114,31 +163,36 @@ def run_nightly_consolidation(
     memory: SemanticMemory,
     sheet: CharacterSheet,
     date: Optional[str] = None,
-) -> List[str]:
+    pattern_file: Optional[PatternFile] = None,
+) -> Dict[str, any]:
     """Run the nightly consolidation process for a specific date.
     
-    This is the "dreaming" process that:
-    1. Consolidates the day's memories
-    2. Extracts insights
-    3. Updates CharacterSheet.user_facts
+    CRITICAL FIX: This is pattern VERIFICATION, not pattern extraction.
+    - Verifies existing patterns against new data
+    - Updates confidence scores
+    - Only creates new patterns if LLM identifies something completely novel
     
     Args:
         memory: SemanticMemory instance
         sheet: CharacterSheet to update
         date: Date to consolidate (default: yesterday)
+        pattern_file: PatternFile instance (creates new if None)
         
     Returns:
-        List of new insights added to user_facts
+        Dict with verified_patterns, new_patterns, updated_facts
     """
     if date is None:
         # Default to yesterday
         yesterday = datetime.now() - timedelta(days=1)
         date = yesterday.strftime("%Y-%m-%d")
     
-    consolidator = ConsolidationAgent()
-    new_insights = consolidator.consolidate_daily(memory, sheet, date)
+    if pattern_file is None:
+        pattern_file = PatternFile(user_id=sheet.user_id)
     
-    return new_insights
+    consolidator = ConsolidationAgent()
+    result = consolidator.consolidate_daily(memory, sheet, date, pattern_file)
+    
+    return result
 
 
 def run_weekly_consolidation(

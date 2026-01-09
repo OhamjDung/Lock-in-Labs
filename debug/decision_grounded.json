@@ -1,0 +1,94 @@
+{
+  "original_decision": {
+    "target": "running_distance",
+    "old_value": "5km",
+    "new_value": "3km",
+    "decision_type": "DECREASE",
+    "confidence_score": 0.95,
+    "contributing_factors": [
+      {
+        "factor": "Injury Risk",
+        "weight": "negative",
+        "description": "User reported sharp knee pain on 2025-12-24. This is a significant concern given the previous injury.",
+        "citation_date": "2025-12-24",
+        "citation_text": "Fuck. Sharp pain in right knee at mile 1. Had to walk home. Limping now. This is bad.",
+        "verified_date": "2025-12-24",
+        "verified_id": null,
+        "original_citation_date": "2025-12-24",
+        "verification_score": 1.0,
+        "verification_type": "exact_substring",
+        "is_verified": true,
+        "verified_content": "FUCK. Sharp pain in right knee at mile 1. Had to walk home. Limping now. This is bad.",
+        "date_corrected": false
+      },
+      {
+        "factor": "User Insight",
+        "weight": "positive",
+        "description": "User identified increasing mileage too fast as the cause of the injury on 2025-01-22. They are now prioritizing gradual progression.",
+        "citation_date": "2025-01-22",
+        "citation_text": "Realized I increased mileage too fast in Week 2.",
+        "verified_date": "2025-12-31",
+        "verified_id": null,
+        "original_citation_date": "2025-01-22",
+        "verification_score": 1.0,
+        "verification_type": "exact_substring",
+        "is_verified": true,
+        "verified_content": "Read about 'Runner's Knee' in detail. Realized I increased mileage too fast in Week 2. Need to strengthen glutes and quads.",
+        "date_corrected": true
+      }
+    ],
+    "explanation": "We are decreasing the running distance because of a previous injury and the user's recognition of increasing mileage too quickly. On 2025-12-24, you experienced sharp knee pain. Subsequently, on 2025-01-22, you identified that rapid mileage increases were the root cause.  Therefore, reducing the distance to 3km will allow for a safer and more controlled return to running, incorporating glute and quad strengthening exercises."
+  },
+  "grounded_decision": {
+    "target": "running_distance",
+    "old_value": "5km",
+    "new_value": "3km",
+    "decision_type": "DECREASE",
+    "confidence_score": 0.95,
+    "contributing_factors": [
+      {
+        "factor": "Injury Risk",
+        "weight": "negative",
+        "description": "User reported sharp knee pain on 2025-12-24. This is a significant concern given the previous injury.",
+        "citation_date": "2025-12-24",
+        "citation_text": "Fuck. Sharp pain in right knee at mile 1. Had to walk home. Limping now. This is bad.",
+        "verified_date": "2025-12-24",
+        "verified_id": null,
+        "original_citation_date": "2025-12-24",
+        "verification_score": 1.0,
+        "verification_type": "exact_substring",
+        "is_verified": true,
+        "verified_content": "FUCK. Sharp pain in right knee at mile 1. Had to walk home. Limping now. This is bad.",
+        "date_corrected": false
+      },
+      {
+        "factor": "User Insight",
+        "weight": "positive",
+        "description": "User identified increasing mileage too fast as the cause of the injury on 2025-01-22. They are now prioritizing gradual progression.",
+        "citation_date": "2025-01-22",
+        "citation_text": "Realized I increased mileage too fast in Week 2.",
+        "verified_date": "2025-12-31",
+        "verified_id": null,
+        "original_citation_date": "2025-01-22",
+        "verification_score": 1.0,
+        "verification_type": "exact_substring",
+        "is_verified": true,
+        "verified_content": "Read about 'Runner's Knee' in detail. Realized I increased mileage too fast in Week 2. Need to strengthen glutes and quads.",
+        "date_corrected": true
+      }
+    ],
+    "explanation": "We are decreasing the running distance because of a previous injury and the user's recognition of increasing mileage too quickly. On 2025-12-24, you experienced sharp knee pain. Subsequently, on 2025-01-22, you identified that rapid mileage increases were the root cause.  Therefore, reducing the distance to 3km will allow for a safer and more controlled return to running, incorporating glute and quad strengthening exercises."
+  },
+  "corrections": [
+    {
+      "factor": "User Insight",
+      "original": "2025-01-22",
+      "corrected": "2025-12-31"
+    }
+  ],
+  "verification": {
+    "All citations verified": true,
+    "Date corrections applied": true,
+    "Corrections are valid": true
+  }
+}

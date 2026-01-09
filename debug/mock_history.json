@@ -1,0 +1,212 @@
+[
+  {
+    "date": "2025-12-10",
+    "content": "Ate oatmeal. Ran 3km. Felt easy.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-11",
+    "content": "Work was boring. Did 20 pushups. Completed all tasks on time.",
+    "type": "routine",
+    "pillar": "CAREER",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-12",
+    "content": "AMAZING run today! Hit 5km for the first time. Felt like I could fly. This is working!",
+    "type": "milestone",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2025-12-13",
+    "content": "Rest day. Watched a movie. Ate pizza.",
+    "type": "routine",
+    "pillar": "MENTAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-14",
+    "content": "Ran 4km. Legs feel strong. Thinking about signing up for a 10k race.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2025-12-15",
+    "content": "Did yoga. Ate healthy meal.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-16",
+    "content": "Rest day. Read a book about running form.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-17",
+    "content": "Pushed for 7km today. Shin splints hurt a bit but I powered through. I'm getting stronger!",
+    "type": "warning",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-18",
+    "content": "Ate a salad. Completed coding project. Feeling productive.",
+    "type": "routine",
+    "pillar": "CAREER",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-19",
+    "content": "Knee feels weird when I walk down stairs. Ignored it and did squats anyway. No pain during the workout.",
+    "type": "warning",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-20",
+    "content": "Ran 6km. Ignored the weird knee feeling. Pushed through it. Mind over matter!",
+    "type": "warning",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-21",
+    "content": "Ate breakfast. Work meeting went well.",
+    "type": "routine",
+    "pillar": "CAREER",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-22",
+    "content": "Knee feels stiff in the morning. Still ran 5km. It'll get better with time.",
+    "type": "warning",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-23",
+    "content": "Rest day. Knee still feels off but I'm sure it's nothing.",
+    "type": "warning",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-24",
+    "content": "FUCK. Sharp pain in right knee at mile 1. Had to walk home. Limping now. This is bad.",
+    "type": "failure",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-25",
+    "content": "Can't walk without pain. Mood is trash. I hate this. Why did I push so hard?",
+    "type": "emotion",
+    "pillar": "MENTAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-26",
+    "content": "Ate pizza. Did nothing. Knee still hurts. Feeling demotivated.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-27",
+    "content": "Skipped all exercise. Knee is better but still hurts when I bend it. Frustrated.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-28",
+    "content": "Went to doctor. They said it's likely 'Runner's Knee' from overuse. Need to rest.",
+    "type": "insight",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-29",
+    "content": "Ate healthy. Work was fine. Knee still bothering me.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2025-12-30",
+    "content": "Read about Runner's Knee online. Feeling anxious about recovery time.",
+    "type": "emotion",
+    "pillar": "MENTAL",
+    "sentiment": "negative"
+  },
+  {
+    "date": "2025-12-31",
+    "content": "Read about 'Runner's Knee' in detail. Realized I increased mileage too fast in Week 2. Need to strengthen glutes and quads.",
+    "type": "insight",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2026-01-01",
+    "content": "Started glute bridge exercises. Knee feels more stable. Learned my lesson about gradual progression.",
+    "type": "correction",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2026-01-02",
+    "content": "Ate well. Did glute exercises. No running. Being patient with recovery.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2026-01-03",
+    "content": "Knee feeling better. Did light stretching. Still no running but staying active with strength work.",
+    "type": "correction",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2026-01-04",
+    "content": "Did glute bridges today. Knee feels stable. Going to stick to Zone 2 cardio only when I return. Learned: gradual progression prevents injury.",
+    "type": "correction",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2026-01-05",
+    "content": "Work was busy. Ate lunch. Knee improving daily.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2026-01-06",
+    "content": "First walk-jog test. 2km total, mostly walking. Knee handled it well. Feeling optimistic.",
+    "type": "correction",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  },
+  {
+    "date": "2026-01-07",
+    "content": "Ate breakfast. Completed work tasks. Recovery going well.",
+    "type": "routine",
+    "pillar": "PHYSICAL",
+    "sentiment": "neutral"
+  },
+  {
+    "date": "2026-01-08",
+    "content": "Planning next week: Max 3km runs, focus on form, add glute strength work. Won't make the same mistake twice.",
+    "type": "insight",
+    "pillar": "PHYSICAL",
+    "sentiment": "positive"
+  }
+]

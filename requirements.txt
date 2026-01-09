@@ -15,4 +15,5 @@ Pillow>=9.0.0
 
 # Semantic Memory / RAG dependencies
 chromadb>=0.4.0
-sentence-transformers>=2.2.0
+sentence-transformers>=2.2.0  # Optional: Use OpenAI embeddings instead (set OPENAI_API_KEY)
+# openai>=1.0.0  # Uncomment if using OpenAI embeddings instead of local models

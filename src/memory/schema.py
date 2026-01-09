@@ -85,6 +85,9 @@ class MemoryMetadata(BaseModel):
     xp_gained: Optional[int] = Field(None, description="XP gained in this chunk")
     stats_delta: Optional[Dict[str, int]] = Field(None, description="Stat changes if applicable")
     
+    # Significance scoring (CRITICAL: Only high-significance chunks go to Vector DB)
+    significance_score: Optional[int] = Field(None, ge=1, le=10, description="Long-term strategic value (1-10). Only score >= threshold stored in Vector DB. Lower scores stored in audit trail only.")
+    
     @field_validator("day_of_week")
     @classmethod
     def validate_day_of_week(cls, v: int) -> int:

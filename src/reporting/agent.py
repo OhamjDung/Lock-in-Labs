@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Dict
+from typing import List, Dict, Optional, Any
+import json
 
 from src.llm import LLMClient
 from src.models import (
@@ -15,8 +16,10 @@ from src.models import (
     SkillNode,
     NodeType,
     DailyScheduleItem,
+    Pillar,
 )
 from .prompts import REPORTING_CONVERSATION_PROMPT, REPORTING_JSON_PROMPT_TEMPLATE
+from .utils import verify_citations
 
 
 class ReportingAgent:
@@ -32,6 +35,23 @@ class ReportingAgent:
 
     def __init__(self) -> None:
         self.llm_client = LLMClient()
+        # Lazy initialization of memory components (only when needed)
+        self._memory = None
+        self._significance_scorer = None
+    
+    def _get_memory(self, user_id: str):
+        """Lazy initialization of semantic memory."""
+        if self._memory is None:
+            from src.memory.vector_store import SemanticMemory
+            self._memory = SemanticMemory(user_id=user_id, significance_threshold=7)
+        return self._memory
+    
+    def _get_significance_scorer(self):
+        """Lazy initialization of significance scorer."""
+        if self._significance_scorer is None:
+            from src.memory.significance import SignificanceScorer
+            self._significance_scorer = SignificanceScorer()
+        return self._significance_scorer
 
     @staticmethod
     def _format_tasks_for_display(tasks: List[DailyTask]) -> str:
@@ -578,3 +598,253 @@ class ReportingAgent:
 
         state.finalized = True
         return report
+    
+    def sync_report_to_memory(
+        self,
+        report: DailyReport,
+        sheet: CharacterSheet,
+    ) -> Dict[str, Any]:
+        """Sync a DailyReport to semantic memory with significance scoring.
+        
+        CRITICAL: Only high-significance memories (score >= 7) go to Vector DB.
+        Low-significance entries are returned for audit trail storage (JSON).
+        
+        Args:
+            report: DailyReport to sync
+            sheet: CharacterSheet for context
+            
+        Returns:
+            Dict with:
+                - vector_db_chunks: List of chunk IDs added to Vector DB
+                - audit_trail_chunks: List of all chunks (for audit trail storage)
+        """
+        from src.memory.integration import sync_daily_report_to_memory
+        from src.memory.significance import SignificanceScorer
+        
+        scorer = self._get_significance_scorer()
+        memory = self._get_memory(sheet.user_id)
+        
+        result = sync_daily_report_to_memory(
+            memory=memory,
+            report=report,
+            user_id=sheet.user_id,
+            significance_scorer=scorer,
+            skip_significance_check=False,
+        )
+        
+        return result
+    
+    def generate_weekly_decision(
+        self,
+        goal: Any,  # Goal from CharacterSheet
+        sheet: CharacterSheet,
+        tree: SkillTree,
+        recent_reports: Optional[List[DailyReport]] = None,
+    ) -> Dict[str, Any]:
+        """Generate a decision object with citations for adjusting a goal's plan.
+        
+        This creates the structured Decision JSON with:
+        - target, old_value, new_value, decision_type
+        - contributing_factors with citations
+        - All citations verified/grounded against actual logs
+        
+        Args:
+            goal: Goal object to generate decision for
+            sheet: CharacterSheet for context
+            tree: SkillTree for goal context
+            recent_reports: Optional list of recent DailyReports (defaults to last 7 days)
+            
+        Returns:
+            Verified decision object with grounded citations
+        """
+        from src.memory.vector_store import SemanticMemory
+        
+        memory = self._get_memory(sheet.user_id)
+        
+        # Get recent reports if not provided
+        if recent_reports is None:
+            recent_reports = sheet.daily_reports[-7:] if len(sheet.daily_reports) >= 7 else sheet.daily_reports
+        
+        # Query Vector DB for relevant high-significance memories
+        # (Low-significance already filtered out, so we only get strategic memories)
+        query = f"struggles failures lessons insights regarding {goal.name}"
+        relevant_results = memory.search(
+            query=query,
+            n_results=10,
+            filters={"pillar": goal.pillars[0].value if goal.pillars else None},
+            apply_recency_weighting=True,
+        )
+        
+        # Convert to format for prompt
+        relevant_memories = [
+            {
+                "date": r.chunk.metadata.date,
+                "content": r.chunk.text,
+                "significance_score": r.chunk.metadata.significance_score,
+            }
+            for r in relevant_results
+        ]
+        
+        # Determine persona based on pillar
+        persona_map = {
+            Pillar.CAREER: "Fortune 500 Executive Mentor",
+            Pillar.PHYSICAL: "Elite Strength and Conditioning Coach",
+            Pillar.MENTAL: "Cognitive Behavioral Therapist",
+            Pillar.SOCIAL: "Interpersonal Communication Expert",
+        }
+        primary_pillar = goal.pillars[0] if goal.pillars else Pillar.CAREER
+        persona = persona_map.get(primary_pillar, "Expert Life Coach")
+        
+        # Get current plan from goal (roadmap nodes or needed_quests)
+        current_plan = []
+        if goal.roadmap:
+            current_plan = [node.name for node in goal.roadmap[:5]]
+        elif goal.needed_quests:
+            current_plan = goal.needed_quests[:5]
+        elif goal.current_quests:
+            current_plan = goal.current_quests
+        
+        current_plan_str = "\n".join([f"- {item}" for item in current_plan]) if current_plan else "No specific plan yet"
+        
+        # Format memories as context
+        memory_context = "\n".join([
+            f"- {m['date']}: {m['content']}"
+            for m in relevant_memories[:10]
+        ])
+        
+        # Create decision prompt
+        prompt = f"""You are an expert {persona} analyzing adjustments to a user's goal plan.
+
+GOAL: {goal.name}
+PILLAR: {primary_pillar.value}
+
+CURRENT PLAN:
+{current_plan_str}
+
+USER'S RELEVANT HISTORY (High-Significance Memories Only):
+{memory_context if memory_context else "No significant memories found yet."}
+
+TASK: Analyze the user's progress and recommend an adjustment to their plan for next week.
+
+OUTPUT REQUIREMENTS:
+Return ONLY valid JSON (no markdown, no explanations) with this exact structure:
+{{
+    "target": "running_distance" | "workout_frequency" | "study_hours" | etc.,
+    "old_value": "5km" | "3x per week" | etc.,
+    "new_value": "3km" | "2x per week" | etc.,
+    "decision_type": "DECREASE" | "INCREASE" | "MAINTAIN",
+    "confidence_score": 0.95,
+    "contributing_factors": [
+        {{
+            "factor": "Injury Risk" | "User Insight" | "Progress Pattern" | etc.,
+            "weight": "negative" | "positive" | "neutral",
+            "description": "Brief description of this factor. Include the date when referencing specific events.",
+            "citation_date": "2025-12-24",
+            "citation_text": "Exact quote or phrase from the history above"
+        }}
+    ],
+    "explanation": "Natural language explanation citing specific dates and events from the history above."
+}}
+
+CRITICAL RULES:
+1. Every contributing_factor MUST include citation_date and citation_text
+2. citation_date MUST match a date from the "USER'S RELEVANT HISTORY" section above
+3. citation_text MUST be an exact quote or phrase from that date's entry
+4. If no relevant memories exist, use decision_type "MAINTAIN" and explain why
+5. target should be a concrete, measurable aspect of the plan (distance, frequency, duration, etc.)
+
+Return ONLY the JSON object."""
+
+        # Generate decision from LLM
+        try:
+            response = self.llm_client.chat_completion(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": f"You are an expert {persona}. Always respond with valid JSON only, no markdown."
+                    },
+                    {"role": "user", "content": prompt}
+                ],
+                json_mode=True,
+                model=self.llm_client.default_model,
+            )
+            
+            # Clean up markdown if present
+            response_clean = response.strip()
+            if response_clean.startswith("```json"):
+                response_clean = response_clean[7:]
+            if response_clean.startswith("```"):
+                response_clean = response_clean[3:]
+            if response_clean.endswith("```"):
+                response_clean = response_clean[:-3]
+            response_clean = response_clean.strip()
+            
+            decision = json.loads(response_clean)
+            
+        except json.JSONDecodeError as e:
+            print(f"[ReportingAgent] Error parsing LLM decision JSON: {e}")
+            print(f"[ReportingAgent] Response: {response[:200]}...")
+            # Return a safe default decision
+            decision = {
+                "target": goal.name.lower().replace(" ", "_"),
+                "old_value": "current plan",
+                "new_value": "current plan",
+                "decision_type": "MAINTAIN",
+                "confidence_score": 0.5,
+                "contributing_factors": [],
+                "explanation": "Unable to generate decision due to parsing error."
+            }
+        except Exception as e:
+            print(f"[ReportingAgent] Error generating decision: {e}")
+            decision = {
+                "target": goal.name.lower().replace(" ", "_"),
+                "old_value": "current plan",
+                "new_value": "current plan",
+                "decision_type": "MAINTAIN",
+                "confidence_score": 0.5,
+                "contributing_factors": [],
+                "explanation": "Unable to generate decision due to error."
+            }
+        
+        # GROUND THE CITATIONS: Fix hallucinated dates
+        # Convert recent reports to log format for grounding
+        user_logs = []
+        for rep in recent_reports:
+            # Add main summary
+            user_logs.append({
+                "date": rep.date,
+                "content": rep.summary,
+                "id": f"report_{rep.date}",
+            })
+            # Add wins, struggles, reflections as separate entries
+            for win in rep.wins:
+                user_logs.append({
+                    "date": rep.date,
+                    "content": f"Win: {win}",
+                    "id": f"report_{rep.date}_win",
+                })
+            for struggle in rep.struggles:
+                user_logs.append({
+                    "date": rep.date,
+                    "content": f"Struggle: {struggle}",
+                    "id": f"report_{rep.date}_struggle",
+                })
+            for reflection in rep.reflections:
+                user_logs.append({
+                    "date": rep.date,
+                    "content": f"Reflection: {reflection}",
+                    "id": f"report_{rep.date}_reflection",
+                })
+        
+        # Also add memories from Vector DB (they already have dates)
+        for mem in relevant_memories:
+            user_logs.append({
+                "date": mem["date"],
+                "content": mem["content"],
+                "id": f"memory_{mem['date']}",
+            })
+        
+        # Apply citation verification/grounding
+        verified_decision = verify_citations(decision, user_logs)
+        
+        return verified_decision

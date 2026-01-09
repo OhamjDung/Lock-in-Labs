@@ -1,20 +1,25 @@
-"""Memory consolidation agent - transforms episodic memory into semantic/procedural memory."""
+"""Memory consolidation agent - verifies patterns against new data using rolling pattern file."""
 
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 from .vector_store import SemanticMemory
+from .pattern_file import PatternFile, Pattern
 from .schema import MemoryChunk, MemoryMetadata, ChunkType, MemoryLevel
 from src.models import CharacterSheet, DailyReport
 from src.llm import LLMClient
 
 
 class ConsolidationAgent:
-    """Consolidation Agent: Reads raw logs and updates user profile with insights.
+    """Consolidation Agent: Verifies existing patterns against new data, updates confidence scores.
     
-    This is the "nightly dreaming" process that:
-    1. Reads today's logs from vector DB
-    2. Analyzes patterns with LLM
-    3. Updates CharacterSheet.user_facts (semantic/procedural memory)
+    CRITICAL FIX: This is NOT pattern extraction - it's pattern VERIFICATION.
+    - Reads existing patterns from PatternFile
+    - Compares them against yesterday's logs
+    - Updates confidence scores (strengthens/weakens patterns)
+    - Only creates NEW patterns if LLM identifies something completely novel
+    
+    This solves the "Consolidation Hallucination" - LLM can't find long-term patterns
+    from one day's data, but it CAN verify if new data supports existing patterns.
     """
     
     def __init__(self, llm_client: Optional[LLMClient] = None):
@@ -25,83 +30,164 @@ class ConsolidationAgent:
         memory: SemanticMemory,
         sheet: CharacterSheet,
         date: str,
-    ) -> List[str]:
-        """Consolidate a single day's memories into semantic insights.
+        pattern_file: Optional[PatternFile] = None,
+    ) -> Dict[str, any]:
+        """Verify existing patterns against a single day's memories.
         
         Args:
             memory: SemanticMemory instance
             sheet: CharacterSheet to update
             date: Date to consolidate (YYYY-MM-DD)
+            pattern_file: PatternFile instance (creates new if None)
             
         Returns:
-            List of new insights added to user_facts
+            Dict with:
+                - verified_patterns: List of patterns that were verified/updated
+                - new_patterns: List of newly created patterns (should be rare)
+                - updated_facts: List of facts added to user_facts
         """
-        # Get all chunks for this day
+        if pattern_file is None:
+            pattern_file = PatternFile(user_id=sheet.user_id)
+        
+        # Get all chunks for this day (from audit trail, not just Vector DB)
         daily_chunks = memory.get_daily_details(date)
         
         if not daily_chunks:
-            return []
+            return {
+                "verified_patterns": [],
+                "new_patterns": [],
+                "updated_facts": []
+            }
         
-        # Get or create daily summary
-        summary_chunk = memory.get_daily_summary(date)
-        if not summary_chunk:
-            # If no summary exists, create one from raw chunks
-            summary_chunk = self._create_daily_summary(memory, date, daily_chunks)
+        # Combine day's content for pattern verification
+        day_content = "\n".join([chunk.text for chunk in daily_chunks])
         
-        # Analyze patterns using LLM
-        insights = self._extract_insights(daily_chunks, sheet)
+        # Get existing patterns
+        existing_patterns = pattern_file.get_all_patterns()
         
-        # Update user_facts with new insights
-        new_facts = []
-        for insight in insights:
-            if insight not in sheet.user_facts:
-                sheet.user_facts.append(insight)
-                new_facts.append(insight)
+        # Verify each existing pattern against today's data
+        verified_patterns = []
+        for pattern in existing_patterns:
+            verified = self._verify_pattern_against_day(pattern, day_content, pattern_file)
+            if verified:
+                verified_patterns.append(pattern)
         
-        return new_facts
+        # Check for completely new patterns (only if LLM identifies something novel)
+        new_patterns = self._identify_new_patterns(day_content, existing_patterns, pattern_file)
+        
+        # Update user_facts from high-confidence patterns
+        updated_facts = []
+        high_confidence_patterns = pattern_file.to_user_facts()
+        for fact in high_confidence_patterns:
+            if fact not in sheet.user_facts:
+                sheet.user_facts.append(fact)
+                updated_facts.append(fact)
+        
+        return {
+            "verified_patterns": verified_patterns,
+            "new_patterns": new_patterns,
+            "updated_facts": updated_facts
+        }
     
-    def consolidate_weekly(
+    def _verify_pattern_against_day(
         self,
-        memory: SemanticMemory,
-        sheet: CharacterSheet,
-        week_start_date: str,
-    ) -> List[str]:
-        """Consolidate a week's memories into higher-level insights.
+        pattern: Pattern,
+        day_content: str,
+        pattern_file: PatternFile,
+    ) -> bool:
+        """Verify if a single pattern is supported by today's data.
         
-        Creates weekly summary chunks and extracts cross-day patterns.
+        Returns True if pattern was updated (strengthened or weakened).
         """
-        from datetime import datetime, timedelta
+        prompt = f"""You are verifying a user behavior pattern against today's log entry.
+
+Existing Pattern:
+"{pattern.description}"
+Current Confidence: {pattern.confidence:.2f}
+Evidence Count: {pattern.evidence_count}
+
+Today's Log Entry:
+"{day_content}"
+
+Does today's data SUPPORT or CONTRADICT this pattern?
+- SUPPORT: The pattern is clearly visible in today's data
+- CONTRADICT: Today's data goes against the pattern
+- NEUTRAL: Today's data doesn't relate to this pattern
+
+Respond with ONLY: SUPPORT, CONTRADICT, or NEUTRAL
+"""
         
-        dt = datetime.fromisoformat(week_start_date)
-        week_num = dt.isocalendar()[1]
-        year = dt.year
+        try:
+            response = self.llm_client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                model=self.llm_client.default_model,
+            )
+            response = response.strip().upper()
+            
+            if "SUPPORT" in response:
+                pattern_file.verify_pattern(pattern.pattern_id, new_evidence=True)
+                return True
+            elif "CONTRADICT" in response:
+                pattern_file.verify_pattern(pattern.pattern_id, new_evidence=False)
+                return True
+            # NEUTRAL: no update
+            return False
+        except Exception as e:
+            print(f"[ConsolidationAgent] Error verifying pattern {pattern.pattern_id}: {e}")
+            return False
+    
+    def _identify_new_patterns(
+        self,
+        day_content: str,
+        existing_patterns: List[Pattern],
+        pattern_file: PatternFile,
+    ) -> List[Pattern]:
+        """Identify completely new patterns (should be rare - most patterns already exist)."""
+        existing_descriptions = "\n".join([f"- {p.description}" for p in existing_patterns[:20]])  # Sample
         
-        # Get all chunks for the week
-        week_results = memory.get_weekly_pattern(week_num, year)
+        prompt = f"""Analyze today's log entry for any NEW behavioral patterns that are NOT already in the existing patterns list.
+
+Today's Log Entry:
+"{day_content}"
+
+Existing Patterns (do not repeat these):
+{existing_descriptions if existing_descriptions else "None yet"}
+
+Only identify patterns that are:
+1. NOT already in the existing list above
+2. Clear and observable (not vague)
+3. Specific enough to verify in future days
+
+Format: Return ONLY the pattern description, one per line. If no new patterns, return "NONE".
+
+Example valid pattern: "Fails to complete coding tasks when sleep is less than 6 hours"
+Example invalid (too vague): "Has bad days sometimes"
+"""
         
-        if not week_results:
+        try:
+            response = self.llm_client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                model=self.llm_client.default_model,
+            )
+            
+            new_patterns = []
+            for line in response.split("\n"):
+                line = line.strip()
+                if line and line.upper() != "NONE" and not line.startswith("-"):
+                    # Clean up line
+                    if line.startswith("Pattern:"):
+                        line = line[8:].strip()
+                    pattern = pattern_file.create_pattern_from_insight(
+                        line,
+                        category="general",
+                        initial_confidence=0.5  # Start at medium confidence
+                    )
+                    new_patterns.append(pattern)
+            
+            return new_patterns
+        except Exception as e:
+            print(f"[ConsolidationAgent] Error identifying new patterns: {e}")
             return []
-        
-        # Extract weekly patterns (week_results is List[SearchResult])
-        week_chunks = [r.chunk for r in week_results]
-        insights = self._extract_weekly_patterns(week_chunks, sheet)
-        
-        # Create weekly summary chunk
-        weekly_summary = self._create_weekly_summary(
-            memory,
-            week_start_date,
-            week_results,
-            insights
-        )
-        
-        # Update user_facts
-        new_facts = []
-        for insight in insights:
-            if insight not in sheet.user_facts:
-                sheet.user_facts.append(insight)
-                new_facts.append(insight)
-        
-        return new_facts
     
     def _create_daily_summary(
         self,
@@ -125,7 +211,11 @@ Provide a concise summary focusing on:
 - Overall mood/sentiment
 """
         
-        summary_text = self.llm_client.complete(prompt, max_tokens=150)
+        response = self.llm_client.chat_completion(
+            messages=[{"role": "user", "content": prompt}],
+            model=self.llm_client.default_model,
+        )
+        summary_text = response[:500]  # Limit length
         
         # Create summary metadata
         summary_metadata = MemoryMetadata.from_date(
@@ -192,122 +282,3 @@ Key patterns and insights from this week:
         memory.add_chunk(summary_chunk)
         return summary_chunk
     
-    def _extract_insights(
-        self,
-        chunks: List[MemoryChunk],
-        sheet: CharacterSheet,
-    ) -> List[str]:
-        """Use LLM to extract actionable insights from daily chunks."""
-        if not chunks:
-            return []
-        
-        # Combine chunk texts
-        chunk_texts = [chunk.text for chunk in chunks]
-        combined_text = "\n\n".join(chunk_texts)
-        
-        # Get existing user facts for context
-        existing_facts = "\n".join([f"- {fact}" for fact in sheet.user_facts[-10:]])  # Last 10 facts
-        
-        prompt = f"""You are analyzing a user's daily log entries to extract actionable insights about their behavior patterns, weaknesses, and tendencies.
-
-Existing user facts (context):
-{existing_facts if existing_facts else "None yet"}
-
-Today's log entries:
-{combined_text}
-
-Analyze these logs and extract 1-3 concise insights in the format:
-- "Pattern: [observable pattern]"
-- "Weakness: [specific weakness identified]"
-- "Strength: [specific strength identified]"
-- "Tendency: [behavioral tendency]"
-
-Examples:
-- "Weakness: Sleep deprivation causes coding task failures"
-- "Tendency: Skips gym on Tuesdays when workload is high"
-- "Strength: Consistent morning meditation improves focus"
-- "Pattern: Fails to complete database tasks when given too many options"
-
-Return ONLY the insights, one per line, starting with the category (Pattern/Weakness/Strength/Tendency). If no significant insights, return "None".
-"""
-        
-        response = self.llm_client.complete(prompt, max_tokens=200)
-        
-        # Parse insights
-        insights = []
-        for line in response.split("\n"):
-            line = line.strip()
-            if line and line != "None" and (line.startswith("Pattern:") or 
-                                            line.startswith("Weakness:") or
-                                            line.startswith("Strength:") or
-                                            line.startswith("Tendency:")):
-                insights.append(line)
-        
-        return insights
-    
-    def _extract_weekly_patterns(
-        self,
-        chunks: List[MemoryChunk],
-        sheet: CharacterSheet,
-    ) -> List[str]:
-        """Extract cross-day patterns from a week's worth of chunks."""
-        if not chunks:
-            return []
-        
-        # Group by day of week to find patterns
-        by_day = {}
-        for chunk in chunks:
-            day = chunk.metadata.day_of_week
-            if day not in by_day:
-                by_day[day] = []
-            by_day[day].append(chunk)
-        
-        # Analyze day-of-week patterns
-        patterns = []
-        
-        # Check for failure patterns by day
-        failure_days = {}
-        for day, day_chunks in by_day.items():
-            failures = [c for c in day_chunks if "struggle" in c.text.lower() or 
-                       c.metadata.chunk_type == ChunkType.REPORT_STRUGGLE or
-                       c.metadata.sentiment == "negative"]
-            if len(failures) >= 2:  # At least 2 failures on this day
-                failure_days[day] = len(failures)
-        
-        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        for day, count in failure_days.items():
-            patterns.append(f"Pattern: Frequent failures on {day_names[day]} ({count} instances this week)")
-        
-        # Use LLM for more complex pattern analysis
-        chunk_summaries = "\n".join([f"Day {day_names[c.metadata.day_of_week]}: {c.text[:100]}..." 
-                                     for c in chunks[:20]])  # Sample
-        
-        existing_facts = "\n".join([f"- {fact}" for fact in sheet.user_facts[-10:]])
-        
-        prompt = f"""Analyze weekly patterns from these log entries:
-
-Existing user facts:
-{existing_facts if existing_facts else "None yet"}
-
-Week's log entries (sample):
-{chunk_summaries}
-
-Extract 1-3 high-level patterns or insights that span multiple days. Focus on:
-- Day-of-week patterns (e.g., "User consistently struggles on Tuesdays")
-- Weekly trends (e.g., "Productivity decreases mid-week")
-- Recurring obstacles (e.g., "Sleep issues affect all morning tasks")
-
-Return insights in format:
-- "Pattern: [description]"
-
-If no clear patterns, return "None".
-"""
-        
-        response = self.llm_client.complete(prompt, max_tokens=250)
-        
-        for line in response.split("\n"):
-            line = line.strip()
-            if line and line.startswith("Pattern:") and line not in patterns:
-                patterns.append(line)
-        
-        return patterns
