@@ -152,20 +152,33 @@ def process_turn(user_input: str, sheet: CharacterSheet, state: ConversationStat
 
         # --- Orchestrator Logic ---
         # The orchestrator will now iterate through the prioritized goals
-        for pillar, goal in sheet.goals.items():
-            print(f"[Orchestrator]: Planning for {pillar.value} Goal: '{goal.name}'")
+        for goal in sheet.get_goal_list():
+            # Use first pillar for planner selection
+            goal_pillar = goal.pillars[0] if goal.pillars else Pillar.CAREER
+            print(f"[Orchestrator]: Planning for {goal_pillar.value} Goal: '{goal.name}'")
             
-            planner = get_planner(pillar.value)
+            planner = get_planner(goal_pillar.value)
             print(f"[Orchestrator]: Deploying '{planner.__class__.__name__}'...")
 
-            needed_skill_nodes = planner.generate_roadmap(
+            # 1. Derive Skill Level (if not already set)
+            if not goal.skill_level:
+                goal.skill_level = planner.derive_skill_level(goal.name, goal.current_quests)
+                print(f"[Orchestrator]: Derived skill level: {goal.skill_level}/10")
+            
+            # 2. Generate Deep Roadmap with skill level
+            roadmap_nodes = planner.generate_roadmap(
                 north_star=goal.name,
                 current_quests=goal.current_quests,
-                debuffs=sheet.debuffs
+                debuffs=sheet.debuffs,
+                skill_level=goal.skill_level
             )
             
-            goal.needed_quests = [node.name for node in needed_skill_nodes]
-            print(f"[Orchestrator]: Planner generated {len(goal.needed_quests)} new quests for the {pillar.value} goal.")
+            # 3. Save STRUCTURED roadmap (this is what the generator will use)
+            goal.roadmap = roadmap_nodes
+            
+            # 4. Legacy sync: Keep needed_quests for backward compatibility
+            goal.needed_quests = [n.name for n in roadmap_nodes]
+            print(f"[Orchestrator]: Planner generated {len(goal.roadmap)} structured nodes for the {goal_pillar.value} goal.")
         # --- End Orchestrator Logic ---
 
         print("\n[System]: Generating final Skill Tree...")

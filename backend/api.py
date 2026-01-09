@@ -183,15 +183,14 @@ ELEVENLABS_MODEL_ID = os.getenv("ELEVENLABS_MODEL_ID", "eleven_turbo_v2_5")
 app = FastAPI()
 
 # Allow the Vite dev server to talk to this API during development
+# Also allow file:// protocol (null origin) for local HTML file testing
 app.add_middleware(
     CORSMiddleware,
     # Allow both common Vite dev ports so the noir UI can
     # talk to this API even if the dev server changes ports.
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5174",
-    ],
-    allow_credentials=True,
+    # Also allow all origins for development/testing (including file:// protocol with null origin)
+    allow_origins=["*"],  # Allow all origins for development (including null origin for file://)
+    allow_credentials=False,  # Must be False when allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -1599,12 +1598,30 @@ def get_profile(user_id: str):
 
     This simply exposes the data stored via save_profile so the frontend
     dashboard can render the real character instead of mock data.
+    SECURITY: Strips active_quiz_rubric from all responses.
     """
 
     data = load_profile(user_id)
     if not data:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return data
+    
+    # SECURITY PATCH: Strip rubrics before sending to client
+    # Create a deep copy to avoid mutating the original (prevents accidental DB writes)
+    import copy
+    clean_data = copy.deepcopy(data)
+    sheet = clean_data.get("character_sheet", {})
+    if "habit_progress" in sheet:
+        for prog in sheet["habit_progress"].values():
+            if "active_quiz_rubric" in prog:
+                prog.pop("active_quiz_rubric")  # Remove sensitive key from copy only
+    
+    return clean_data
+
+
+@app.get("/api/user/{user_id}")
+def get_user_profile(user_id: str):
+    """Alias for get_profile with security patch. Strips active_quiz_rubric from all responses."""
+    return get_profile(user_id)
 
 
 @app.post("/api/profile/{user_id}")
@@ -1762,9 +1779,158 @@ def delete_calendar_event(user_id: str, event_id: str):
             events.pop(i)
             from src.storage import save_profile
             save_profile(data, user_id)
-            return {"message": "Event deleted", "event_id": event_id}
+            return {"ok": True, "message": "Event deleted"}
 
     raise HTTPException(status_code=404, detail="Event not found")
+
+
+@app.post("/api/skill-tree/generate-quiz/{skill_id}")
+def generate_quiz(skill_id: str, user_id: str):
+    """Generate a quiz for a skill on-demand (lazy loading). SECURITY: Store rubric in HabitProgress, return only question. Prevent reroll by checking active_quiz_question (infinite persistence, no expiration)."""
+    from src.llm import LLMClient
+    from src.models import HabitProgress, NodeStatus
+    
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    skill_tree = data.get("skill_tree")
+    if not skill_tree:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+    
+    # Find skill node
+    skill_node = next((n for n in skill_tree.get("nodes", []) if n.get("id") == skill_id), None)
+    if not skill_node:
+        raise HTTPException(status_code=404, detail="Skill not found")
+    
+    sheet = data.get("character_sheet", {})
+    if skill_id not in sheet.get("habit_progress", {}):
+        sheet.setdefault("habit_progress", {})[skill_id] = HabitProgress(node_id=skill_id).dict()
+    
+    progress = sheet["habit_progress"][skill_id]
+    
+    # NO REROLL: If active question exists, return it forever.
+    if progress.get("active_quiz_question"):
+        return {"question": progress["active_quiz_question"]}
+    
+    # Generate new quiz on-demand
+    llm_client = LLMClient()
+    prompt = f"""
+    Generate a quiz question to test if someone has mastered: {skill_node.get("name")}
+    Description: {skill_node.get("description", "")}
+    
+    Return JSON:
+    {{
+        "question": "What is the difference between a list and a tuple in Python?",
+        "correct_answer_rubric": "Must mention: mutability, syntax differences, use cases"
+    }}
+    """
+    messages = [{"role": "user", "content": prompt}]
+    response = llm_client.chat_completion(messages, json_mode=True)
+    quiz_data = json.loads(response)
+    
+    # Store rubric server-side (NEVER send to frontend)
+    question = quiz_data.get("question", "")
+    rubric = quiz_data.get("correct_answer_rubric", "")
+    
+    progress["active_quiz_question"] = question
+    progress["active_quiz_rubric"] = rubric  # Stored server-side
+    # NO EXPIRATION FIELD SET
+    
+    save_profile(data, user_id)
+    
+    # Return ONLY the question (security: rubric stays on server)
+    return {"question": question}
+
+
+@app.post("/api/skill-tree/test-out")
+def test_out_skill(user_id: str, payload: dict):
+    """Grade user's answer to a skill quiz and handle lockout. SECURITY: Rubric retrieved from server. Use UTC timezone consistently."""
+    from src.llm import LLMClient
+    from src.models import HabitProgress, NodeStatus
+    from datetime import datetime, timedelta, timezone
+    
+    skill_id = payload.get("skill_id")
+    user_answer = payload.get("answer")
+    
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    sheet = data.get("character_sheet", {})
+    if skill_id not in sheet.get("habit_progress", {}):
+        raise HTTPException(status_code=404, detail="No active quiz found for this skill")
+    
+    progress = sheet["habit_progress"][skill_id]
+    
+    # TIMEZONE SAFE LOCKOUT CHECK
+    lockout = progress.get("quiz_lockout_until")
+    if lockout:
+        # Normalize to UTC
+        lockout_str = lockout.replace("Z", "+00:00")
+        lockout_dt = datetime.fromisoformat(lockout_str)
+        if lockout_dt.tzinfo is None:
+            lockout_dt = lockout_dt.replace(tzinfo=timezone.utc)
+        
+        now_utc = datetime.now(timezone.utc)
+        if now_utc < lockout_dt:
+            remaining = (lockout_dt - now_utc).total_seconds() / 3600
+            raise HTTPException(
+                status_code=429,
+                detail=f"Quiz locked. Try again in {remaining:.1f} hours."
+            )
+    
+    # Retrieve rubric from server (security: never trust frontend)
+    question = progress.get("active_quiz_question")
+    rubric = progress.get("active_quiz_rubric")
+    
+    if not question or not rubric:
+        raise HTTPException(status_code=404, detail="No active quiz found. Generate a quiz first.")
+    
+    # Grade answer using server-stored rubric
+    llm_client = LLMClient()
+    grade_prompt = f"""
+    Grade this answer to the quiz question.
+    
+    Question: {question}
+    Correct Answer Rubric: {rubric}
+    User's Answer: {user_answer}
+    
+    Return JSON:
+    {{
+        "passed": true/false,
+        "feedback": "Explanation of why they passed/failed"
+    }}
+    """
+    messages = [{"role": "user", "content": grade_prompt}]
+    response = llm_client.chat_completion(messages, json_mode=True)
+    grade_data = json.loads(response)
+    
+    # Update progress (using UTC)
+    now_utc = datetime.now(timezone.utc)
+    progress["last_quiz_attempt"] = now_utc.isoformat()
+    
+    if grade_data.get("passed"):
+        # Mark as MASTERED, award 50% XP, clear active quiz
+        progress["status"] = NodeStatus.MASTERED.value
+        progress["quiz_lockout_until"] = None
+        progress["active_quiz_question"] = None
+        progress["active_quiz_rubric"] = None
+        # Award XP logic here (50% of skill.xp_reward)
+    else:
+        # Lockout for 24h (UTC), clear active quiz
+        lockout_until = now_utc + timedelta(hours=24)
+        progress["quiz_lockout_until"] = lockout_until.isoformat()
+        progress["active_quiz_question"] = None
+        progress["active_quiz_rubric"] = None
+    
+    save_profile(data, user_id)
+    
+    return {
+        "passed": grade_data.get("passed", False),
+        "feedback": grade_data.get("feedback", ""),
+        "lockout_until": progress.get("quiz_lockout_until")
+    }
 
 
 @app.post("/api/profile/{user_id}/task/{node_id}/toggle")

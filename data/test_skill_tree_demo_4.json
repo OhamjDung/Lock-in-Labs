@@ -1,0 +1,1244 @@
+{
+    "character_sheet": {
+        "user_id": "test_skill_tree_demo_4",
+        "goals": [
+            {
+                "id": "bc3a7177-e963-42d1-a7f1-9e9c21e2e603",
+                "name": "Become an accountant",
+                "pillars": [
+                    "CAREER"
+                ],
+                "current_quests": [
+                    "Watch YouTube videos about accounting",
+                    "Taking an accounting bootcamp"
+                ],
+                "needed_quests": [
+                    "Accounting Principles",
+                    "Financial Statement Analysis",
+                    "Tax Compliance",
+                    "Excel Fundamentals",
+                    "Data Entry",
+                    "Pass Entry-Level Exam"
+                ],
+                "description": null,
+                "skill_level": 4,
+                "roadmap": [
+                    {
+                        "id": "skill_accounting_principles",
+                        "name": "Accounting Principles",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [],
+                        "xp_reward": 150,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Understand the fundamental principles of accounting, including GAAP and IFRS."
+                    },
+                    {
+                        "id": "skill_financial_statement_analysis",
+                        "name": "Financial Statement Analysis",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [
+                            "skill_accounting_principles"
+                        ],
+                        "xp_reward": 180,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Analyze financial statements (balance sheet, income statement, cash flow statement) to assess a company's financial health."
+                    },
+                    {
+                        "id": "skill_tax_compliance",
+                        "name": "Tax Compliance",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [
+                            "skill_accounting_principles"
+                        ],
+                        "xp_reward": 160,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Learn the rules and regulations for tax filing and compliance."
+                    },
+                    {
+                        "id": "skill_excel_fundamentals",
+                        "name": "Excel Fundamentals",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [],
+                        "xp_reward": 120,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Master basic Excel functions for data manipulation and analysis."
+                    },
+                    {
+                        "id": "skill_data_entry",
+                        "name": "Data Entry",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [],
+                        "xp_reward": 80,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Develop accurate and efficient data entry skills."
+                    },
+                    {
+                        "id": "milestone_pass_entry_level_exam",
+                        "name": "Pass Entry-Level Exam",
+                        "type": "Sub-Skill",
+                        "pillar": "CAREER",
+                        "prerequisites": [
+                            "skill_accounting_principles",
+                            "skill_financial_statement_analysis",
+                            "skill_tax_compliance",
+                            "skill_excel_fundamentals"
+                        ],
+                        "xp_reward": 200,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Successfully pass a recognized entry-level accounting exam (e.g., CPA Fundamentals)."
+                    }
+                ]
+            },
+            {
+                "id": "5499ea08-3ae2-443c-af56-338e97291e33",
+                "name": "Have more endurance",
+                "pillars": [
+                    "PHYSICAL"
+                ],
+                "current_quests": [
+                    "Go for a run once a week"
+                ],
+                "needed_quests": [
+                    "Zone 2 Base Building",
+                    "Form Running Mechanics",
+                    "Mobility and Flexibility",
+                    "Lactate Threshold Training",
+                    "Run 5K in 25 Minutes"
+                ],
+                "description": null,
+                "skill_level": 6,
+                "roadmap": [
+                    {
+                        "id": "skill_zone2_base_building",
+                        "name": "Zone 2 Base Building",
+                        "type": "Sub-Skill",
+                        "pillar": "PHYSICAL",
+                        "prerequisites": [],
+                        "xp_reward": 250,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Develop a sustainable aerobic base through consistent Zone 2 cardio training. Focus on maintaining a conversational pace and building mitochondrial efficiency."
+                    },
+                    {
+                        "id": "skill_form_running_mechanics",
+                        "name": "Form Running Mechanics",
+                        "type": "Sub-Skill",
+                        "pillar": "PHYSICAL",
+                        "prerequisites": [],
+                        "xp_reward": 150,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Improve running form to maximize efficiency and reduce injury risk. Includes drills for posture, stride length, and cadence."
+                    },
+                    {
+                        "id": "skill_mobility_and_flexibility",
+                        "name": "Mobility and Flexibility",
+                        "type": "Sub-Skill",
+                        "pillar": "PHYSICAL",
+                        "prerequisites": [],
+                        "xp_reward": 100,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Enhance joint range of motion and muscle flexibility to support movement and prevent injury. Includes dynamic and static stretching."
+                    },
+                    {
+                        "id": "skill_lactate_threshold_training",
+                        "name": "Lactate Threshold Training",
+                        "type": "Sub-Skill",
+                        "pillar": "PHYSICAL",
+                        "prerequisites": [
+                            "skill_zone2_base_building"
+                        ],
+                        "xp_reward": 300,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Increase lactate threshold through interval training at a pace just below the point of perceived fatigue. Improves the body's ability to clear lactate."
+                    },
+                    {
+                        "id": "skill_running_5k_goal",
+                        "name": "Run 5K in 25 Minutes",
+                        "type": "Sub-Skill",
+                        "pillar": "PHYSICAL",
+                        "prerequisites": [
+                            "skill_zone2_base_building",
+                            "skill_lactate_threshold_training"
+                        ],
+                        "xp_reward": 400,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Achieve a 5K time of 25 minutes through a structured training plan incorporating Zone 2, lactate threshold, and speed work."
+                    }
+                ]
+            },
+            {
+                "id": "d75e406c-b4b0-4ed2-8779-8afcb61eaac8",
+                "name": "Be more in tune with myself",
+                "pillars": [
+                    "MENTAL"
+                ],
+                "current_quests": [],
+                "needed_quests": [
+                    "Daily Self-Reflection Protocol",
+                    "Values Alignment Assessment",
+                    "Emotional Regulation Practice",
+                    "Mindfulness Meditation Practice",
+                    "Establish Daily Mental Hygiene Routine"
+                ],
+                "description": null,
+                "skill_level": 3,
+                "roadmap": [
+                    {
+                        "id": "skill_self_reflection_routine",
+                        "name": "Daily Self-Reflection Protocol",
+                        "type": "Sub-Skill",
+                        "pillar": "MENTAL",
+                        "prerequisites": [],
+                        "xp_reward": 75,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Establish a consistent daily practice of examining your thoughts, feelings, and behaviors to gain self-awareness."
+                    },
+                    {
+                        "id": "skill_values_alignment_assessment",
+                        "name": "Values Alignment Assessment",
+                        "type": "Sub-Skill",
+                        "pillar": "MENTAL",
+                        "prerequisites": [
+                            "skill_self_reflection_routine"
+                        ],
+                        "xp_reward": 125,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Identify your core values and evaluate how your current actions align with them. This involves introspection and honest evaluation."
+                    },
+                    {
+                        "id": "skill_emotional_regulation_practice",
+                        "name": "Emotional Regulation Practice",
+                        "type": "Sub-Skill",
+                        "pillar": "MENTAL",
+                        "prerequisites": [
+                            "skill_values_alignment_assessment"
+                        ],
+                        "xp_reward": 150,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Develop techniques for managing and responding to difficult emotions in a healthy and constructive way. Includes mindfulness and cognitive reframing."
+                    },
+                    {
+                        "id": "skill_mindfulness_meditation",
+                        "name": "Mindfulness Meditation Practice",
+                        "type": "Sub-Skill",
+                        "pillar": "MENTAL",
+                        "prerequisites": [
+                            "skill_emotional_regulation_practice"
+                        ],
+                        "xp_reward": 100,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Engage in regular meditation to cultivate present moment awareness and reduce reactivity."
+                    },
+                    {
+                        "id": "skill_establish_daily_mental_hygiene_routine",
+                        "name": "Establish Daily Mental Hygiene Routine",
+                        "type": "Sub-Skill",
+                        "pillar": "MENTAL",
+                        "prerequisites": [
+                            "skill_mindfulness_meditation",
+                            "skill_emotional_regulation_practice"
+                        ],
+                        "xp_reward": 200,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Create and consistently follow a daily routine incorporating self-reflection, mindfulness, and emotional regulation techniques to support mental wellbeing."
+                    }
+                ]
+            },
+            {
+                "id": "4ac5462b-9cd3-4744-8d2c-9d7172e256cb",
+                "name": "Be able to talk to more people",
+                "pillars": [
+                    "SOCIAL"
+                ],
+                "current_quests": [],
+                "needed_quests": [
+                    "Openers & Greetings",
+                    "Active Listening",
+                    "Social Perceptiveness",
+                    "Rapport Building",
+                    "Empathy",
+                    "Attend 3 Meetups and Initiate 5 Conversations"
+                ],
+                "description": null,
+                "skill_level": 4,
+                "roadmap": [
+                    {
+                        "id": "skill_conversation_starters_1",
+                        "name": "Openers & Greetings",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [],
+                        "xp_reward": 80,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Learn various ways to initiate conversations \u2013 simple greetings, situational comments, and open-ended questions."
+                    },
+                    {
+                        "id": "skill_active_listening_1",
+                        "name": "Active Listening",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [
+                            "skill_conversation_starters_1"
+                        ],
+                        "xp_reward": 90,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Practice techniques like paraphrasing, summarizing, and asking clarifying questions to demonstrate genuine interest in what others are saying."
+                    },
+                    {
+                        "id": "skill_social_perceptiveness_1",
+                        "name": "Social Perceptiveness",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [],
+                        "xp_reward": 70,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Develop the ability to read nonverbal cues, understand social dynamics, and adapt your communication style accordingly."
+                    },
+                    {
+                        "id": "skill_rapport_building_1",
+                        "name": "Rapport Building",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [
+                            "skill_active_listening_1",
+                            "skill_social_perceptiveness_1"
+                        ],
+                        "xp_reward": 110,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Establish a connection with others by finding common ground, mirroring their body language, and expressing empathy."
+                    },
+                    {
+                        "id": "skill_empathy_1",
+                        "name": "Empathy",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [],
+                        "xp_reward": 60,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Understand and share the feelings of others. This is crucial for building trust and connection."
+                    },
+                    {
+                        "id": "skill_capstone_attend_meetups",
+                        "name": "Attend 3 Meetups and Initiate 5 Conversations",
+                        "type": "Sub-Skill",
+                        "pillar": "SOCIAL",
+                        "prerequisites": [
+                            "skill_rapport_building_1",
+                            "skill_conversation_starters_1"
+                        ],
+                        "xp_reward": 150,
+                        "xp_multiplier": 1.0,
+                        "required_completions": 30,
+                        "description": "Attend three social events or meetups and actively initiate five conversations with new people, practicing the skills learned."
+                    }
+                ]
+            }
+        ],
+        "stats_career": {},
+        "stats_physical": {},
+        "stats_mental": {},
+        "stats_social": {},
+        "debuffs": [],
+        "skill_tree": null,
+        "xp_total": 0,
+        "xp_career": 0,
+        "xp_physical": 0,
+        "xp_mental": 0,
+        "xp_social": 0,
+        "habit_progress": {},
+        "calendar_events": [],
+        "pomodoro_history": [],
+        "pomodoros_total": 0,
+        "lockin_history": [],
+        "lockin_total_time_seconds": 0,
+        "phone_distractions_total": 0,
+        "user_facts": [],
+        "daily_schedule": {},
+        "daily_reports": [],
+        "last_report_date": null
+    },
+    "skill_tree": {
+        "nodes": [
+            {
+                "id": "goal_become_an_accountant",
+                "name": "Become an accountant",
+                "type": "Goal",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_data_entry",
+                    "skill_pass_entry_level_exam"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_accounting_principles",
+                "name": "Accounting Principles",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_reconcile_1_bank_statement",
+                    "habit_analyze_1_journal_entry"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Understand the fundamental principles of accounting, including GAAP and IFRS."
+            },
+            {
+                "id": "skill_financial_statement_analysis",
+                "name": "Financial Statement Analysis",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_accounting_principles",
+                    "habit_calculate_1_key_ratio",
+                    "habit_summarize_1_income_statement"
+                ],
+                "xp_reward": 180,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Analyze financial statements (balance sheet, income statement, cash flow statement) to assess a company's financial health."
+            },
+            {
+                "id": "skill_tax_compliance",
+                "name": "Tax Compliance",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_accounting_principles",
+                    "habit_review_1_tax_form",
+                    "habit_research_1_tax_deduction"
+                ],
+                "xp_reward": 160,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Learn the rules and regulations for tax filing and compliance."
+            },
+            {
+                "id": "skill_excel_fundamentals",
+                "name": "Excel Fundamentals",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_create_1_excel_chart",
+                    "habit_format_1_spreadsheet_cell"
+                ],
+                "xp_reward": 120,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Master basic Excel functions for data manipulation and analysis."
+            },
+            {
+                "id": "skill_data_entry",
+                "name": "Data Entry",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_enter_10_records",
+                    "habit_verify_1_data_entry"
+                ],
+                "xp_reward": 80,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop accurate and efficient data entry skills."
+            },
+            {
+                "id": "skill_pass_entry_level_exam",
+                "name": "Pass Entry-Level Exam",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_accounting_principles",
+                    "skill_financial_statement_analysis",
+                    "skill_tax_compliance",
+                    "skill_excel_fundamentals",
+                    "habit_review_1_exam_question",
+                    "habit_solve_1_practice_problem"
+                ],
+                "xp_reward": 200,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Successfully pass a recognized entry-level accounting exam (e.g., CPA Fundamentals)."
+            },
+            {
+                "id": "goal_have_more_endurance",
+                "name": "Have more endurance",
+                "type": "Goal",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_form_running_mechanics",
+                    "skill_mobility_and_flexibility",
+                    "skill_run_5k_in_25_minutes"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_zone_2_base_building",
+                "name": "Zone 2 Base Building",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_run_20_minutes_zone_2",
+                    "habit_cycle_30_minutes_zone_2"
+                ],
+                "xp_reward": 250,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop a sustainable aerobic base through consistent Zone 2 cardio training. Focus on maintaining a conversational pace and building mitochondrial efficiency."
+            },
+            {
+                "id": "skill_form_running_mechanics",
+                "name": "Form Running Mechanics",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_record_1_running_form_observation",
+                    "habit_adjust_1_running_stride"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Improve running form to maximize efficiency and reduce injury risk. Includes drills for posture, stride length, and cadence."
+            },
+            {
+                "id": "skill_mobility_and_flexibility",
+                "name": "Mobility and Flexibility",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_stretch_hamstrings_30_seconds",
+                    "habit_perform_5_foam_rolling_exercises"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Enhance joint range of motion and muscle flexibility to support movement and prevent injury. Includes dynamic and static stretching."
+            },
+            {
+                "id": "skill_lactate_threshold_training",
+                "name": "Lactate Threshold Training",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_zone_2_base_building",
+                    "habit_run_15_minutes_lactate_threshold",
+                    "habit_cycle_20_minutes_lactate_threshold"
+                ],
+                "xp_reward": 300,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Increase lactate threshold through interval training at a pace just below the point of perceived fatigue. Improves the body's ability to clear lactate."
+            },
+            {
+                "id": "skill_run_5k_in_25_minutes",
+                "name": "Run 5K in 25 Minutes",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_zone_2_base_building",
+                    "skill_lactate_threshold_training",
+                    "habit_run_1_mile_at_target_pace",
+                    "habit_increase_running_distance_by_10"
+                ],
+                "xp_reward": 400,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Achieve a 5K time of 25 minutes through a structured training plan incorporating Zone 2, lactate threshold, and speed work."
+            },
+            {
+                "id": "goal_be_more_in_tune_with_myself",
+                "name": "Be more in tune with myself",
+                "type": "Goal",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_establish_daily_mental_hygiene_routine"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_daily_self_reflection_protocol",
+                "name": "Daily Self-Reflection Protocol",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_write_3_things_you_re_grateful_for",
+                    "habit_identify_1_area_for_improvement"
+                ],
+                "xp_reward": 75,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Establish a consistent daily practice of examining your thoughts, feelings, and behaviors to gain self-awareness."
+            },
+            {
+                "id": "skill_values_alignment_assessment",
+                "name": "Values Alignment Assessment",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_daily_self_reflection_protocol",
+                    "habit_list_3_core_values",
+                    "habit_reflect_on_a_recent_decision"
+                ],
+                "xp_reward": 125,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Identify your core values and evaluate how your current actions align with them. This involves introspection and honest evaluation."
+            },
+            {
+                "id": "skill_emotional_regulation_practice",
+                "name": "Emotional Regulation Practice",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_values_alignment_assessment",
+                    "habit_take_5_deep_breaths",
+                    "habit_name_1_emotion"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop techniques for managing and responding to difficult emotions in a healthy and constructive way. Includes mindfulness and cognitive reframing."
+            },
+            {
+                "id": "skill_mindfulness_meditation_practice",
+                "name": "Mindfulness Meditation Practice",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_emotional_regulation_practice",
+                    "habit_meditate_for_5_minutes",
+                    "habit_complete_body_scan_meditation"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Engage in regular meditation to cultivate present moment awareness and reduce reactivity."
+            },
+            {
+                "id": "skill_establish_daily_mental_hygiene_routine",
+                "name": "Establish Daily Mental Hygiene Routine",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_mindfulness_meditation_practice",
+                    "skill_emotional_regulation_practice",
+                    "habit_listen_to_relaxing_music",
+                    "habit_take_a_15_minute_break"
+                ],
+                "xp_reward": 200,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Create and consistently follow a daily routine incorporating self-reflection, mindfulness, and emotional regulation techniques to support mental wellbeing."
+            },
+            {
+                "id": "goal_be_able_to_talk_to_more_people",
+                "name": "Be able to talk to more people",
+                "type": "Goal",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_empathy",
+                    "skill_attend_3_meetups_and_initiate_5_conversations"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_openers___greetings",
+                "name": "Openers & Greetings",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_use_3_different_openers",
+                    "habit_smile_at_3_people"
+                ],
+                "xp_reward": 80,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Learn various ways to initiate conversations \u2013 simple greetings, situational comments, and open-ended questions."
+            },
+            {
+                "id": "skill_active_listening",
+                "name": "Active Listening",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_openers___greetings",
+                    "habit_summarize_1_sentence_the_speaker_said",
+                    "habit_ask_1_clarifying_question"
+                ],
+                "xp_reward": 90,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice techniques like paraphrasing, summarizing, and asking clarifying questions to demonstrate genuine interest in what others are saying."
+            },
+            {
+                "id": "skill_social_perceptiveness",
+                "name": "Social Perceptiveness",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_observe_body_language_of_1_person",
+                    "habit_notice_1_social_dynamic"
+                ],
+                "xp_reward": 70,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop the ability to read nonverbal cues, understand social dynamics, and adapt your communication style accordingly."
+            },
+            {
+                "id": "skill_rapport_building",
+                "name": "Rapport Building",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_active_listening",
+                    "skill_social_perceptiveness",
+                    "habit_find_1_common_interest",
+                    "habit_ask_1_open_ended_question"
+                ],
+                "xp_reward": 110,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Establish a connection with others by finding common ground, mirroring their body language, and expressing empathy."
+            },
+            {
+                "id": "skill_empathy",
+                "name": "Empathy",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_reflect_1_emotion_of_another_person",
+                    "habit_imagine_another_person_s_perspective"
+                ],
+                "xp_reward": 60,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Understand and share the feelings of others. This is crucial for building trust and connection."
+            },
+            {
+                "id": "skill_attend_3_meetups_and_initiate_5_conversations",
+                "name": "Attend 3 Meetups and Initiate 5 Conversations",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_rapport_building",
+                    "skill_openers___greetings",
+                    "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Attend three social events or meetups and actively initiate five conversations with new people, practicing the skills learned."
+            },
+            {
+                "id": "habit_reconcile_1_bank_statement",
+                "name": "Reconcile 1 Bank Statement",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Ensure accuracy of financial records."
+            },
+            {
+                "id": "habit_analyze_1_journal_entry",
+                "name": "Analyze 1 Journal Entry",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Understand the impact of transactions."
+            },
+            {
+                "id": "habit_calculate_1_key_ratio",
+                "name": "Calculate 1 Key Ratio",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Assess financial health."
+            },
+            {
+                "id": "habit_summarize_1_income_statement",
+                "name": "Summarize 1 Income Statement",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Understand revenue and expenses."
+            },
+            {
+                "id": "habit_review_1_tax_form",
+                "name": "Review 1 Tax Form",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Ensure accuracy and completeness."
+            },
+            {
+                "id": "habit_research_1_tax_deduction",
+                "name": "Research 1 Tax Deduction",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Identify potential savings."
+            },
+            {
+                "id": "habit_create_1_excel_chart",
+                "name": "Create 1 Excel Chart",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Visualize data effectively."
+            },
+            {
+                "id": "habit_format_1_spreadsheet_cell",
+                "name": "Format 1 Spreadsheet Cell",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Improve readability."
+            },
+            {
+                "id": "habit_enter_10_records",
+                "name": "Enter 10 Records",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Maintain accurate data."
+            },
+            {
+                "id": "habit_verify_1_data_entry",
+                "name": "Verify 1 Data Entry",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Ensure data integrity."
+            },
+            {
+                "id": "habit_review_1_exam_question",
+                "name": "Review 1 Exam Question",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Reinforce key concepts."
+            },
+            {
+                "id": "habit_solve_1_practice_problem",
+                "name": "Solve 1 Practice Problem",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Test understanding."
+            },
+            {
+                "id": "habit_run_20_minutes_zone_2",
+                "name": "Run 20 Minutes Zone 2",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Build aerobic base."
+            },
+            {
+                "id": "habit_cycle_30_minutes_zone_2",
+                "name": "Cycle 30 Minutes Zone 2",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Maintain cardiovascular fitness."
+            },
+            {
+                "id": "habit_record_1_running_form_observation",
+                "name": "Record 1 Running Form Observation",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Identify areas for improvement."
+            },
+            {
+                "id": "habit_adjust_1_running_stride",
+                "name": "Adjust 1 Running Stride",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Optimize efficiency."
+            },
+            {
+                "id": "habit_stretch_hamstrings_30_seconds",
+                "name": "Stretch Hamstrings 30 Seconds",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Improve range of motion."
+            },
+            {
+                "id": "habit_perform_5_foam_rolling_exercises",
+                "name": "Perform 5 Foam Rolling Exercises",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Release muscle tension."
+            },
+            {
+                "id": "habit_run_15_minutes_lactate_threshold",
+                "name": "Run 15 Minutes Lactate Threshold",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Increase lactate threshold."
+            },
+            {
+                "id": "habit_cycle_20_minutes_lactate_threshold",
+                "name": "Cycle 20 Minutes Lactate Threshold",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Improve endurance."
+            },
+            {
+                "id": "habit_run_1_mile_at_target_pace",
+                "name": "Run 1 Mile at Target Pace",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice race pace."
+            },
+            {
+                "id": "habit_increase_running_distance_by_10",
+                "name": "Increase Running Distance by 10% ",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Progress towards goal."
+            },
+            {
+                "id": "habit_write_3_things_you_re_grateful_for",
+                "name": "Write 3 Things You're Grateful For",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Cultivate positivity."
+            },
+            {
+                "id": "habit_identify_1_area_for_improvement",
+                "name": "Identify 1 Area for Improvement",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Promote growth."
+            },
+            {
+                "id": "habit_list_3_core_values",
+                "name": "List 3 Core Values",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Clarify personal priorities."
+            },
+            {
+                "id": "habit_reflect_on_a_recent_decision",
+                "name": "Reflect on a Recent Decision",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Assess alignment with values."
+            },
+            {
+                "id": "habit_take_5_deep_breaths",
+                "name": "Take 5 Deep Breaths",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Calm down in stressful situations."
+            },
+            {
+                "id": "habit_name_1_emotion",
+                "name": "Name 1 Emotion",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Increase emotional awareness."
+            },
+            {
+                "id": "habit_meditate_for_5_minutes",
+                "name": "Meditate for 5 Minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Focus on the present moment."
+            },
+            {
+                "id": "habit_complete_body_scan_meditation",
+                "name": "Complete Body Scan Meditation",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Increase body awareness."
+            },
+            {
+                "id": "habit_listen_to_relaxing_music",
+                "name": "Listen to Relaxing Music",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Reduce stress."
+            },
+            {
+                "id": "habit_take_a_15_minute_break",
+                "name": "Take a 15-Minute Break",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Recharge mentally."
+            },
+            {
+                "id": "habit_use_3_different_openers",
+                "name": "Use 3 Different Openers",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Improve social interaction."
+            },
+            {
+                "id": "habit_smile_at_3_people",
+                "name": "Smile at 3 People",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Increase positivity."
+            },
+            {
+                "id": "habit_summarize_1_sentence_the_speaker_said",
+                "name": "Summarize 1 Sentence the Speaker Said",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Ensure understanding."
+            },
+            {
+                "id": "habit_ask_1_clarifying_question",
+                "name": "Ask 1 Clarifying Question",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Gain deeper insight."
+            },
+            {
+                "id": "habit_observe_body_language_of_1_person",
+                "name": "Observe Body Language of 1 Person",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Understand unspoken cues."
+            },
+            {
+                "id": "habit_notice_1_social_dynamic",
+                "name": "Notice 1 Social Dynamic",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Recognize group interactions."
+            },
+            {
+                "id": "habit_find_1_common_interest",
+                "name": "Find 1 Common Interest",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Create connection."
+            },
+            {
+                "id": "habit_ask_1_open_ended_question",
+                "name": "Ask 1 Open-Ended Question",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 7,
+                "description": "Encourage conversation."
+            },
+            {
+                "id": "habit_reflect_1_emotion_of_another_person",
+                "name": "Reflect 1 Emotion of Another Person",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Validate feelings."
+            },
+            {
+                "id": "habit_imagine_another_person_s_perspective",
+                "name": "Imagine Another Person's Perspective",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Develop understanding."
+            },
+            {
+                "id": "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task",
+                "name": "Complete 1 Attend 3 Meetups and Initiate 5 Conversations task",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 1,
+                "description": "Daily habit to improve Attend 3 Meetups and Initiate 5 Conversations."
+            }
+        ]
+    }
+}

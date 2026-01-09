@@ -1,9 +1,9 @@
 {
     "character_sheet": {
-        "user_id": "AwY9SCGMYHS8gCaMXf51jLnMwIj2",
+        "user_id": "test_skill_tree_demo",
         "goals": [
             {
-                "id": "07038f36-2de8-4d53-8698-117196605a7b",
+                "id": "e0175c5c-ca4d-4d17-9c74-92680deb163e",
                 "name": "Become an accountant",
                 "pillars": [
                     "CAREER"
@@ -32,7 +32,7 @@
                         "xp_reward": 80,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Mastering spreadsheet software is crucial for accounting. Learn basic formulas, functions, data organization, and charting."
+                        "description": "Mastering spreadsheet software is crucial for accounting. Learn basic formulas, data manipulation, and charting."
                     },
                     {
                         "id": "skill_financial_statement_analysis",
@@ -82,7 +82,7 @@
                         "xp_reward": 70,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Learn fundamental data analysis techniques, including data cleaning, transformation, and basic statistical analysis."
+                        "description": "Learn fundamental data analysis techniques, including data cleaning, transformation, and visualization."
                     },
                     {
                         "id": "skill_tax_law_fundamentals",
@@ -100,7 +100,7 @@
                 ]
             },
             {
-                "id": "ae050e7e-cb1b-44fd-aa0b-baec9be55d3e",
+                "id": "c0cf2bfe-b922-4fff-b392-e159c36b54c1",
                 "name": "Have more endurance",
                 "pillars": [
                     "PHYSICAL"
@@ -148,11 +148,13 @@
                         "name": "Strength Training Basics",
                         "type": "Sub-Skill",
                         "pillar": "PHYSICAL",
-                        "prerequisites": [],
+                        "prerequisites": [
+                            "skill_zone2_cardio"
+                        ],
                         "xp_reward": 120,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Introduce fundamental strength training exercises to build a foundation of muscle strength and stability."
+                        "description": "Introduce fundamental strength training exercises to build a solid foundation."
                     },
                     {
                         "id": "skill_recovery_strategies",
@@ -165,7 +167,7 @@
                         "xp_reward": 70,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Learn techniques for muscle recovery, including nutrition, sleep, and active recovery."
+                        "description": "Learn techniques for muscle repair and reducing soreness."
                     },
                     {
                         "id": "skill_endurance_progression",
@@ -174,12 +176,13 @@
                         "pillar": "PHYSICAL",
                         "prerequisites": [
                             "skill_zone2_cardio",
-                            "skill_running_form"
+                            "skill_running_form",
+                            "skill_strength_training_basics"
                         ],
                         "xp_reward": 200,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Implement a structured plan for gradually increasing endurance levels through consistent training."
+                        "description": "Implement a structured plan for gradually increasing training volume and intensity."
                     },
                     {
                         "id": "goal_increased_endurance",
@@ -192,12 +195,12 @@
                         "xp_reward": 300,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Achieve a higher level of physical endurance, allowing for longer and more demanding activities."
+                        "description": "Achieve a higher level of sustained physical performance."
                     }
                 ]
             },
             {
-                "id": "c625b51a-d1d5-4f9c-84fe-68960da2ae3d",
+                "id": "7e9e9e8a-8400-4dec-9372-1f809221e6ff",
                 "name": "Be more in tune with myself",
                 "pillars": [
                     "MENTAL"
@@ -279,7 +282,7 @@
                 ]
             },
             {
-                "id": "4b6a95fa-38cd-4908-8f1a-c6eabf4ef3b7",
+                "id": "a83f79b8-e989-4947-ac07-871e5963d4a6",
                 "name": "Be able to talk to more people",
                 "pillars": [
                     "SOCIAL"
@@ -291,8 +294,7 @@
                     "Nonverbal Communication",
                     "Rapport Building",
                     "Conversation Starters",
-                    "Social Influence",
-                    "Talk to More People"
+                    "Increase Social Interactions"
                 ],
                 "description": null,
                 "skill_level": 4,
@@ -332,7 +334,7 @@
                         "xp_reward": 60,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Learn to interpret and utilize body language, facial expressions, and tone of voice to enhance communication."
+                        "description": "Learn to interpret and utilize body language, facial expressions, and tone of voice to enhance communication and build rapport."
                     },
                     {
                         "id": "skill_rapport_building",
@@ -345,7 +347,7 @@
                         "xp_reward": 120,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Establish a connection with others by finding common ground, mirroring their behavior subtly, and showing genuine interest."
+                        "description": "Techniques for establishing a connection with others, such as finding common ground, mirroring, and using positive language."
                     },
                     {
                         "id": "skill_conversation_starters",
@@ -358,33 +360,20 @@
                         "xp_reward": 80,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Develop a repertoire of open-ended questions and engaging topics to initiate and maintain conversations."
+                        "description": "Learn a variety of open-ended questions and topics to initiate and maintain engaging conversations."
                     },
                     {
-                        "id": "skill_social_influence",
-                        "name": "Social Influence",
-                        "type": "Sub-Skill",
+                        "id": "goal_increase_social_interactions",
+                        "name": "Increase Social Interactions",
+                        "type": "Goal",
                         "pillar": "SOCIAL",
                         "prerequisites": [
                             "skill_conversation_starters"
                         ],
-                        "xp_reward": 150,
-                        "xp_multiplier": 1.0,
-                        "required_completions": 30,
-                        "description": "Understand the principles of persuasion and influence, while maintaining ethical boundaries and respecting others' autonomy."
-                    },
-                    {
-                        "id": "goal_talk_to_more_people",
-                        "name": "Talk to More People",
-                        "type": "Goal",
-                        "pillar": "SOCIAL",
-                        "prerequisites": [
-                            "skill_social_influence"
-                        ],
                         "xp_reward": 200,
                         "xp_multiplier": 1.0,
                         "required_completions": 30,
-                        "description": "Proactively seek opportunities to engage with new people and expand your social circle."
+                        "description": "Proactively seek opportunities to interact with new people and strengthen existing relationships.  Set realistic goals and track progress."
                     }
                 ]
             }
@@ -436,12 +425,12 @@
                 "prerequisites": [
                     "habit_create_a_new_spreadsheet",
                     "habit_enter_5_data_points",
-                    "habit_apply_a_simple_formula"
+                    "habit_basic_formula___sum"
                 ],
                 "xp_reward": 80,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Mastering spreadsheet software is crucial for accounting. Learn basic formulas, functions, data organization, and charting."
+                "description": "Mastering spreadsheet software is crucial for accounting. Learn basic formulas, data manipulation, and charting."
             },
             {
                 "id": "skill_financial_statement_analysis",
@@ -450,9 +439,9 @@
                 "pillar": "CAREER",
                 "prerequisites": [
                     "skill_excel_fundamentals",
-                    "habit_read_a_financial_statement_summary",
-                    "habit_identify_key_ratios",
-                    "habit_analyze_a_company_s_performance"
+                    "habit_read_1_article_on_financial_statements",
+                    "habit_analyze_a_simple_income_statement",
+                    "habit_research_a_company_s_financials"
                 ],
                 "xp_reward": 150,
                 "xp_multiplier": 1.0,
@@ -466,9 +455,9 @@
                 "pillar": "CAREER",
                 "prerequisites": [
                     "skill_financial_statement_analysis",
-                    "habit_review_a_basic_accounting_equation",
-                    "habit_study_a_specific_accounting_principle",
-                    "habit_explain_an_accounting_concept"
+                    "habit_review_one_accounting_principle",
+                    "habit_define_key_accounting_term",
+                    "habit_practice_journal_entry"
                 ],
                 "xp_reward": 200,
                 "xp_multiplier": 1.0,
@@ -497,14 +486,14 @@
                 "type": "Sub-Skill",
                 "pillar": "CAREER",
                 "prerequisites": [
-                    "habit_explore_a_sample_dataset",
-                    "habit_calculate_descriptive_statistics",
-                    "habit_create_a_simple_chart"
+                    "habit_learn_a_new_data_analysis_tool",
+                    "habit_analyze_a_small_dataset",
+                    "habit_practice_data_cleaning"
                 ],
                 "xp_reward": 70,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Learn fundamental data analysis techniques, including data cleaning, transformation, and basic statistical analysis."
+                "description": "Learn fundamental data analysis techniques, including data cleaning, transformation, and visualization."
             },
             {
                 "id": "skill_tax_law_fundamentals",
@@ -514,8 +503,8 @@
                 "prerequisites": [
                     "skill_data_analysis_basics",
                     "habit_read_a_tax_law_article",
-                    "habit_understand_tax_deductions",
-                    "habit_review_tax_forms"
+                    "habit_understand_tax_forms",
+                    "habit_research_tax_deductions"
                 ],
                 "xp_reward": 120,
                 "xp_multiplier": 1.0,
@@ -528,7 +517,6 @@
                 "type": "Goal",
                 "pillar": "PHYSICAL",
                 "prerequisites": [
-                    "skill_strength_training_basics",
                     "skill_recovery_strategies",
                     "skill_increased_endurance"
                 ],
@@ -544,7 +532,7 @@
                 "pillar": "PHYSICAL",
                 "prerequisites": [
                     "habit_walk_at_a_conversational_pace",
-                    "habit_cycle_at_a_moderate_effort",
+                    "habit_cycle_at_a_moderate_intensity",
                     "habit_increase_zone_2_duration"
                 ],
                 "xp_reward": 150,
@@ -560,8 +548,8 @@
                 "prerequisites": [
                     "skill_zone_2_cardio",
                     "habit_record_running_form",
-                    "habit_focus_on_posture",
-                    "habit_practice_cadence"
+                    "habit_focus_on_cadence",
+                    "habit_practice_arm_swing"
                 ],
                 "xp_reward": 80,
                 "xp_multiplier": 1.0,
@@ -574,14 +562,15 @@
                 "type": "Sub-Skill",
                 "pillar": "PHYSICAL",
                 "prerequisites": [
-                    "habit_do_3_sets_of_8_reps",
-                    "habit_learn_proper_form",
-                    "habit_increase_weight_gradually"
+                    "skill_zone_2_cardio",
+                    "habit_bodyweight_squats",
+                    "habit_push_ups",
+                    "habit_learn_a_new_exercise"
                 ],
                 "xp_reward": 120,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Introduce fundamental strength training exercises to build a foundation of muscle strength and stability."
+                "description": "Introduce fundamental strength training exercises to build a solid foundation."
             },
             {
                 "id": "skill_recovery_strategies",
@@ -591,13 +580,13 @@
                 "prerequisites": [
                     "skill_zone_2_cardio",
                     "habit_stretch_for_15_minutes",
-                    "habit_drink_16oz_of_water",
-                    "habit_take_a_warm_bath"
+                    "habit_hydrate_with_electrolytes",
+                    "habit_foam_roll_for_10_minutes"
                 ],
                 "xp_reward": 70,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Learn techniques for muscle recovery, including nutrition, sleep, and active recovery."
+                "description": "Learn techniques for muscle repair and reducing soreness."
             },
             {
                 "id": "skill_endurance_progression",
@@ -607,12 +596,13 @@
                 "prerequisites": [
                     "skill_zone_2_cardio",
                     "skill_running_form",
+                    "skill_strength_training_basics",
                     "habit_practice_endurance_progression_for_10_minutes"
                 ],
                 "xp_reward": 200,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Implement a structured plan for gradually increasing endurance levels through consistent training."
+                "description": "Implement a structured plan for gradually increasing training volume and intensity."
             },
             {
                 "id": "skill_increased_endurance",
@@ -626,7 +616,7 @@
                 "xp_reward": 300,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Achieve a higher level of physical endurance, allowing for longer and more demanding activities."
+                "description": "Achieve a higher level of sustained physical performance."
             },
             {
                 "id": "goal_be_more_in_tune_with_myself",
@@ -662,8 +652,8 @@
                 "prerequisites": [
                     "skill_self_awareness",
                     "habit_meditate_for_5_minutes",
-                    "habit_focus_on_breath",
-                    "habit_mindful_walking"
+                    "habit_mindful_breathing",
+                    "habit_observe_thoughts_without_judgment"
                 ],
                 "xp_reward": 75,
                 "xp_multiplier": 1.0,
@@ -677,9 +667,9 @@
                 "pillar": "MENTAL",
                 "prerequisites": [
                     "skill_mindfulness_practice",
-                    "habit_identify_emotions",
-                    "habit_deep_breathing_exercise",
-                    "habit_journal_about_feelings"
+                    "habit_identify_an_emotion",
+                    "habit_journal_about_feelings",
+                    "habit_practice_a_relaxation_technique"
                 ],
                 "xp_reward": 100,
                 "xp_multiplier": 1.0,
@@ -720,7 +710,7 @@
                 "type": "Goal",
                 "pillar": "SOCIAL",
                 "prerequisites": [
-                    "skill_talk_to_more_people"
+                    "skill_increase_social_interactions"
                 ],
                 "xp_reward": 100,
                 "xp_multiplier": 1.0,
@@ -766,7 +756,7 @@
                 "xp_reward": 60,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Learn to interpret and utilize body language, facial expressions, and tone of voice to enhance communication."
+                "description": "Learn to interpret and utilize body language, facial expressions, and tone of voice to enhance communication and build rapport."
             },
             {
                 "id": "skill_rapport_building",
@@ -782,7 +772,7 @@
                 "xp_reward": 120,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Establish a connection with others by finding common ground, mirroring their behavior subtly, and showing genuine interest."
+                "description": "Techniques for establishing a connection with others, such as finding common ground, mirroring, and using positive language."
             },
             {
                 "id": "skill_conversation_starters",
@@ -796,35 +786,21 @@
                 "xp_reward": 80,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Develop a repertoire of open-ended questions and engaging topics to initiate and maintain conversations."
+                "description": "Learn a variety of open-ended questions and topics to initiate and maintain engaging conversations."
             },
             {
-                "id": "skill_social_influence",
-                "name": "Social Influence",
+                "id": "skill_increase_social_interactions",
+                "name": "Increase Social Interactions",
                 "type": "Sub-Skill",
                 "pillar": "SOCIAL",
                 "prerequisites": [
                     "skill_conversation_starters",
-                    "habit_practice_social_influence_for_10_minutes"
-                ],
-                "xp_reward": 150,
-                "xp_multiplier": 1.0,
-                "required_completions": 30,
-                "description": "Understand the principles of persuasion and influence, while maintaining ethical boundaries and respecting others' autonomy."
-            },
-            {
-                "id": "skill_talk_to_more_people",
-                "name": "Talk to More People",
-                "type": "Sub-Skill",
-                "pillar": "SOCIAL",
-                "prerequisites": [
-                    "skill_social_influence",
-                    "habit_practice_talk_to_more_people_for_10_minutes"
+                    "habit_practice_increase_social_interactions_for_10_minutes"
                 ],
                 "xp_reward": 200,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Proactively seek opportunities to engage with new people and expand your social circle."
+                "description": "Proactively seek opportunities to interact with new people and strengthen existing relationships.  Set realistic goals and track progress."
             },
             {
                 "id": "habit_create_a_new_spreadsheet",
@@ -835,7 +811,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Start with a blank spreadsheet."
+                "description": "Start with a blank spreadsheet and save it."
             },
             {
                 "id": "habit_enter_5_data_points",
@@ -846,84 +822,84 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Input 5 pieces of data into a column."
+                "description": "Input 5 different values into a single cell."
             },
             {
-                "id": "habit_apply_a_simple_formula",
-                "name": "Apply a Simple Formula",
+                "id": "habit_basic_formula___sum",
+                "name": "Basic Formula - Sum",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Use a basic formula like SUM or AVERAGE."
+                "description": "Enter a simple SUM formula in a cell."
             },
             {
-                "id": "habit_read_a_financial_statement_summary",
-                "name": "Read a Financial Statement Summary",
+                "id": "habit_read_1_article_on_financial_statements",
+                "name": "Read 1 Article on Financial Statements",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Spend 15 minutes reading a summary of a financial statement."
+                "description": "Find and read a short article explaining a financial statement."
             },
             {
-                "id": "habit_identify_key_ratios",
-                "name": "Identify Key Ratios",
+                "id": "habit_analyze_a_simple_income_statement",
+                "name": "Analyze a Simple Income Statement",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Find and understand 2 key financial ratios."
+                "description": "Find a basic income statement and identify key figures."
             },
             {
-                "id": "habit_analyze_a_company_s_performance",
-                "name": "Analyze a Company's Performance",
+                "id": "habit_research_a_company_s_financials",
+                "name": "Research a Company's Financials",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Review a company's financial statements and identify trends."
+                "description": "Look up the financials of a publicly traded company."
             },
             {
-                "id": "habit_review_a_basic_accounting_equation",
-                "name": "Review a Basic Accounting Equation",
+                "id": "habit_review_one_accounting_principle",
+                "name": "Review One Accounting Principle",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Read about a single accounting principle (e.g., matching principle)."
+            },
+            {
+                "id": "habit_define_key_accounting_term",
+                "name": "Define Key Accounting Term",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Refresh your understanding of the accounting equation."
+                "description": "Write down the definition of a common accounting term."
             },
             {
-                "id": "habit_study_a_specific_accounting_principle",
-                "name": "Study a Specific Accounting Principle",
-                "type": "Habit",
-                "pillar": "CAREER",
-                "prerequisites": [],
-                "xp_reward": 15,
-                "xp_multiplier": 1.0,
-                "required_completions": 14,
-                "description": "Focus on learning one accounting principle in detail."
-            },
-            {
-                "id": "habit_explain_an_accounting_concept",
-                "name": "Explain an Accounting Concept",
+                "id": "habit_practice_journal_entry",
+                "name": "Practice Journal Entry",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Describe an accounting concept to someone else."
+                "description": "Create a simple journal entry for a transaction."
             },
             {
                 "id": "habit_research_accountant_roles",
@@ -934,7 +910,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Spend 30 minutes researching different accounting roles."
+                "description": "Spend 15 minutes researching different types of accountant roles."
             },
             {
                 "id": "habit_update_resume",
@@ -945,7 +921,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Add or update your resume with relevant skills."
+                "description": "Add one relevant skill or experience to your resume."
             },
             {
                 "id": "habit_network_with_an_accountant",
@@ -956,40 +932,40 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Reach out to an accountant for informational interview."
+                "description": "Reach out to an accountant on LinkedIn."
             },
             {
-                "id": "habit_explore_a_sample_dataset",
-                "name": "Explore a Sample Dataset",
+                "id": "habit_learn_a_new_data_analysis_tool",
+                "name": "Learn a New Data Analysis Tool",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Spend 30 minutes exploring a simple dataset."
+                "description": "Spend 30 minutes learning a new data analysis tool (e.g., Tableau, Power BI)."
             },
             {
-                "id": "habit_calculate_descriptive_statistics",
-                "name": "Calculate Descriptive Statistics",
-                "type": "Habit",
-                "pillar": "CAREER",
-                "prerequisites": [],
-                "xp_reward": 15,
-                "xp_multiplier": 1.0,
-                "required_completions": 14,
-                "description": "Calculate basic statistics like mean, median, and mode."
-            },
-            {
-                "id": "habit_create_a_simple_chart",
-                "name": "Create a Simple Chart",
+                "id": "habit_analyze_a_small_dataset",
+                "name": "Analyze a Small Dataset",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Visualize data using a basic chart (e.g., bar chart)."
+                "description": "Find a small dataset and perform a basic analysis."
+            },
+            {
+                "id": "habit_practice_data_cleaning",
+                "name": "Practice Data Cleaning",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Clean up a messy dataset."
             },
             {
                 "id": "habit_read_a_tax_law_article",
@@ -1003,26 +979,26 @@
                 "description": "Read a short article about a specific tax law."
             },
             {
-                "id": "habit_understand_tax_deductions",
-                "name": "Understand Tax Deductions",
+                "id": "habit_understand_tax_forms",
+                "name": "Understand Tax Forms",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
-                "required_completions": 14,
-                "description": "Research a common tax deduction."
+                "required_completions": 7,
+                "description": "Review a common tax form (e.g., 1040)."
             },
             {
-                "id": "habit_review_tax_forms",
-                "name": "Review Tax Forms",
+                "id": "habit_research_tax_deductions",
+                "name": "Research Tax Deductions",
                 "type": "Habit",
                 "pillar": "CAREER",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Study a tax form (e.g., 1040)."
+                "description": "Research a potential tax deduction."
             },
             {
                 "id": "habit_walk_at_a_conversational_pace",
@@ -1033,18 +1009,18 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Walk for 30 minutes at a pace where you can comfortably hold a conversation."
+                "description": "Go for a 30-minute walk at a pace where you can comfortably hold a conversation."
             },
             {
-                "id": "habit_cycle_at_a_moderate_effort",
-                "name": "Cycle at a Moderate Effort",
+                "id": "habit_cycle_at_a_moderate_intensity",
+                "name": "Cycle at a Moderate Intensity",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Cycle for 45 minutes at a moderate effort."
+                "description": "Cycle for 45 minutes at a moderate intensity."
             },
             {
                 "id": "habit_increase_zone_2_duration",
@@ -1055,7 +1031,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Increase the duration of your Zone 2 cardio sessions."
+                "description": "Increase the duration of your Zone 2 cardio session by 10 minutes."
             },
             {
                 "id": "habit_record_running_form",
@@ -1069,59 +1045,59 @@
                 "description": "Record yourself running and analyze your form."
             },
             {
-                "id": "habit_focus_on_posture",
-                "name": "Focus on Posture",
+                "id": "habit_focus_on_cadence",
+                "name": "Focus on Cadence",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Pay attention to your posture while running."
+                "description": "Pay attention to your foot strike and cadence."
             },
             {
-                "id": "habit_practice_cadence",
-                "name": "Practice Cadence",
-                "type": "Habit",
-                "pillar": "PHYSICAL",
-                "prerequisites": [],
-                "xp_reward": 15,
-                "xp_multiplier": 1.0,
-                "required_completions": 30,
-                "description": "Work on increasing your running cadence."
-            },
-            {
-                "id": "habit_do_3_sets_of_8_reps",
-                "name": "Do 3 Sets of 8 Reps",
+                "id": "habit_practice_arm_swing",
+                "name": "Practice Arm Swing",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Perform 3 sets of 8 repetitions of a basic exercise (e.g., push-ups, squats)."
+                "description": "Focus on a relaxed and efficient arm swing."
             },
             {
-                "id": "habit_learn_proper_form",
-                "name": "Learn Proper Form",
+                "id": "habit_bodyweight_squats",
+                "name": "Bodyweight Squats",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Watch a video and practice proper form for a basic exercise."
+                "description": "Perform 3 sets of 10 bodyweight squats."
             },
             {
-                "id": "habit_increase_weight_gradually",
-                "name": "Increase Weight Gradually",
+                "id": "habit_push_ups",
+                "name": "Push-Ups",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Perform 3 sets of as many push-ups as possible."
+            },
+            {
+                "id": "habit_learn_a_new_exercise",
+                "name": "Learn a New Exercise",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Increase the weight you lift gradually."
+                "description": "Research and learn a new basic strength training exercise."
             },
             {
                 "id": "habit_stretch_for_15_minutes",
@@ -1132,29 +1108,29 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Stretch your muscles for 15 minutes."
+                "description": "Stretch all major muscle groups for 15 minutes."
             },
             {
-                "id": "habit_drink_16oz_of_water",
-                "name": "Drink 16oz of Water",
+                "id": "habit_hydrate_with_electrolytes",
+                "name": "Hydrate with Electrolytes",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Hydrate with 16 ounces of water."
+                "description": "Drink a beverage with electrolytes."
             },
             {
-                "id": "habit_take_a_warm_bath",
-                "name": "Take a Warm Bath",
+                "id": "habit_foam_roll_for_10_minutes",
+                "name": "Foam Roll for 10 Minutes",
                 "type": "Habit",
                 "pillar": "PHYSICAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Relax in a warm bath."
+                "description": "Foam roll major muscle groups for 10 minutes."
             },
             {
                 "id": "habit_practice_endurance_progression_for_10_minutes",
@@ -1198,51 +1174,40 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Practice a 5-minute meditation."
+                "description": "Practice a 5-minute guided meditation."
             },
             {
-                "id": "habit_focus_on_breath",
-                "name": "Focus on Breath",
+                "id": "habit_mindful_breathing",
+                "name": "Mindful Breathing",
                 "type": "Habit",
                 "pillar": "MENTAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Pay attention to your breath for a few minutes."
+                "description": "Take 5 deep, mindful breaths."
             },
             {
-                "id": "habit_mindful_walking",
-                "name": "Mindful Walking",
+                "id": "habit_observe_thoughts_without_judgment",
+                "name": "Observe Thoughts Without Judgment",
                 "type": "Habit",
                 "pillar": "MENTAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Walk slowly and pay attention to your surroundings."
+                "description": "Spend 10 minutes observing your thoughts without judgment."
             },
             {
-                "id": "habit_identify_emotions",
-                "name": "Identify Emotions",
+                "id": "habit_identify_an_emotion",
+                "name": "Identify an Emotion",
                 "type": "Habit",
                 "pillar": "MENTAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Take a moment to identify and name your emotions."
-            },
-            {
-                "id": "habit_deep_breathing_exercise",
-                "name": "Deep Breathing Exercise",
-                "type": "Habit",
-                "pillar": "MENTAL",
-                "prerequisites": [],
-                "xp_reward": 15,
-                "xp_multiplier": 1.0,
-                "required_completions": 7,
-                "description": "Practice a deep breathing exercise when feeling overwhelmed."
+                "description": "Take 5 minutes to identify and name an emotion you're feeling."
             },
             {
                 "id": "habit_journal_about_feelings",
@@ -1254,6 +1219,17 @@
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
                 "description": "Write down your feelings in a journal."
+            },
+            {
+                "id": "habit_practice_a_relaxation_technique",
+                "name": "Practice a Relaxation Technique",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 14,
+                "description": "Use a relaxation technique (e.g., progressive muscle relaxation)."
             },
             {
                 "id": "habit_practice_cognitive_restructuring_for_10_minutes",
@@ -1330,7 +1306,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 7,
-                "description": "Pay attention to what the other person is saying."
+                "description": "Practice active listening during a conversation."
             },
             {
                 "id": "habit_find_common_ground",
@@ -1341,7 +1317,7 @@
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 14,
-                "description": "Look for shared interests or experiences."
+                "description": "Look for common interests with someone you're talking to."
             },
             {
                 "id": "habit_practice_conversation_starters_for_10_minutes",
@@ -1355,26 +1331,15 @@
                 "description": "Daily habit to improve Conversation Starters."
             },
             {
-                "id": "habit_practice_social_influence_for_10_minutes",
-                "name": "Practice Social Influence for 10 minutes",
+                "id": "habit_practice_increase_social_interactions_for_10_minutes",
+                "name": "Practice Increase Social Interactions for 10 minutes",
                 "type": "Habit",
                 "pillar": "SOCIAL",
                 "prerequisites": [],
                 "xp_reward": 15,
                 "xp_multiplier": 1.0,
                 "required_completions": 30,
-                "description": "Daily habit to improve Social Influence."
-            },
-            {
-                "id": "habit_practice_talk_to_more_people_for_10_minutes",
-                "name": "Practice Talk to More People for 10 minutes",
-                "type": "Habit",
-                "pillar": "SOCIAL",
-                "prerequisites": [],
-                "xp_reward": 15,
-                "xp_multiplier": 1.0,
-                "required_completions": 30,
-                "description": "Daily habit to improve Talk to More People."
+                "description": "Daily habit to improve Increase Social Interactions."
             }
         ]
     }

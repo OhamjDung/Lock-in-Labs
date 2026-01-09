@@ -3,8 +3,9 @@ import os
 import difflib
 from typing import List
 from dotenv import load_dotenv
-from src.models import CharacterSheet, SkillTree, SkillNode, NodeType, Pillar
+from src.models import CharacterSheet, SkillTree, SkillNode, NodeType, Pillar, DifficultyTier, REP_MAP
 from src.llm import LLMClient
+from src.knowledge_base import retrieve_relevant_habits
 
 load_dotenv()
 
@@ -108,18 +109,65 @@ class SkillTreeGenerator:
 
         habit_nodes: List[SkillNode] = []
 
-        # Describe skills for the LLM
+        # 1. RAG Retrieval for Habits
+        # Pre-fetch habits for all skills to pass as context
+        verified_habits_context = {}
+        for skill in skills:
+            # Search query combines skill name and description for better matching
+            query = f"{skill.name} {skill.description or ''}"
+            habits = retrieve_relevant_habits(query, pillar=skill.pillar, top_k=3)
+            if habits:
+                verified_habits_context[skill.id] = habits
+
+        # 2. Build Prompt
         skills_payload = [
             {"id": s.id, "name": s.name, "pillar": s.pillar.value}
             for s in skills
         ]
+        
+        rag_text = json.dumps(verified_habits_context, indent=2)
 
         prompt = (
-            "You design concrete, daily habits for a Life RPG. Given this JSON list "
-            "of skills, propose 2-3 very specific daily habits for each skill.\n\n"
-            "Return JSON ONLY in this format (no prose):\n"
-            "{\n  \"habits\": [\n    {\n      \"skill_id\": \"skill_focus\",\n"
-            "      \"habits\": [\n        {\"name\": \"Meditate 10 minutes\", \"description\": \"Short description...\"}\n      ]\n    }\n  ]\n}"
+            "You are a Behavioral Scientist designing Atomic Habits for a Life RPG. "
+            "Given this JSON list of skills, propose 2-3 specific, binary actions for each skill.\n\n"
+            f"**VERIFIED HABIT LIBRARY (Use these if they match the skill):**\n{rag_text}\n\n"
+            
+            "**THE 'VERB ENFORCER' RULES:**\n"
+            "1. **NO 'PRACTICE'**: Never start a habit name with the word 'Practice'. "
+            "   Use specific action verbs: Run, Write, Speak, Solve, Read, Code, Build, etc.\n"
+            "2. **CAREER CONTEXT CHECK**: If the skill is for a NON-CODING career (e.g., Accounting, Finance, Marketing), "
+            "   FORBID coding-related habits like 'LeetCode', 'Git', 'Code', 'Programming', 'Algorithm'.\n"
+            "   - *Forbidden for non-coding careers:* 'Solve 1 LeetCode Easy', 'Commit code to Git'\n"
+            "   - *Use instead:* 'Create 1 Excel Macro', 'Balance a 3-statement model', 'Analyze 1 financial report'\n"
+            "2. **BE BINARY**: The habit must be pass/fail. 'Be more confident' is bad. "
+            "   'Speak up once in a meeting' is good.\n"
+            "3. **BE ATOMIC**: If the skill is 'Python', do not say 'Build a generic app'. "
+            "   Say 'Write 1 script to rename files' or 'Solve 1 LeetCode Easy problem'.\n"
+            "4. **DURATION**: Default to short bursts (e.g., '5 mins', '1 set', '1 problem', '1 page').\n"
+            "5. If the Verified Library has a habit for a skill ID, USE IT but ensure it follows rules 1-4.\n\n"
+            
+            "**BAD EXAMPLES:**\n"
+            "- 'Practice Active Listening' (Vague, uses forbidden word)\n"
+            "- 'Get better at running' (Goal, not habit)\n"
+            "- 'Practice Python' (Too generic)\n\n"
+            
+            "**GOOD EXAMPLES:**\n"
+            "- 'Summarize the last sentence the person said' (Actionable, binary)\n"
+            "- 'Run 1 mile at conversation pace' (Specific, measurable)\n"
+            "- 'Write 1 Python script to automate file renaming' (Atomic, concrete)\n"
+            "- 'Solve 1 LeetCode Easy problem' (Binary, specific)\n\n"
+            
+            "**DIFFICULTY TIERS:**\n"
+            "For each habit, assign a 'difficulty_tier' (1, 2, 3, or 4):\n"
+            "   - Tier 1 (Easy): Simple daily tasks (e.g. 'Drink water', 'Take vitamins')\n"
+            "   - Tier 2 (Medium): Moderate effort (e.g. 'Code for 30 mins', 'Read 20 pages')\n"
+            "   - Tier 3 (Hard): Deep work/training (e.g. 'Run 5k', 'Build full-stack app')\n"
+            "   - Tier 4 (One-off): Milestones (e.g. 'Setup environment', 'Buy equipment')\n"
+            "DO NOT assign 'required_completions' directly. Only provide 'difficulty_tier'.\n\n"
+            
+            "Return JSON ONLY in this format:\n"
+            "{\n  \"habits\": [\n    {\n      \"skill_id\": \"skill_xyz\",\n"
+            "      \"habits\": [\n        {\"name\": \"Actionable Verb + Noun\", \"description\": \"Why this works...\", \"difficulty_tier\": 2}\n      ]\n    }\n  ]\n}"
             "\n\nSkills JSON:\n" + json.dumps(skills_payload)
         )
 
@@ -144,8 +192,8 @@ class SkillTreeGenerator:
             raw_habits = habits_by_skill.get(skill.id)
 
             if not raw_habits:
-                # Fallback: one simple habit per skill
-                habit_name = f"Practice {skill.name} for 10 minutes"
+                # Fallback: one simple habit per skill (avoid "Practice" word)
+                habit_name = f"Complete 1 {skill.name} task"
                 habit_id = self._make_unique_id(used_ids, "habit", habit_name)
                 habit = SkillNode(
                     id=habit_id,
@@ -165,11 +213,42 @@ class SkillTreeGenerator:
             for h in raw_habits:
                 if not isinstance(h, dict):
                     continue
-                name = h.get("name") or f"Practice {skill.name}"
+                # Remove "Practice" prefix if present and replace with action verb
+                name = h.get("name") or f"Complete 1 {skill.name} task"
+                # Clean up any "Practice" prefixes that might have slipped through
+                if name.lower().startswith("practice "):
+                    name = name[9:].strip()  # Remove "practice " prefix
+                    # Try to add a better verb
+                    if not any(name.lower().startswith(v) for v in ["run", "write", "read", "solve", "code", "build", "speak", "do", "complete", "create", "analyze"]):
+                        name = f"Complete {name}"
+                
+                # Filter out coding-related habits for non-coding careers
+                coding_keywords = ["leetcode", "git", "algorithm", "programming", "code commit", "pull request"]
+                career_keywords = ["accountant", "accounting", "finance", "financial", "marketing", "sales", "hr", "human resources"]
+                skill_name_lower = skill.name.lower()
+                habit_name_lower = name.lower()
+                
+                # If this is a non-coding career skill and the habit contains coding keywords, replace it
+                if any(ck in skill_name_lower for ck in career_keywords) and any(ckw in habit_name_lower for ckw in coding_keywords):
+                    # Replace with appropriate career tool
+                    if "account" in skill_name_lower or "finance" in skill_name_lower or "tax" in skill_name_lower:
+                        name = f"Create 1 Excel Macro for {skill.name}"
+                    elif "model" in skill_name_lower or "analysis" in skill_name_lower:
+                        name = f"Analyze 1 {skill.name} report"
+                    else:
+                        name = f"Complete 1 {skill.name} task"
                 desc = h.get("description") or f"Daily habit to improve {skill.name}."
-                reps = h.get("required_completions")
-                if not isinstance(reps, int) or reps <= 0:
-                    reps = 30
+                
+                # Safe enum conversion with fallback
+                try:
+                    dt = int(h.get("difficulty_tier", 2))
+                    if dt not in [1, 2, 3, 4]:
+                        dt = 2  # Fallback to medium
+                except (ValueError, TypeError):
+                    dt = 2  # Fallback on any error
+                
+                reps = REP_MAP[DifficultyTier(dt)]
+                
                 habit_id = self._make_unique_id(used_ids, "habit", name)
                 habit = SkillNode(
                     id=habit_id,
@@ -179,7 +258,7 @@ class SkillTreeGenerator:
                     prerequisites=[],
                     xp_reward=15,
                     xp_multiplier=1.0,
-                     required_completions=reps,
+                    required_completions=reps,  # Code-enforced, not LLM-generated
                     description=desc,
                 )
                 habit_nodes.append(habit)
@@ -208,7 +287,7 @@ class SkillTreeGenerator:
             skill_by_key: dict = {}
             all_skills: List[SkillNode] = []
 
-            # 1) Goals per pillar and their needed_quests as skills (branches)
+            # 1) Goals with structured roadmap (preserving prerequisite chains)
             for goal in goals_list:
                 # Use the first pillar for the goal node (goals can have multiple pillars)
                 goal_pillar = goal.pillars[0] if goal.pillars else Pillar.CAREER
@@ -225,30 +304,109 @@ class SkillTreeGenerator:
                 )
                 nodes.append(goal_node)
 
-                for quest in goal.needed_quests:
-                    key = _slugify(quest)
-                    if not key:
-                        continue
-                    if key in skill_by_key:
-                        skill_node = skill_by_key[key]
-                    else:
-                        skill_id = self._make_unique_id(used_ids, "skill", quest)
-                        skill_node = SkillNode(
-                            id=skill_id,
-                            name=quest,
-                            type=NodeType.SUB_SKILL,
-                            pillar=goal_pillar,  # Use the same pillar as the goal
+                current_roadmap = goal.roadmap
+                
+                # MIGRATION FALLBACK:
+                # If no roadmap exists but needed_quests does, convert on the fly.
+                if not current_roadmap and goal.needed_quests:
+                    print(f"Migrating legacy goal: {goal.name}")
+                    legacy_nodes = []
+                    for q in goal.needed_quests:
+                        id_candidate = _slugify(q)
+                        # Check if progress exists under the raw name (old behavior)
+                        if q in character_sheet.habit_progress:
+                            final_id = q
+                        # Check if progress exists under the slug (potential hybrid behavior)
+                        elif id_candidate in character_sheet.habit_progress:
+                            final_id = id_candidate
+                        else:
+                            # Default to slug for new "legacy" nodes ensuring clean IDs
+                            final_id = f"legacy_{id_candidate}"
+                        
+                        legacy_nodes.append(SkillNode(
+                            id=final_id, 
+                            name=q, 
+                            type=NodeType.SUB_SKILL, 
+                            pillar=goal_pillar, 
+                            xp_reward=100,
                             prerequisites=[],
-                            xp_reward=150,
-                            xp_multiplier=1.0,
-                            description=f"Skill needed for goal '{goal.name}'.",
-                        )
-                        skill_by_key[key] = skill_node
-                        all_skills.append(skill_node)
-                        nodes.append(skill_node)
-
-                    if skill_node.id not in goal_node.prerequisites:
-                        goal_node.prerequisites.append(skill_node.id)
+                            description=f"Legacy skill for goal '{goal.name}'."
+                        ))
+                    current_roadmap = legacy_nodes
+                
+                if not current_roadmap:
+                    continue
+                
+                # --- Preserve Planner's Deep Structure ---
+                
+                # 1. Create ID mapping (planner IDs -> unique tree IDs)
+                planner_id_map = {}
+                
+                # First pass: Create all planner nodes
+                for raw_node in current_roadmap:
+                    unique_id = self._make_unique_id(used_ids, "skill", raw_node.name)
+                    planner_id_map[raw_node.id] = unique_id
+                    
+                    new_node = SkillNode(
+                        id=unique_id,
+                        name=raw_node.name,
+                        type=NodeType.SUB_SKILL,
+                        pillar=goal_pillar,
+                        prerequisites=[],  # Fill in Pass 2
+                        xp_reward=raw_node.xp_reward,
+                        xp_multiplier=raw_node.xp_multiplier,
+                        description=raw_node.description
+                    )
+                    nodes.append(new_node)
+                    all_skills.append(new_node)
+                
+                # Second pass: Link prerequisites (preserve planner's chain)
+                for raw_node in current_roadmap:
+                    real_node_id = planner_id_map.get(raw_node.id)
+                    if not real_node_id:
+                        continue
+                    real_node = next((n for n in nodes if n.id == real_node_id), None)
+                    if not real_node:
+                        continue
+                    
+                    for prereq_id in raw_node.prerequisites:
+                        if prereq_id in planner_id_map:
+                            mapped_id = planner_id_map[prereq_id]
+                            if mapped_id not in real_node.prerequisites:
+                                real_node.prerequisites.append(mapped_id)
+                
+                # Third pass: Find terminal nodes (top of chain) and link to Goal
+                all_prereq_ids = set()
+                for raw_node in current_roadmap:
+                    all_prereq_ids.update(raw_node.prerequisites)
+                
+                terminal_node_ids = []
+                for raw_node in current_roadmap:
+                    if raw_node.id not in all_prereq_ids:
+                        real_id = planner_id_map.get(raw_node.id)
+                        if real_id:
+                            terminal_node_ids.append(real_id)
+                
+                # Link terminal nodes to Goal
+                for term_id in terminal_node_ids:
+                    if term_id not in goal_node.prerequisites:
+                        goal_node.prerequisites.append(term_id)
+                
+                # --- FALLBACK: If goal has 0 prerequisites, connect all sub-skills ---
+                if not goal_node.prerequisites and terminal_node_ids:
+                    # Graph fragmentation detected - fallback to flattening
+                    for term_id in terminal_node_ids:
+                        if term_id not in goal_node.prerequisites:
+                            goal_node.prerequisites.append(term_id)
+                
+                # If still empty, connect ALL sub-skills as failsafe
+                if not goal_node.prerequisites:
+                    for raw_node in current_roadmap:
+                        real_id = planner_id_map.get(raw_node.id)
+                        if real_id and real_id not in goal_node.prerequisites:
+                            goal_node.prerequisites.append(real_id)
+                
+                # --- End Deep Structure Preservation ---
 
             # 2) Debuff removal branches: goal -> recovery skill -> habits
             for debuff in character_sheet.debuffs:
@@ -299,6 +457,7 @@ class SkillTreeGenerator:
             self.deduplicate_goals(tree)
             self.sanitize_tree(tree)
             self.apply_debuff_mechanics(tree, character_sheet.debuffs)
+            self.fix_milestone_completions(tree)  # Fix "Groundhog Day" bug
 
             return tree
 
@@ -350,6 +509,33 @@ class SkillTreeGenerator:
                 
                 tree.nodes.append(goal)
                 tree.nodes.append(habit)
+
+    def fix_milestone_completions(self, tree: SkillTree):
+        """
+        Fix "Groundhog Day" bug: Milestone/capstone nodes should have required_completions = 1.
+        
+        Detects milestone nodes by checking for keywords like "pass", "exam", "attend", 
+        "run 5k", "complete", etc. These are one-time events, not repeating habits.
+        """
+        milestone_keywords = [
+            "pass", "milestone", "exam", "certification", "certificate",
+            "attend 3", "attend 1", "attend a", "host", "land",
+            "run 5k", "run 10k", "run marathon", "deadlift", "bench press",
+            "complete", "finish", "achieve", "earn", "obtain", "get first",
+            "establish", "create first", "build first", "launch"
+        ]
+        
+        for node in tree.nodes:
+            lower_name = node.name.lower()
+            
+            # Check if node name contains milestone keywords
+            is_milestone = any(keyword in lower_name for keyword in milestone_keywords)
+            
+            if is_milestone:
+                # Milestones are one-time events, not repeating habits
+                if node.required_completions != 1:
+                    print(f"[Milestone Fix] Setting {node.name} to required_completions=1 (was {node.required_completions})")
+                    node.required_completions = 1
 
     def deduplicate_goals(self, tree: SkillTree):
         """

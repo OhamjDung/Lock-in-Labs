@@ -1,0 +1,90 @@
+{
+  "skills": [
+    {
+      "name": "Python Proficiency",
+      "pillar": "CAREER",
+      "tags": ["coding", "programming", "software engineering", "backend", "scripting", "automation"],
+      "description": "Ability to write clean, efficient Python code using modern features like list comprehensions and decorators.",
+      "difficulty": 2
+    },
+    {
+      "name": "Data Analysis with Pandas",
+      "pillar": "CAREER",
+      "tags": ["data science", "python", "etl", "csv", "data manipulation", "analytics"],
+      "description": "Mastery of DataFrames for cleaning, transforming, and analyzing complex datasets.",
+      "difficulty": 3
+    },
+    {
+      "name": "Hypertrophy Training",
+      "pillar": "PHYSICAL",
+      "tags": ["gym", "muscle building", "weightlifting", "strength", "bodybuilding", "fitness"],
+      "description": "Training methodology focused on maximizing muscle growth through volume and progressive overload.",
+      "difficulty": 3
+    },
+    {
+      "name": "Zone 2 Cardio",
+      "pillar": "PHYSICAL",
+      "tags": ["running", "endurance", "heart health", "aerobic", "stamina", "cycling"],
+      "description": "Low-intensity steady-state exercise to build aerobic base and mitochondrial efficiency.",
+      "difficulty": 2
+    },
+    {
+      "name": "Mindfulness Meditation",
+      "pillar": "MENTAL",
+      "tags": ["focus", "anxiety", "calm", "stress management", "awareness", "meditation"],
+      "description": "Practice of maintaining non-judgmental state of heightened or complete awareness of one's thoughts and emotions.",
+      "difficulty": 1
+    },
+    {
+      "name": "Active Listening",
+      "pillar": "SOCIAL",
+      "tags": ["communication", "relationships", "empathy", "connection", "conversation"],
+      "description": "Fully concentrating, understanding, responding and then remembering what is being said.",
+      "difficulty": 2
+    }
+  ],
+  "habits": [
+    {
+      "name": "Solve 1 LeetCode Easy",
+      "pillar": "CAREER",
+      "tags": ["coding", "interview prep", "algorithms", "python"],
+      "description": "Solve one algorithmic problem to keep problem-solving skills sharp.",
+      "difficulty": 2
+    },
+    {
+      "name": "Code for 30 Minutes",
+      "pillar": "CAREER",
+      "tags": ["coding", "project", "development", "programming"],
+      "description": "Focused deep work on a personal project or learning exercise.",
+      "difficulty": 3
+    },
+    {
+      "name": "Eat 30g Protein at Breakfast",
+      "pillar": "PHYSICAL",
+      "tags": ["diet", "nutrition", "muscle", "hypertrophy"],
+      "description": "Start the day with high protein to support muscle synthesis.",
+      "difficulty": 1
+    },
+    {
+      "name": "10 Minute Morning Walk",
+      "pillar": "PHYSICAL",
+      "tags": ["cardio", "sunlight", "circadian rhythm", "health"],
+      "description": "Get sunlight and movement immediately after waking up.",
+      "difficulty": 1
+    },
+    {
+      "name": "Box Breathing (4-4-4-4)",
+      "pillar": "MENTAL",
+      "tags": ["anxiety", "stress", "calm", "breathing"],
+      "description": "4 seconds in, 4 hold, 4 out, 4 hold. Resets the nervous system.",
+      "difficulty": 1
+    },
+    {
+      "name": "Send 1 Gratitude Message",
+      "pillar": "SOCIAL",
+      "tags": ["friends", "networking", "connection", "kindness"],
+      "description": "Text one person telling them something you appreciate about them.",
+      "difficulty": 1
+    }
+  ]
+}

@@ -34,6 +34,21 @@ class DailyTaskStatus(str, Enum):
     SKIPPED = "SKIPPED"
     CANCELLED = "CANCELLED"
 
+
+class DifficultyTier(int, Enum):
+    EASY = 1      # 7 reps
+    MEDIUM = 2    # 14 reps
+    HARD = 3      # 30 reps
+    ONE_OFF = 4   # 1 rep (Milestone/Setup)
+
+# Code-enforced mapping (not LLM-generated)
+REP_MAP = {
+    DifficultyTier.EASY: 7,
+    DifficultyTier.MEDIUM: 14,
+    DifficultyTier.HARD: 30,
+    DifficultyTier.ONE_OFF: 1
+}
+
 class SkillNode(BaseModel):
     id: str = Field(..., description="Unique identifier for the node (e.g., 'skill_python')")
     name: str = Field(..., description="Display name of the skill or habit")
@@ -61,15 +76,25 @@ class HabitProgress(BaseModel):
     completed_since_last_report: int = Field(default=0, description="Completions since the last reporting session.")
     last_completed_date: Optional[str] = Field(default=None, description="ISO date string of last completion.")
     streak_days: int = Field(default=0, description="Optional streak count in days for gamification.")
+    
+    # Quiz state fields
+    last_quiz_attempt: Optional[str] = Field(None, description="ISO datetime (UTC) of last quiz attempt")
+    quiz_lockout_until: Optional[str] = Field(None, description="ISO datetime (UTC) when quiz becomes available again (24h after fail)")
+    
+    # QUIZ STATE
+    active_quiz_question: Optional[str] = Field(None, description="Current active quiz question (prevents reroll)")
+    # SECURITY: This field MUST be stripped before sending to frontend
+    active_quiz_rubric: Optional[str] = Field(None, description="Answer rubric stored server-side (NEVER sent to frontend)")
 
 class Goal(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str = Field(..., description="The user's high-level goal.")
     pillars: List[Pillar] = Field(..., description="The life pillars this goal belongs to (can be multiple).")
     current_quests: List[str] = Field(default_factory=list, description="Concrete habits the user is currently doing for this goal.")
-    needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal.")
+    needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal (legacy flat list).")
     description: Optional[str] = Field(None, description="A brief description of the goal.")
-    skill_level: Optional[int] = Field(None, description="User's self-assessed skill level (1-10) for this goal. Set when user has 0-1 current quests.")
+    skill_level: Optional[int] = Field(None, description="User's self-assessed skill level (1-10) for this goal. Determines tree depth.")
+    roadmap: List[SkillNode] = Field(default_factory=list, description="AI-generated structured roadmap with prerequisites (new structured tree).")
 
 class SheetDelta(BaseModel):
     operation: str  # "add_goal", "add_quest", "update_skill", "confirm_debuff"

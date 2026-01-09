@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models import CharacterSheet, Goal, Pillar, SkillTree
 from src.skill_tree.generator import SkillTreeGenerator
 from src.planners import get_planner
-from src.storage import save_profile
+from src.storage import save_profile, load_profile
 
 # Debug log path
 DEBUG_LOG = r'd:\Noobcept\Lock In Labs\.cursor\debug.log'
@@ -33,7 +33,8 @@ def log_debug(location, message, data, hypothesis_id):
         f.write(json.dumps(entry) + '\n')
 
 def main():
-    user_id = "AwY9SCGMYHS8gCaMXf51jLnMwIj2"
+    # Use a fresh test user ID to avoid overwriting real user data
+    user_id = "test_skill_tree_demo_4"
     
     print("=" * 60)
     print("SKILL TREE GENERATION PIPELINE TEST")
@@ -89,12 +90,13 @@ def main():
         "H1"
     )
     
-    # PHASE 4: Run planners to generate needed_quests
-    print("\n[STEP 2] Running planners to generate needed_quests...")
+    # PHASE 4: Run planners to generate roadmap (NEW: with skill level derivation)
+    print("\n[STEP 2] Running planners to generate roadmap with skill level derivation...")
     
     for goal in sheet.goals:
         print(f"\n  Processing goal: '{goal.name}'")
         print(f"    Pillars: {[p.value for p in goal.pillars]}")
+        print(f"    Current quests: {goal.current_quests}")
         
         log_debug(
             "test_pipeline:planner_check",
@@ -111,25 +113,50 @@ def main():
                 planner = get_planner(pillar_value)
                 print(f"    Planner type: {planner.__class__.__name__}")
                 
-                needed_skill_nodes = planner.generate_roadmap(
+                # NEW: Derive skill level if not set
+                if not goal.skill_level:
+                    print(f"    Deriving skill level...")
+                    goal.skill_level = planner.derive_skill_level(goal.name, goal.current_quests)
+                    print(f"    Derived skill level: {goal.skill_level}/10")
+                else:
+                    print(f"    Using existing skill level: {goal.skill_level}/10")
+                
+                # NEW: Generate roadmap with skill level
+                roadmap_nodes = planner.generate_roadmap(
                     north_star=goal.name,
                     current_quests=goal.current_quests,
-                    debuffs=sheet.debuffs
+                    debuffs=sheet.debuffs,
+                    skill_level=goal.skill_level
                 )
                 
-                goal.needed_quests = [node.name for node in needed_skill_nodes]
-                print(f"    Generated {len(goal.needed_quests)} needed_quests:")
-                for nq in goal.needed_quests:
-                    print(f"      - {nq}")
+                # NEW: Save structured roadmap
+                goal.roadmap = roadmap_nodes
+                
+                # Legacy sync: Keep needed_quests for backward compatibility
+                goal.needed_quests = [n.name for n in roadmap_nodes]
+                
+                print(f"    Generated {len(goal.roadmap)} roadmap nodes:")
+                for i, node in enumerate(roadmap_nodes[:5], 1):
+                    prereqs = len(node.prerequisites) if node.prerequisites else 0
+                    print(f"      {i}. {node.name} (prereqs: {prereqs})")
+                if len(roadmap_nodes) > 5:
+                    print(f"      ... and {len(roadmap_nodes) - 5} more")
                 
                 log_debug(
                     "test_pipeline:planner_result",
-                    f"Planner generated needed_quests",
-                    {"goal_name": goal.name, "needed_quests": goal.needed_quests},
+                    f"Planner generated roadmap",
+                    {
+                        "goal_name": goal.name,
+                        "skill_level": goal.skill_level,
+                        "roadmap_count": len(goal.roadmap),
+                        "needed_quests": goal.needed_quests
+                    },
                     "H2-H3"
                 )
             except Exception as e:
                 print(f"    ERROR running planner: {e}")
+                import traceback
+                traceback.print_exc()
                 log_debug(
                     "test_pipeline:planner_error",
                     f"Planner failed",
@@ -148,12 +175,15 @@ def main():
     # Summary before skill tree generation
     print("\n[STEP 3] Goals after planner phase:")
     for g in sheet.goals:
-        print(f"  - {g.name}: {len(g.needed_quests)} needed_quests")
-        if g.needed_quests:
-            for nq in g.needed_quests[:3]:
-                print(f"      - {nq}")
-            if len(g.needed_quests) > 3:
-                print(f"      ... and {len(g.needed_quests) - 3} more")
+        roadmap_count = len(g.roadmap) if g.roadmap else 0
+        needed_count = len(g.needed_quests) if g.needed_quests else 0
+        print(f"  - {g.name}: {roadmap_count} roadmap nodes, {needed_count} needed_quests, skill_level: {g.skill_level}")
+        if g.roadmap:
+            for i, node in enumerate(g.roadmap[:3], 1):
+                prereqs = len(node.prerequisites) if node.prerequisites else 0
+                print(f"      {i}. {node.name} (prereqs: {prereqs})")
+            if len(g.roadmap) > 3:
+                print(f"      ... and {len(g.roadmap) - 3} more")
     
     log_debug(
         "test_pipeline:pre_skilltree",

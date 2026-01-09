@@ -8,6 +8,11 @@ websockets
 ultralytics>=8.0.0
 opencv-python>=4.8.0
 numpy>=1.24.0
+scikit-learn>=1.0.0
 ffpyplayer>=4.5.3
 Pillow>=9.0.0
 # hitherdither removed — using native dithering implementation
+
+# Semantic Memory / RAG dependencies
+chromadb>=0.4.0
+sentence-transformers>=2.2.0

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Skill Tree Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+        }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+        
+        .controls {
+            display: flex; 
+            gap: 10px; 
+            background: rgba(0,0,0,0.2); 
+            padding: 10px; 
+            border-radius: 8px;
+        }
+        input { 
+            padding: 8px; 
+            border-radius: 4px; 
+            border: none; 
+            width: 200px; 
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        button {
+            padding: 8px 16px; 
+            background: #3b82f6; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+        }
+        button:hover { background: #2563eb; }
+        
+        .pillar-filter button { 
+            background: transparent; 
+            border: 1px solid #3b82f6; 
+            opacity: 0.5; 
+            font-size: 11px;
+            padding: 6px 12px;
+        }
+        .pillar-filter button.active { 
+            background: #3b82f6; 
+            opacity: 1; 
+        }
+
+        .tree-container {
+            flex-grow: 1;
+            position: relative;
+            background: #0f172a;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: grab;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tree-container:active { cursor: grabbing; }
+
+        .tree-content {
+            position: absolute;
+            transform-origin: 0 0;
+            background-image: radial-gradient(#334155 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .node-container {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .node-container:hover {
+            z-index: 100;
+        }
+
+        .node-goal {
+            width: 120px; 
+            height: 120px;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 40px; 
+            color: white;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+        }
+
+        .node-skill {
+            width: 70px; 
+            height: 70px;
+            background: #1e293b;
+            border: 2px solid #3b82f6;
+            transform: rotate(45deg);
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+        .node-skill-inner { 
+            transform: rotate(-45deg); 
+            font-size: 24px; 
+            color: #3b82f6; 
+        }
+
+        .node-habit {
+            width: 50px; 
+            height: 50px;
+            border-radius: 50%;
+            background: #1e293b;
+            border: 2px solid #94a3b8;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .node-habit.active { 
+            border-color: #22c55e; 
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); 
+        }
+        .node-habit.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        .habit-progress-fill {
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            background: rgba(34, 197, 94, 0.3);
+            transition: height 0.3s;
+        }
+
+        .node-label {
+            margin-top: 8px;
+            background: rgba(0,0,0,0.8);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            text-align: center;
+            max-width: 120px;
+            color: #cbd5e1;
+            word-wrap: break-word;
+        }
+
+        svg { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+        }
+        path {
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2px;
+            transition: stroke 0.3s;
+        }
+        path.active-path { 
+            stroke: #3b82f6; 
+            stroke-opacity: 0.6;
+        }
+        
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-size: 1.2em;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.8em;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-row">
+        <h1>🌳 Adaptive Skill Tree</h1>
+        <div class="controls">
+            <input type="text" id="userIdInput" placeholder="Enter User ID" value="test_skill_tree_demo">
+            <button onclick="fetchAndRender()">Load</button>
+            <div class="pillar-filter">
+                <button onclick="filterPillar('CAREER')" class="active">CAREER</button>
+                <button onclick="filterPillar('PHYSICAL')">PHYSICAL</button>
+                <button onclick="filterPillar('SOCIAL')">SOCIAL</button>
+                <button onclick="filterPillar('MENTAL')">MENTAL</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorContainer"></div>
+
+    <div class="tree-container" id="viewport">
+        <div class="tree-content" id="canvas">
+            <div class="loading">Enter a User ID and click "Load" to visualize</div>
+        </div>
+    </div>
+    
+    <div class="stats" id="statsContainer" style="display: none;"></div>
+</div>
+
+<script>
+    // --- STATE ---
+    let rawData = null;
+    let characterSheet = null;
+    let currentPillar = 'CAREER';
+    let transform = { x: 500, y: 50, scale: 0.8 };
+    let isDragging = false;
+    let startPos = { x: 0, y: 0 };
+
+    // --- API CALL ---
+    async function fetchAndRender() {
+        const userId = document.getElementById('userIdInput').value.trim();
+        if (!userId) {
+            showError('Please enter a User ID');
+            return;
+        }
+        
+        const container = document.getElementById('canvas');
+        const errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = '';
+        container.innerHTML = '<div class="loading">Loading skill tree...</div>';
+        
+        try {
+            const res = await fetch(`http://localhost:8000/api/profile/${userId}`);
+            if (!res.ok) {
+                throw new Error(`Failed to load profile: ${res.statusText}`);
+            }
+            const data = await res.json();
+            
+            rawData = data.skill_tree ? data.skill_tree.nodes : [];
+            characterSheet = data.character_sheet || {};
+            
+            if (!rawData || rawData.length === 0) {
+                throw new Error('No skill tree found. Run the test script first to generate one.');
+            }
+            
+            renderGraph();
+            renderStats();
+        } catch (e) {
+            console.error(e);
+            showError(`Error: ${e.message}`);
+            container.innerHTML = '<div class="loading">Failed to load skill tree</div>';
+        }
+    }
+
+    function showError(message) {
+        const errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function filterPillar(pillar) {
+        currentPillar = pillar;
+        document.querySelectorAll('.pillar-filter button').forEach(b => {
+            b.classList.toggle('active', b.textContent === pillar);
+        });
+        if (rawData) {
+            renderGraph();
+        }
+    }
+
+    // --- LAYOUT ENGINE ---
+    function renderGraph() {
+        if (!rawData) return;
+
+        const canvas = document.getElementById('canvas');
+        canvas.innerHTML = '';
+
+        // 1. Filter Nodes by Pillar
+        const pillarNodes = rawData.filter(n => n.pillar === currentPillar);
+        
+        if (pillarNodes.length === 0) {
+            canvas.innerHTML = '<div class="loading">No nodes found for this pillar</div>';
+            return;
+        }
+        
+        // 2. Initialize Dagre Graph
+        const g = new dagre.graphlib.Graph();
+        g.setGraph({ 
+            rankdir: 'BT', // Bottom-to-Top (Habits at bottom, Goal at top)
+            nodesep: 100,   // Horizontal spacing
+            ranksep: 150,   // Vertical spacing
+            edgesep: 20,
+            ranker: 'tight-tree'
+        });
+        g.setDefaultEdgeLabel(() => ({}));
+
+        // 3. Add Nodes to Graph
+        pillarNodes.forEach(node => {
+            let w = 70, h = 70;
+            if (node.type === 'Goal') { w = 120; h = 120; }
+            if (node.type === 'Habit') { w = 50; h = 50; }
+            
+            g.setNode(node.id, { 
+                label: node.name, 
+                type: node.type, 
+                width: w, 
+                height: h, 
+                original: node 
+            });
+        });
+
+        // 4. Add Edges (Reverse Prerequisite Logic for BT layout)
+        // If A requires B, Arrow goes B -> A (B is prerequisite, A depends on B)
+        pillarNodes.forEach(node => {
+            if (node.prerequisites && node.prerequisites.length > 0) {
+                node.prerequisites.forEach(prereqId => {
+                    // Check if prereq exists in this pillar view
+                    const prereqNode = pillarNodes.find(n => n.id === prereqId);
+                    if (prereqNode) {
+                        // Edge from prerequisite to dependent node
+                        g.setEdge(prereqId, node.id);
+                    }
+                });
+            }
+        });
+
+        // 5. Calculate Layout
+        try {
+            dagre.layout(g);
+        } catch (e) {
+            console.error('Dagre layout error:', e);
+            canvas.innerHTML = '<div class="loading">Layout calculation failed</div>';
+            return;
+        }
+
+        // --- RENDERING ---
+        // SVG Layer for Edges
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        // Calculate bounds
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        g.nodes().forEach(v => {
+            const n = g.node(v);
+            minX = Math.min(minX, n.x - n.width/2);
+            minY = Math.min(minY, n.y - n.height/2);
+            maxX = Math.max(maxX, n.x + n.width/2);
+            maxY = Math.max(maxY, n.y + n.height/2);
+        });
+        
+        const padding = 100;
+        // Calculate SVG size to cover all nodes with padding
+        const svgWidth = Math.max(2000, maxX + padding);
+        const svgHeight = Math.max(2000, maxY + padding);
+        
+        // FIX: Use absolute coordinates - no viewBox transformation
+        // SVG coordinates (0,0) = canvas coordinates (0,0)
+        // This ensures edges and nodes use the same coordinate system
+        svg.setAttribute('width', svgWidth);
+        svg.setAttribute('height', svgHeight);
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:410',message:'SVG coordinate system (NO viewBox)',data:{minX,minY,maxX,maxY,padding,svgWidth,svgHeight,usingViewBox:false},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        canvas.appendChild(svg);
+
+        // Draw Edges
+        g.edges().forEach(e => {
+            const edge = g.edge(e);
+            const points = edge.points || [];
+            
+            // Get source and target node positions for comparison
+            const sourceNode = g.node(e.v);
+            const targetNode = g.node(e.w);
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:414',message:'Edge rendering start',data:{edgeId:`${e.v}-${e.w}`,pointsCount:points.length,firstPoint:points[0]?{x:points[0].x,y:points[0].y}:null,lastPoint:points[points.length-1]?{x:points[points.length-1].x,y:points[points.length-1].y}:null,sourceNodePos:{x:sourceNode.x,y:sourceNode.y},targetNodePos:{x:targetNode.x,y:targetNode.y},viewBox:`${minX - padding} ${minY - padding} ${svgWidth} ${svgHeight}`},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            
+            if (points.length < 2) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:418',message:'Edge skipped - insufficient points',data:{edgeId:`${e.v}-${e.w}`,pointsCount:points.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                return;
+            }
+            
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            
+            // Create smooth curve using quadratic bezier
+            let d = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < points.length; i++) {
+                if (i === points.length - 1) {
+                    // Last point - straight line
+                    d += ` L ${points[i].x} ${points[i].y}`;
+                } else {
+                    // Use quadratic bezier for smooth curves
+                    const midX = (points[i].x + points[i-1].x) / 2;
+                    const midY = (points[i].y + points[i-1].y) / 2;
+                    d += ` Q ${points[i-1].x} ${points[i-1].y} ${midX} ${midY}`;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:432',message:'Bezier segment added',data:{edgeId:`${e.v}-${e.w}`,segmentIndex:i,prevPoint:{x:points[i-1].x,y:points[i-1].y},currPoint:{x:points[i].x,y:points[i].y},midPoint:{x:midX,y:midY},pathSoFar:d.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                }
+            }
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:436',message:'Final path string',data:{edgeId:`${e.v}-${e.w}`,finalPath:d,pathLength:d.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B'})}).catch(()=>{});
+            // #endregion
+            
+            path.setAttribute('d', d);
+            path.classList.add('active-path');
+            svg.appendChild(path);
+        });
+
+        // Draw Nodes
+        g.nodes().forEach(v => {
+            const n = g.node(v);
+            const data = n.original;
+            
+            // #region agent log
+            if (g.nodes().indexOf(v) < 3) { // Log first 3 nodes
+                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:442',message:'Node position',data:{nodeId:v,nodeName:data.name,nodeType:data.type,nodeX:n.x,nodeY:n.y,nodeWidth:n.width,nodeHeight:n.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C,D'})}).catch(()=>{});
+            }
+            // #endregion
+            
+            const el = document.createElement('div');
+            el.className = 'node-container';
+            el.style.left = `${n.x}px`;
+            el.style.top = `${n.y}px`;
+            
+            // #region agent log
+            if (g.nodes().indexOf(v) < 3) { // Log first 3 nodes
+                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:448',message:'Node CSS positioning',data:{nodeId:v,nodeName:data.name,cssLeft:`${n.x}px`,cssTop:`${n.y}px`,dagreX:n.x,dagreY:n.y,nodeWidth:n.width,nodeHeight:n.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+            }
+            // #endregion
+            
+            // Get progress data for habits
+            let progressPercent = 0;
+            let isActive = false;
+            if (data.type === 'Habit' && characterSheet && characterSheet.habit_progress) {
+                const progress = characterSheet.habit_progress[data.id];
+                if (progress) {
+                    const completed = progress.completed_total || 0;
+                    const required = data.required_completions || 1;
+                    progressPercent = Math.min(100, Math.max(0, (completed / required) * 100));
+                    isActive = progress.status === 'ACTIVE';
+                }
+            }
+            
+            // Render inner shape based on type
+            let innerHTML = '';
+            if (data.type === 'Goal') {
+                innerHTML = `<div class="node-goal">⭐</div>`;
+            } else if (data.type === 'Sub-Skill') {
+                innerHTML = `<div class="node-skill"><div class="node-skill-inner">◆</div></div>`;
+            } else {
+                // Habit
+                const statusClass = isActive ? 'active' : 'locked';
+                innerHTML = `
+                    <div class="node-habit ${statusClass}">
+                        <div class="habit-progress-fill" style="height: ${progressPercent}%"></div>
+                        <span style="position: relative; z-index: 10;">${isActive ? '🔥' : '🔒'}</span>
+                    </div>`;
+            }
+
+            el.innerHTML = `
+                ${innerHTML}
+                <div class="node-label">${data.name}</div>
+            `;
+            
+            // Add tooltip on hover
+            if (data.description) {
+                el.title = data.description;
+            }
+            
+            canvas.appendChild(el);
+        });
+        
+        // Update canvas size to match SVG
+        canvas.style.width = svgWidth + 'px';
+        canvas.style.height = svgHeight + 'px';
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:520',message:'Canvas size updated',data:{canvasWidth:svgWidth,canvasHeight:svgHeight,svgWidth,svgHeight},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
+        // Reset transform
+        transform = { x: 500, y: 50, scale: 0.8 };
+        updateTransform();
+    }
+
+    function renderStats() {
+        if (!rawData) return;
+        
+        const statsContainer = document.getElementById('statsContainer');
+        const pillarNodes = rawData.filter(n => n.pillar === currentPillar);
+        
+        const goals = pillarNodes.filter(n => n.type === 'Goal').length;
+        const skills = pillarNodes.filter(n => n.type === 'Sub-Skill').length;
+        const habits = pillarNodes.filter(n => n.type === 'Habit').length;
+        const withPrereqs = pillarNodes.filter(n => n.prerequisites && n.prerequisites.length > 0).length;
+        
+        statsContainer.innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">Total Nodes</div>
+                <div class="stat-value">${pillarNodes.length}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Goals</div>
+                <div class="stat-value">${goals}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Skills</div>
+                <div class="stat-value">${skills}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Habits</div>
+                <div class="stat-value">${habits}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">With Prereqs</div>
+                <div class="stat-value">${withPrereqs}</div>
+            </div>
+        `;
+        statsContainer.style.display = 'grid';
+    }
+
+    // --- PAN & ZOOM UTILS ---
+    const viewport = document.getElementById('viewport');
+    const canvas = document.getElementById('canvas');
+
+    viewport.addEventListener('mousedown', e => {
+        if (e.button === 0) { // Left mouse button
+            isDragging = true;
+            startPos = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+            viewport.style.cursor = 'grabbing';
+        }
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        viewport.style.cursor = 'grab';
+    });
+
+    window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        transform.x = e.clientX - startPos.x;
+        transform.y = e.clientY - startPos.y;
+        updateTransform();
+    });
+
+    viewport.addEventListener('wheel', e => {
+        e.preventDefault();
+        const scaleAmount = -e.deltaY * 0.001;
+        transform.scale = Math.min(Math.max(0.1, transform.scale + scaleAmount), 3);
+        updateTransform();
+    });
+
+    function updateTransform() {
+        canvas.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`;
+    }
+
+    // Auto-load on page load if user ID is in URL
+    window.addEventListener('load', () => {
+        const params = new URLSearchParams(window.location.search);
+        const userId = params.get('userId');
+        if (userId) {
+            document.getElementById('userIdInput').value = userId;
+            fetchAndRender();
+        }
+    });
+</script>
+
+</body>
+</html>
