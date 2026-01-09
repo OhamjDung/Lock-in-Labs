@@ -1,5 +1,6 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 from enum import Enum
+import uuid
 from pydantic import BaseModel, Field
 
 
@@ -62,12 +63,18 @@ class HabitProgress(BaseModel):
     streak_days: int = Field(default=0, description="Optional streak count in days for gamification.")
 
 class Goal(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str = Field(..., description="The user's high-level goal.")
     pillars: List[Pillar] = Field(..., description="The life pillars this goal belongs to (can be multiple).")
     current_quests: List[str] = Field(default_factory=list, description="Concrete habits the user is currently doing for this goal.")
     needed_quests: List[str] = Field(default_factory=list, description="AI-generated roadmap of habits to achieve this goal.")
     description: Optional[str] = Field(None, description="A brief description of the goal.")
     skill_level: Optional[int] = Field(None, description="User's self-assessed skill level (1-10) for this goal. Set when user has 0-1 current quests.")
+
+class SheetDelta(BaseModel):
+    operation: str  # "add_goal", "add_quest", "update_skill", "confirm_debuff"
+    target_id: Optional[str] = None  # Goal ID (if editing existing)
+    payload: Union[str, int, dict]  # The actual data (e.g., "Run 5k", 7)
 
 
 # --- Time / Focus Models ---
@@ -185,6 +192,7 @@ class PendingGoal(BaseModel):
 class ConversationState(BaseModel):
     missing_fields: List[str] = Field(..., description="List of fields in the CharacterSheet that still need to be populated")
     current_topic: str = Field(..., description="The specific topic the Architect is currently asking about")
+    active_goal_id: Optional[str] = Field(None, description="The ID of the goal currently being discussed")
     user_sentiment: str = Field(default="neutral", description="The detected emotional state of the user (e.g., engaged, bored, confused)")
     conversation_history: List[Dict[str, str]] = Field(default_factory=list, description="History of the chat")
     goals_prioritized: bool = Field(default=False, description="Flag to check if the user has ranked their goals.")

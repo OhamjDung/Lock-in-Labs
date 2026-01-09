@@ -95,3 +95,12 @@ The platform also includes an AI-powered onboarding experience called "The Archi
 
 **Adaptive Skill Trees**: As users progress, the system should learn which paths work best for them and suggest refinements to their skill trees, unlocking new branches or adjusting prerequisites based on actual performance data.
 
+
+
+
+
+
+
+
+
+

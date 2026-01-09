@@ -10,15 +10,16 @@ load_dotenv()
 
 class LLMClient:
     def __init__(self):
-        # Support multiple API keys for better rate limit handling
+        # Support multiple API keys for better rate limit handling (up to 5 keys)
         self.api_keys = []
-        api_key_1 = os.getenv("GEMINI_API_KEY")
-        api_key_2 = os.getenv("GEMINI_API_KEY_2")
-        
-        if api_key_1:
-            self.api_keys.append(api_key_1)
-        if api_key_2:
-            self.api_keys.append(api_key_2)
+        # Check for GEMINI_API_KEY through GEMINI_API_KEY_5
+        for i in range(1, 6):
+            if i == 1:
+                key = os.getenv("GEMINI_API_KEY")
+            else:
+                key = os.getenv(f"GEMINI_API_KEY_{i}")
+            if key:
+                self.api_keys.append(key)
         
         if not self.api_keys:
             print("Warning: No GEMINI_API_KEY found in environment variables.")
@@ -80,15 +81,19 @@ class LLMClient:
         return available_models, models_to_try
     
     def _set_model_cooldown(self, model_name):
-        """Set or increase cooldown for a model. Starts at 15s, increases to 30s max."""
+        """Set or increase cooldown for a model. Starts at 5s, increases to 15s max (reduced from 15s/30s)."""
         current_time = time.time()
         cooldown_until, current_cooldown = self.model_cooldowns[model_name]
         
-        # If model is already in cooldown, increase it to 30s
+        # If model is already in cooldown, increase it (exponential backoff: 5s -> 10s -> 15s)
         if current_time < cooldown_until:
-            new_cooldown = 30  # Max cooldown
+            # Already in cooldown - increase it
+            if current_cooldown < 10:
+                new_cooldown = 10
+            else:
+                new_cooldown = 15  # Max cooldown
         else:
-            new_cooldown = 15  # Initial cooldown
+            new_cooldown = 5  # Initial cooldown (reduced from 15s)
         
         cooldown_until = current_time + new_cooldown
         self.model_cooldowns[model_name] = (cooldown_until, new_cooldown)
@@ -109,7 +114,7 @@ class LLMClient:
             # Sort by remaining time, wait for shortest
             cooldowns.sort(key=lambda x: x[1])
             model_name, remaining, _ = cooldowns[0]
-            wait_time = min(remaining, 30)  # Cap wait at 30 seconds
+            wait_time = min(remaining, 15)  # Cap wait at 15 seconds (reduced from 30s)
             print(f"[LLM] All models in cooldown. Waiting {wait_time:.1f}s for {model_name} to become available...")
             time.sleep(wait_time)
     

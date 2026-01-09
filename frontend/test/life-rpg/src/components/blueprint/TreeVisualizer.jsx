@@ -9,9 +9,17 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
     const layout = useMemo(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:layout',message:'Layout calculation started',data:{pillar, hasSkillTree: !!skillTree, nodesCount: skillTree?.nodes?.length || 0, nodeTypes: skillTree?.nodes?.reduce((acc, n) => { acc[n.type] = (acc[n.type] || 0) + 1; return acc; }, {}) || {}},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4-H5'})}).catch(()=>{});
+        // #endregion
+        
         const nodesSource = (skillTree && skillTree.nodes && skillTree.nodes.length > 0) ? skillTree.nodes : skillTreeJson.nodes;
         const pillarNodes = nodesSource.filter(n => n.pillar === pillar);
         const goalNode = pillarNodes.find(n => n.type === 'Goal');
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:filter',message:'After filtering by pillar',data:{pillar, totalNodes: nodesSource.length, pillarNodesCount: pillarNodes.length, goalNodeFound: !!goalNode, goalNodePrereqs: goalNode?.prerequisites?.length || 0},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+        // #endregion
         
         if (!goalNode) return { nodes: [], edges: [], width: 800 };
 
@@ -69,6 +77,10 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
         processedNodes.push({ ...hierarchy.goal, x: goalX, y: Y_GOAL });
         processedEdges.forEach(e => { if (e.y1 === Y_GOAL + 40) e.x1 = goalX; });
 
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:result',message:'Layout calculation complete',data:{pillar, processedNodesCount: processedNodes.length, processedEdgesCount: processedEdges.length, skillsCount: hierarchy.skills.length, nodeNames: processedNodes.map(n => n.name)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+        // #endregion
+        
         return { nodes: processedNodes, edges: processedEdges, width: totalWidth };
       }, [pillar, skillTree, characterSheet]);
 

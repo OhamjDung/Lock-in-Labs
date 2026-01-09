@@ -24,3 +24,12 @@
 ## Option 8 (163 chars)
 "Your life as an RPG: skill trees organize goals into habits with XP rewards. Lock-in mode detects distractions in real-time, keeping you focused on skill development."
 
+
+
+
+
+
+
+
+
+

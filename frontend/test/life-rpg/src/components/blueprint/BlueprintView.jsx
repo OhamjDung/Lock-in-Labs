@@ -4,6 +4,12 @@ import TreeVisualizer from './TreeVisualizer';
 export default function BlueprintView({ skillTree, characterSheet }) {
   const [activePillar, setActivePillar] = useState('CAREER');
 
+  // #region agent log
+  React.useEffect(() => {
+    fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BlueprintView.jsx:mount',message:'BlueprintView mounted',data:{hasSkillTree: !!skillTree, nodesCount: skillTree?.nodes?.length || 0, hasCharacterSheet: !!characterSheet, activePillar},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4'})}).catch(()=>{});
+  }, [skillTree, characterSheet, activePillar]);
+  // #endregion
+
   return (
     <div className="h-[80vh] w-full bg-[#f0f9ff] border-4 border-white rounded-sm relative overflow-hidden animate-in zoom-in-95 duration-500 group shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] rotate-1 flex flex-col">
       <div className="absolute top-0 left-0 right-0 z-40 p-6 flex justify-between items-start pointer-events-none">

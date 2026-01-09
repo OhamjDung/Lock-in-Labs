@@ -1,0 +1,1634 @@
+{
+    "character_sheet": {
+        "user_id": "AwY9SCGMYHS8gCaMXf51jLnMwIj2",
+        "goals": [
+            {
+                "id": "61071da3-ff23-4048-8f67-514ea82a2991",
+                "name": "Become an accountant",
+                "pillars": [
+                    "CAREER"
+                ],
+                "current_quests": [
+                    "Watch YouTube videos about accounting",
+                    "Taking an accounting bootcamp"
+                ],
+                "needed_quests": [
+                    "Foundational Accounting Knowledge",
+                    "Excel Proficiency",
+                    "Accounting Bootcamp Deep Dive",
+                    "Introduction to Financial Statement Analysis",
+                    "Data Analysis with Python (Pandas)",
+                    "Tax Accounting Fundamentals",
+                    "Entry-Level Accounting Position"
+                ],
+                "description": null,
+                "skill_level": null
+            },
+            {
+                "id": "77901d0e-cc62-4963-978a-9eede8d56783",
+                "name": "Have more endurance",
+                "pillars": [
+                    "PHYSICAL"
+                ],
+                "current_quests": [
+                    "Go for a run once a week"
+                ],
+                "needed_quests": [
+                    "Sleep Hygiene",
+                    "Increase Run Duration",
+                    "Increase Run Frequency",
+                    "Interval Running",
+                    "Hill Walking",
+                    "Bodyweight Squats",
+                    "Pushup Progression",
+                    "Plank Hold"
+                ],
+                "description": null,
+                "skill_level": 6
+            },
+            {
+                "id": "158211f4-bb0a-4c1b-9131-fc1f1c572f2b",
+                "name": "Be more in tune with myself",
+                "pillars": [
+                    "MENTAL"
+                ],
+                "current_quests": [],
+                "needed_quests": [
+                    "Self-Awareness Check-In",
+                    "Box Breathing",
+                    "Gratitude Journaling",
+                    "Cognitive Restructuring",
+                    "Values Clarification",
+                    "SMART Goal Setting",
+                    "Resilience Framework"
+                ],
+                "description": null,
+                "skill_level": 3
+            },
+            {
+                "id": "62a6af75-4cdf-4982-a23f-b53557dacf7d",
+                "name": "Be able to talk to more people",
+                "pillars": [
+                    "SOCIAL"
+                ],
+                "current_quests": [],
+                "needed_quests": [
+                    "Self-Assessment & Anxiety Reduction",
+                    "Initiating Interactions",
+                    "Active Listening",
+                    "Empathy & Validation",
+                    "Nonviolent Communication",
+                    "Superficial Connection - Shared Interests",
+                    "Deeper Connection - Vulnerability & Trust",
+                    "Influential Communication"
+                ],
+                "description": null,
+                "skill_level": 4
+            }
+        ],
+        "stats_career": {},
+        "stats_physical": {},
+        "stats_mental": {},
+        "stats_social": {},
+        "debuffs": [],
+        "skill_tree": null,
+        "xp_total": 0,
+        "xp_career": 0,
+        "xp_physical": 0,
+        "xp_mental": 0,
+        "xp_social": 0,
+        "habit_progress": {},
+        "calendar_events": [],
+        "pomodoro_history": [],
+        "pomodoros_total": 0,
+        "lockin_history": [],
+        "lockin_total_time_seconds": 0,
+        "phone_distractions_total": 0,
+        "user_facts": [],
+        "daily_schedule": {},
+        "daily_reports": [],
+        "last_report_date": null
+    },
+    "skill_tree": {
+        "nodes": [
+            {
+                "id": "goal_become_an_accountant",
+                "name": "Become an accountant",
+                "type": "Goal",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "skill_foundational_accounting_knowledge",
+                    "skill_excel_proficiency",
+                    "skill_accounting_bootcamp_deep_dive",
+                    "skill_introduction_to_financial_statement_analysis",
+                    "skill_data_analysis_with_python__pandas",
+                    "skill_tax_accounting_fundamentals",
+                    "skill_entry_level_accounting_position"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_foundational_accounting_knowledge",
+                "name": "Foundational Accounting Knowledge",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_review_accounting_terminology",
+                    "habit_work_through_a_practice_problem",
+                    "habit_read_a_short_accounting_article"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_excel_proficiency",
+                "name": "Excel Proficiency",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_practice_excel_formulas",
+                    "habit_work_through_a_mini_spreadsheet",
+                    "habit_learn_a_new_excel_function"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_accounting_bootcamp_deep_dive",
+                "name": "Accounting Bootcamp Deep Dive",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_complete_one_module",
+                    "habit_take_a_short_quiz",
+                    "habit_review_key_concepts"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_introduction_to_financial_statement_analysis",
+                "name": "Introduction to Financial Statement Analysis",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_analyze_a_sample_financial_statement",
+                    "habit_read_a_financial_statement_analysis_article",
+                    "habit_identify_key_trends"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_data_analysis_with_python__pandas",
+                "name": "Data Analysis with Python (Pandas)",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_work_through_a_pandas_tutorial",
+                    "habit_clean_a_small_dataset",
+                    "habit_perform_a_simple_analysis"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_tax_accounting_fundamentals",
+                "name": "Tax Accounting Fundamentals",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_read_a_tax_law_article",
+                    "habit_review_tax_forms",
+                    "habit_work_through_a_tax_calculation_example"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "skill_entry_level_accounting_position",
+                "name": "Entry-Level Accounting Position",
+                "type": "Sub-Skill",
+                "pillar": "CAREER",
+                "prerequisites": [
+                    "habit_research_common_tasks",
+                    "habit_review_job_descriptions",
+                    "habit_practice_interview_questions"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Become an accountant'."
+            },
+            {
+                "id": "goal_have_more_endurance",
+                "name": "Have more endurance",
+                "type": "Goal",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "skill_sleep_hygiene",
+                    "skill_increase_run_duration",
+                    "skill_increase_run_frequency",
+                    "skill_interval_running",
+                    "skill_hill_walking",
+                    "skill_bodyweight_squats",
+                    "skill_pushup_progression",
+                    "skill_plank_hold"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_sleep_hygiene",
+                "name": "Sleep Hygiene",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_establish_a_regular_sleep_schedule",
+                    "habit_create_a_relaxing_bedtime_routine",
+                    "habit_optimize_your_sleep_environment"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_increase_run_duration",
+                "name": "Increase Run Duration",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_increase_run_time_by_5_minutes",
+                    "habit_run_at_a_consistent_pace",
+                    "habit_listen_to_your_body"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_increase_run_frequency",
+                "name": "Increase Run Frequency",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_run_3_times_this_week",
+                    "habit_schedule_runs_in_your_calendar",
+                    "habit_find_a_running_buddy"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_interval_running",
+                "name": "Interval Running",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_warm_up_for_5_minutes",
+                    "habit_alternate_between_high_and_low_intensity",
+                    "habit_cool_down_for_5_minutes"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_hill_walking",
+                "name": "Hill Walking",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_walk_a_hill_for_30_minutes",
+                    "habit_increase_the_incline",
+                    "habit_focus_on_posture"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_bodyweight_squats",
+                "name": "Bodyweight Squats",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_do_3_sets_of_10_squats",
+                    "habit_focus_on_proper_form",
+                    "habit_increase_reps_as_you_get_stronger"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_pushup_progression",
+                "name": "Pushup Progression",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_do_3_sets_of_as_many_pushups_as_possible",
+                    "habit_modify_pushups_if_needed",
+                    "habit_increase_sets_or_reps_as_you_get_stronger"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "skill_plank_hold",
+                "name": "Plank Hold",
+                "type": "Sub-Skill",
+                "pillar": "PHYSICAL",
+                "prerequisites": [
+                    "habit_hold_a_plank_for_30_seconds",
+                    "habit_increase_hold_time_gradually",
+                    "habit_maintain_proper_form"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Have more endurance'."
+            },
+            {
+                "id": "goal_be_more_in_tune_with_myself",
+                "name": "Be more in tune with myself",
+                "type": "Goal",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "skill_self_awareness_check_in",
+                    "skill_box_breathing",
+                    "skill_gratitude_journaling",
+                    "skill_cognitive_restructuring",
+                    "skill_values_clarification",
+                    "skill_smart_goal_setting",
+                    "skill_resilience_framework"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_self_awareness_check_in",
+                "name": "Self-Awareness Check-In",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_take_5_minutes_to_reflect",
+                    "habit_journal_about_your_emotions",
+                    "habit_identify_triggers"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_box_breathing",
+                "name": "Box Breathing",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_practice_box_breathing_for_5_minutes",
+                    "habit_do_box_breathing_when_stressed",
+                    "habit_focus_on_your_breath"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_gratitude_journaling",
+                "name": "Gratitude Journaling",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_write_down_3_things_you_re_grateful_for",
+                    "habit_focus_on_the_positive",
+                    "habit_review_your_gratitude_list"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_cognitive_restructuring",
+                "name": "Cognitive Restructuring",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_identify_negative_thoughts",
+                    "habit_challenge_those_thoughts",
+                    "habit_replace_negative_thoughts_with_positive_ones"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_values_clarification",
+                "name": "Values Clarification",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_list_your_top_5_values",
+                    "habit_reflect_on_how_your_actions_align_with_your_values",
+                    "habit_make_adjustments_as_needed"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_smart_goal_setting",
+                "name": "SMART Goal Setting",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_define_a_smart_goal",
+                    "habit_break_down_your_goal_into_smaller_steps",
+                    "habit_track_your_progress"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "skill_resilience_framework",
+                "name": "Resilience Framework",
+                "type": "Sub-Skill",
+                "pillar": "MENTAL",
+                "prerequisites": [
+                    "habit_practice_self_compassion",
+                    "habit_focus_on_what_you_can_control",
+                    "habit_seek_support_from_others"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be more in tune with myself'."
+            },
+            {
+                "id": "goal_be_able_to_talk_to_more_people",
+                "name": "Be able to talk to more people",
+                "type": "Goal",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "skill_self_assessment___anxiety_reduction",
+                    "skill_initiating_interactions",
+                    "skill_active_listening",
+                    "skill_empathy___validation",
+                    "skill_nonviolent_communication",
+                    "skill_superficial_connection___shared_interests",
+                    "skill_deeper_connection___vulnerability___trust",
+                    "skill_influential_communication"
+                ],
+                "xp_reward": 100,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": ""
+            },
+            {
+                "id": "skill_self_assessment___anxiety_reduction",
+                "name": "Self-Assessment & Anxiety Reduction",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_track_anxiety_levels",
+                    "habit_identify_anxiety_triggers",
+                    "habit_practice_relaxation_techniques"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_initiating_interactions",
+                "name": "Initiating Interactions",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_smile_and_make_eye_contact",
+                    "habit_ask_open_ended_questions",
+                    "habit_initiate_a_conversation"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_active_listening",
+                "name": "Active Listening",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_pay_attention_to_the_speaker",
+                    "habit_reflect_back_what_you_hear",
+                    "habit_ask_clarifying_questions"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_empathy___validation",
+                "name": "Empathy & Validation",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_try_to_understand_the_other_person_s_perspective",
+                    "habit_validate_their_feelings",
+                    "habit_offer_support"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_nonviolent_communication",
+                "name": "Nonviolent Communication",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_observe_without_judgment",
+                    "habit_express_your_feelings",
+                    "habit_make_a_request"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_superficial_connection___shared_interests",
+                "name": "Superficial Connection - Shared Interests",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_find_common_ground",
+                    "habit_ask_about_their_hobbies",
+                    "habit_share_a_relevant_anecdote"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_deeper_connection___vulnerability___trust",
+                "name": "Deeper Connection - Vulnerability & Trust",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_share_a_personal_story",
+                    "habit_ask_vulnerable_questions",
+                    "habit_listen_without_judgment"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "skill_influential_communication",
+                "name": "Influential Communication",
+                "type": "Sub-Skill",
+                "pillar": "SOCIAL",
+                "prerequisites": [
+                    "habit_understand_your_audience",
+                    "habit_use_storytelling",
+                    "habit_focus_on_benefits"
+                ],
+                "xp_reward": 150,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Skill needed for goal 'Be able to talk to more people'."
+            },
+            {
+                "id": "habit_review_accounting_terminology",
+                "name": "Review accounting terminology",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 15 minutes reviewing key accounting terms and definitions."
+            },
+            {
+                "id": "habit_work_through_a_practice_problem",
+                "name": "Work through a practice problem",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Solve one simple accounting problem (e.g., journal entry) daily."
+            },
+            {
+                "id": "habit_read_a_short_accounting_article",
+                "name": "Read a short accounting article",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read a brief article or blog post about an accounting topic."
+            },
+            {
+                "id": "habit_practice_excel_formulas",
+                "name": "Practice Excel formulas",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 20 minutes practicing a different Excel formula each day."
+            },
+            {
+                "id": "habit_work_through_a_mini_spreadsheet",
+                "name": "Work through a mini-spreadsheet",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Create a small spreadsheet to solve a practical problem (e.g., budget tracker)."
+            },
+            {
+                "id": "habit_learn_a_new_excel_function",
+                "name": "Learn a new Excel function",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Research and attempt to use one new Excel function daily."
+            },
+            {
+                "id": "habit_complete_one_module",
+                "name": "Complete one module",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Dedicate 30-60 minutes to completing one module of the bootcamp."
+            },
+            {
+                "id": "habit_take_a_short_quiz",
+                "name": "Take a short quiz",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Test your understanding of the material with a short quiz after each module."
+            },
+            {
+                "id": "habit_review_key_concepts",
+                "name": "Review key concepts",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 10 minutes reviewing the most important concepts from the module."
+            },
+            {
+                "id": "habit_analyze_a_sample_financial_statement",
+                "name": "Analyze a sample financial statement",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Choose a publicly traded company and analyze its income statement."
+            },
+            {
+                "id": "habit_read_a_financial_statement_analysis_article",
+                "name": "Read a financial statement analysis article",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read an article explaining how to interpret financial ratios."
+            },
+            {
+                "id": "habit_identify_key_trends",
+                "name": "Identify key trends",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Look for trends in a financial statement and write down your observations."
+            },
+            {
+                "id": "habit_work_through_a_pandas_tutorial",
+                "name": "Work through a Pandas tutorial",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 30 minutes working through a Pandas tutorial or example."
+            },
+            {
+                "id": "habit_clean_a_small_dataset",
+                "name": "Clean a small dataset",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Download a small dataset and practice cleaning it using Pandas."
+            },
+            {
+                "id": "habit_perform_a_simple_analysis",
+                "name": "Perform a simple analysis",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Use Pandas to perform a simple analysis on the dataset (e.g., calculate summary statistics)."
+            },
+            {
+                "id": "habit_read_a_tax_law_article",
+                "name": "Read a tax law article",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read a short article about a specific tax law or regulation."
+            },
+            {
+                "id": "habit_review_tax_forms",
+                "name": "Review tax forms",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Study a common tax form (e.g., 1040) and understand its sections."
+            },
+            {
+                "id": "habit_work_through_a_tax_calculation_example",
+                "name": "Work through a tax calculation example",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Solve a simple tax calculation problem."
+            },
+            {
+                "id": "habit_research_common_tasks",
+                "name": "Research common tasks",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Spend 15 minutes researching the typical tasks of an entry-level accountant."
+            },
+            {
+                "id": "habit_review_job_descriptions",
+                "name": "Review job descriptions",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Read several entry-level accounting job descriptions to understand the requirements."
+            },
+            {
+                "id": "habit_practice_interview_questions",
+                "name": "Practice interview questions",
+                "type": "Habit",
+                "pillar": "CAREER",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Practice answering common accounting interview questions."
+            },
+            {
+                "id": "habit_establish_a_regular_sleep_schedule",
+                "name": "Establish a regular sleep schedule",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Go to bed and wake up at the same time each day, even on weekends."
+            },
+            {
+                "id": "habit_create_a_relaxing_bedtime_routine",
+                "name": "Create a relaxing bedtime routine",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Develop a calming routine before bed (e.g., reading, taking a bath)."
+            },
+            {
+                "id": "habit_optimize_your_sleep_environment",
+                "name": "Optimize your sleep environment",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ensure your bedroom is dark, quiet, and cool."
+            },
+            {
+                "id": "habit_increase_run_time_by_5_minutes",
+                "name": "Increase run time by 5 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Each run, aim to increase your run duration by 5 minutes."
+            },
+            {
+                "id": "habit_run_at_a_consistent_pace",
+                "name": "Run at a consistent pace",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Maintain a steady pace throughout your run."
+            },
+            {
+                "id": "habit_listen_to_your_body",
+                "name": "Listen to your body",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "If you feel pain, slow down or stop."
+            },
+            {
+                "id": "habit_run_3_times_this_week",
+                "name": "Run 3 times this week",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Commit to running at least three times this week."
+            },
+            {
+                "id": "habit_schedule_runs_in_your_calendar",
+                "name": "Schedule runs in your calendar",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Treat your runs like important appointments."
+            },
+            {
+                "id": "habit_find_a_running_buddy",
+                "name": "Find a running buddy",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Running with a friend can help you stay motivated."
+            },
+            {
+                "id": "habit_warm_up_for_5_minutes",
+                "name": "Warm-up for 5 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Start with a 5-minute warm-up before interval training."
+            },
+            {
+                "id": "habit_alternate_between_high_and_low_intensity",
+                "name": "Alternate between high and low intensity",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Alternate between periods of high-intensity running and recovery periods."
+            },
+            {
+                "id": "habit_cool_down_for_5_minutes",
+                "name": "Cool-down for 5 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "End with a 5-minute cool-down after interval training."
+            },
+            {
+                "id": "habit_walk_a_hill_for_30_minutes",
+                "name": "Walk a hill for 30 minutes",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Find a hill and walk up it for 30 minutes."
+            },
+            {
+                "id": "habit_increase_the_incline",
+                "name": "Increase the incline",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the incline of the hill you're walking on."
+            },
+            {
+                "id": "habit_focus_on_posture",
+                "name": "Focus on posture",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Maintain good posture while walking uphill."
+            },
+            {
+                "id": "habit_do_3_sets_of_10_squats",
+                "name": "Do 3 sets of 10 squats",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform 3 sets of 10 bodyweight squats daily."
+            },
+            {
+                "id": "habit_focus_on_proper_form",
+                "name": "Focus on proper form",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Maintain proper form throughout each squat."
+            },
+            {
+                "id": "habit_increase_reps_as_you_get_stronger",
+                "name": "Increase reps as you get stronger",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the number of reps you perform."
+            },
+            {
+                "id": "habit_do_3_sets_of_as_many_pushups_as_possible",
+                "name": "Do 3 sets of as many pushups as possible",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Perform 3 sets of pushups until you can't do another one."
+            },
+            {
+                "id": "habit_modify_pushups_if_needed",
+                "name": "Modify pushups if needed",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "If you can't do full pushups, modify them by doing them on your knees."
+            },
+            {
+                "id": "habit_increase_sets_or_reps_as_you_get_stronger",
+                "name": "Increase sets or reps as you get stronger",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the number of sets or reps you perform."
+            },
+            {
+                "id": "habit_hold_a_plank_for_30_seconds",
+                "name": "Hold a plank for 30 seconds",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Hold a plank position for 30 seconds."
+            },
+            {
+                "id": "habit_increase_hold_time_gradually",
+                "name": "Increase hold time gradually",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Gradually increase the amount of time you hold the plank."
+            },
+            {
+                "id": "habit_maintain_proper_form",
+                "name": "Maintain proper form",
+                "type": "Habit",
+                "pillar": "PHYSICAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Keep your body in a straight line from head to heels."
+            },
+            {
+                "id": "habit_take_5_minutes_to_reflect",
+                "name": "Take 5 minutes to reflect",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Set aside 5 minutes each day to reflect on your thoughts and feelings."
+            },
+            {
+                "id": "habit_journal_about_your_emotions",
+                "name": "Journal about your emotions",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Write down your emotions in a journal."
+            },
+            {
+                "id": "habit_identify_triggers",
+                "name": "Identify triggers",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Pay attention to what triggers your emotions."
+            },
+            {
+                "id": "habit_practice_box_breathing_for_5_minutes",
+                "name": "Practice box breathing for 5 minutes",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Follow the 4-4-4-4 breathing pattern (inhale for 4, hold for 4, exhale for 4, hold for 4)."
+            },
+            {
+                "id": "habit_do_box_breathing_when_stressed",
+                "name": "Do box breathing when stressed",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Use box breathing as a tool to manage stress."
+            },
+            {
+                "id": "habit_focus_on_your_breath",
+                "name": "Focus on your breath",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Pay attention to the sensation of your breath."
+            },
+            {
+                "id": "habit_write_down_3_things_you_re_grateful_for",
+                "name": "Write down 3 things you're grateful for",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Each day, write down three things you're grateful for."
+            },
+            {
+                "id": "habit_focus_on_the_positive",
+                "name": "Focus on the positive",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Concentrate on the positive aspects of your life."
+            },
+            {
+                "id": "habit_review_your_gratitude_list",
+                "name": "Review your gratitude list",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Periodically review your gratitude list to reinforce positive feelings."
+            },
+            {
+                "id": "habit_identify_negative_thoughts",
+                "name": "Identify negative thoughts",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Become aware of negative thoughts and beliefs."
+            },
+            {
+                "id": "habit_challenge_those_thoughts",
+                "name": "Challenge those thoughts",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Question the validity of those thoughts."
+            },
+            {
+                "id": "habit_replace_negative_thoughts_with_positive_ones",
+                "name": "Replace negative thoughts with positive ones",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Reframe negative thoughts into more positive and realistic ones."
+            },
+            {
+                "id": "habit_list_your_top_5_values",
+                "name": "List your top 5 values",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Identify your core values (e.g., honesty, kindness, creativity)."
+            },
+            {
+                "id": "habit_reflect_on_how_your_actions_align_with_your_values",
+                "name": "Reflect on how your actions align with your values",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Assess whether your daily actions are consistent with your values."
+            },
+            {
+                "id": "habit_make_adjustments_as_needed",
+                "name": "Make adjustments as needed",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Adjust your behavior to better align with your values."
+            },
+            {
+                "id": "habit_define_a_smart_goal",
+                "name": "Define a SMART goal",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Set a goal that is Specific, Measurable, Achievable, Relevant, and Time-bound."
+            },
+            {
+                "id": "habit_break_down_your_goal_into_smaller_steps",
+                "name": "Break down your goal into smaller steps",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Divide your goal into smaller, manageable steps."
+            },
+            {
+                "id": "habit_track_your_progress",
+                "name": "Track your progress",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Monitor your progress towards your goal."
+            },
+            {
+                "id": "habit_practice_self_compassion",
+                "name": "Practice self-compassion",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Treat yourself with kindness and understanding during difficult times."
+            },
+            {
+                "id": "habit_focus_on_what_you_can_control",
+                "name": "Focus on what you can control",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Concentrate on the aspects of a situation that you can influence."
+            },
+            {
+                "id": "habit_seek_support_from_others",
+                "name": "Seek support from others",
+                "type": "Habit",
+                "pillar": "MENTAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Reach out to friends, family, or a therapist for support."
+            },
+            {
+                "id": "habit_track_anxiety_levels",
+                "name": "Track anxiety levels",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Keep a journal to track your anxiety levels throughout the day."
+            },
+            {
+                "id": "habit_identify_anxiety_triggers",
+                "name": "Identify anxiety triggers",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Determine what situations or thoughts trigger your anxiety."
+            },
+            {
+                "id": "habit_practice_relaxation_techniques",
+                "name": "Practice relaxation techniques",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Use relaxation techniques such as deep breathing or meditation."
+            },
+            {
+                "id": "habit_smile_and_make_eye_contact",
+                "name": "Smile and make eye contact",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Start with a simple smile and eye contact when interacting with others."
+            },
+            {
+                "id": "habit_ask_open_ended_questions",
+                "name": "Ask open-ended questions",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ask questions that require more than a yes or no answer."
+            },
+            {
+                "id": "habit_initiate_a_conversation",
+                "name": "Initiate a conversation",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Start a conversation with someone new each day."
+            },
+            {
+                "id": "habit_pay_attention_to_the_speaker",
+                "name": "Pay attention to the speaker",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Focus entirely on the speaker and avoid interrupting."
+            },
+            {
+                "id": "habit_reflect_back_what_you_hear",
+                "name": "Reflect back what you hear",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Paraphrase or summarize what the speaker has said to ensure understanding."
+            },
+            {
+                "id": "habit_ask_clarifying_questions",
+                "name": "Ask clarifying questions",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ask questions to gain a deeper understanding of the speaker's perspective."
+            },
+            {
+                "id": "habit_try_to_understand_the_other_person_s_perspective",
+                "name": "Try to understand the other person's perspective",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Put yourself in the other person's shoes and try to see things from their point of view."
+            },
+            {
+                "id": "habit_validate_their_feelings",
+                "name": "Validate their feelings",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Acknowledge and validate the other person's emotions (e.g., 'That sounds really frustrating')."
+            },
+            {
+                "id": "habit_offer_support",
+                "name": "Offer support",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Let the other person know that you're there for them."
+            },
+            {
+                "id": "habit_observe_without_judgment",
+                "name": "Observe without judgment",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Describe the situation objectively without adding judgment or evaluation."
+            },
+            {
+                "id": "habit_express_your_feelings",
+                "name": "Express your feelings",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Use 'I' statements to express your feelings (e.g., 'I feel frustrated when...')."
+            },
+            {
+                "id": "habit_make_a_request",
+                "name": "Make a request",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Clearly state what you want or need."
+            },
+            {
+                "id": "habit_find_common_ground",
+                "name": "Find common ground",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Look for shared interests or experiences with others."
+            },
+            {
+                "id": "habit_ask_about_their_hobbies",
+                "name": "Ask about their hobbies",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Inquire about their hobbies and interests."
+            },
+            {
+                "id": "habit_share_a_relevant_anecdote",
+                "name": "Share a relevant anecdote",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Share a brief story or experience related to a shared interest."
+            },
+            {
+                "id": "habit_share_a_personal_story",
+                "name": "Share a personal story",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Share a small, relevant personal story to build trust."
+            },
+            {
+                "id": "habit_ask_vulnerable_questions",
+                "name": "Ask vulnerable questions",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Ask questions that encourage the other person to share something personal (but be mindful of boundaries)."
+            },
+            {
+                "id": "habit_listen_without_judgment",
+                "name": "Listen without judgment",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Offer a non-judgmental space for the other person to be vulnerable."
+            },
+            {
+                "id": "habit_understand_your_audience",
+                "name": "Understand your audience",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Tailor your message to the specific audience you're addressing."
+            },
+            {
+                "id": "habit_use_storytelling",
+                "name": "Use storytelling",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Frame your message using stories and examples to make it more engaging."
+            },
+            {
+                "id": "habit_focus_on_benefits",
+                "name": "Focus on benefits",
+                "type": "Habit",
+                "pillar": "SOCIAL",
+                "prerequisites": [],
+                "xp_reward": 15,
+                "xp_multiplier": 1.0,
+                "required_completions": 30,
+                "description": "Highlight the benefits of your message to the audience."
+            }
+        ]
+    }
+}

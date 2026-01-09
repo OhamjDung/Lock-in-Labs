@@ -7,7 +7,7 @@ import TypewriterText from './TypewriterText';
 import VoiceLogsPanel from './VoiceLogsPanel';
 
 const architectOpening =
-  "Listen kid, I've seen a lot of people come through that door. Most of 'em don't know what they want. But you? You got that look. The look of someone who's gotta find their way outta this concrete jungle. So here's what I need to know: in some perfect future, when that alarm clock goes off and you're finally livin' the dream—what's the first thing you do?";
+  "Listen kid, i need you to tell me 4 things. Your career goals, your fitness goals, your mental health goals, and your connection goals, do that for me wont cha";
 
 const OnboardingModule = ({ onFinish }) => {
   const [step, setStep] = useState(1);
@@ -30,6 +30,8 @@ const OnboardingModule = ({ onFinish }) => {
   const [pendingDebuffs, setPendingDebuffs] = useState([]);
   const [pillarsAskedAbout, setPillarsAskedAbout] = useState([]);
   const [pendingGoals, setPendingGoals] = useState([]);
+  const [accumulatedGoals, setAccumulatedGoals] = useState([]);  // Persist goals across requests
+  const [activeGoalId, setActiveGoalId] = useState(null);  // Track current goal being discussed
   const playbackContextRef = useRef(null);
   const ttsSocketRef = useRef(null);
   const introSpokenRef = useRef(false);
@@ -395,6 +397,9 @@ const OnboardingModule = ({ onFinish }) => {
           pending_debuffs: pendingDebuffs,
           pillars_asked_about: pillarsAskedAbout,
           pending_goals: pendingGoals,
+          accumulated_goals: accumulatedGoals,  // Send accumulated goals back
+          active_goal_id: activeGoalId,  // Send active goal ID
+          user_id: auth.currentUser?.uid || "user_01",  // Send user ID
         }),
       });
 
@@ -418,10 +423,46 @@ const OnboardingModule = ({ onFinish }) => {
         setPendingGoals(data.pending_goals);
       }
 
-      // Log accumulated goals
+      // Store and log accumulated goals
       if (data.accumulated_goals) {
+        setAccumulatedGoals(data.accumulated_goals);  // Persist for next request
         console.log('%c[Accumulated Goals]', 'color: #f59e0b; font-weight: bold; font-size: 14px;', data.accumulated_goals);
       }
+      
+      // Store active goal ID (check top-level first, then debug)
+      const newActiveGoalId = data.active_goal_id || data.debug?.active_goal_id;
+      if (newActiveGoalId) {
+        setActiveGoalId(newActiveGoalId);
+      }
+      
+      // #region agent log - Comprehensive State Summary
+      console.log('%c=================== RESPONSE RECEIVED ===================', 'color: #ec4899; font-weight: bold; font-size: 16px;');
+      console.log('%c[STATE SUMMARY]', 'color: #ec4899; font-weight: bold;', {
+        phase: data.phase,
+        active_goal_id: newActiveGoalId,
+        goals_count: data.accumulated_goals?.length || 0,
+        pending_debuffs: data.pending_debuffs?.length || 0,
+        pillars_asked: data.pillars_asked_about,
+      });
+      
+      // Character Sheet Summary
+      if (data.accumulated_goals?.length > 0) {
+        console.log('%c[CHARACTER SHEET]', 'color: #06b6d4; font-weight: bold;');
+        data.accumulated_goals.forEach((goal, i) => {
+          console.log(`  Goal ${i+1}: "${goal.name}" | Pillars: ${goal.pillars?.join(', ')} | Quests: ${goal.current_quests?.length || 0} | Skill: ${goal.skill_level || 'N/A'}`);
+        });
+      }
+      
+      // Active Goal Highlight
+      if (newActiveGoalId && data.accumulated_goals) {
+        const activeGoal = data.accumulated_goals.find(g => g.id === newActiveGoalId);
+        if (activeGoal) {
+          console.log('%c[ACTIVE GOAL]', 'color: #22c55e; font-weight: bold; font-size: 14px;', 
+            `"${activeGoal.name}" | Quests: ${activeGoal.current_quests?.length || 0}/2 | Skill: ${activeGoal.skill_level || 'Pending'}`);
+        }
+      }
+      console.log('%c==========================================================', 'color: #ec4899; font-weight: bold; font-size: 16px;');
+      // #endregion
 
       // Log current quests for each goal
       if (data.accumulated_goals && Array.isArray(data.accumulated_goals)) {
@@ -480,6 +521,16 @@ const OnboardingModule = ({ onFinish }) => {
           if (p2d.all_goals_status) {
             console.log('%c[Phase 2 Debug - All Goals Status]', 'color: #a855f7; font-weight: bold; font-size: 14px;', p2d.all_goals_status);
           }
+        }
+        // New debug fields
+        if (data.debug.user_intent) {
+          console.log('%c[User Intent]', 'color: #f97316; font-weight: bold; font-size: 14px;', data.debug.user_intent);
+        }
+        if (data.debug.architect_directive) {
+          console.log('%c[Architect Directive]', 'color: #22c55e; font-weight: bold; font-size: 14px;', data.debug.architect_directive);
+        }
+        if (data.debug.target_goal_for_critic) {
+          console.log('%c[Target Goal for Critic]', 'color: #06b6d4; font-weight: bold; font-size: 14px;', data.debug.target_goal_for_critic);
         }
       }
 

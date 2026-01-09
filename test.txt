@@ -6,7 +6,7 @@ I would do some journaling, and then excercise, and then some vocal practice to 
 
   i would listen first, then i would offer some solutions. Ill also ask if they want me to listen or give advice. When in a team effort i try to help but not be too demanding         
 
-data analysis, do data visualization. 
+data analysis, do data visualization.
 
 And vocal practice is for practicing my communication skills
 
@@ -27,5 +27,5 @@ with journaling i want to be able to not just plan out my day but i want to be m
 yea i want to get a job, a job in data visualizations 
 
   uvicorn backend.api:app --reload --port 8000
-
+cd frontend/test/life-rpg
   fQmr8dTaOQq116mo2X7F

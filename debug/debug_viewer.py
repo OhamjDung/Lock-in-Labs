@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- Helper Functions ---
-def load_data(filepath="data/skill_tree_debug_output.json"):
+def load_data(filepath="../data/skill_tree_debug_output.json"):
     """Loads the skill tree data from the specified JSON file."""
     try:
         with open(filepath, 'r') as f:

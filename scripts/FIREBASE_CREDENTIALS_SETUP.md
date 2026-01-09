@@ -82,3 +82,12 @@ $env:GOOGLE_APPLICATION_CREDENTIALS="D:\Lock In Labs\firebase-credentials.json"
 - Verify your Firebase project has Firestore enabled
 - Check that the JSON file is valid (not corrupted)
 
+
+
+
+
+
+
+
+
+

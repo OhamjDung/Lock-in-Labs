@@ -64,7 +64,7 @@ import TimelineItem from './components/dashboard/TimelineItem';
 // `src/components/onboarding/VoiceLogsPanel.jsx` and are imported above.
 
 const architectOpening =
-  "Listen kid, I've seen a lot of people come through that door. Most of 'em don't know what they want. But you? You got that look. The look of someone who's gotta find their way outta this concrete jungle. So here's what I need to know: in some perfect future, when that alarm clock goes off and you're finally livin' the dream—what's the first thing you do?";
+  "Listen kid, i need you to tell me 4 things. Your career goals, your fitness goals, your mental health goals, and your connection goals, do that for me wont cha";
 
 const OnboardingModule = ({ onFinish }) => {
   const [step, setStep] = useState(1); // 1: Login, 2: Mode Selection, 3: Transcript

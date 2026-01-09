@@ -1,0 +1,68 @@
+mental: i want to be able to be calm under pressure
++ Breathing excercise
++ Listening to sad music
+career: i want to be a chef
+physical: i want to spike a volleyball
+connection: i want to be able to networking
+
+i want to be able to be calm under pressure and i want to be a chef, 
+
+i want to spike a volleyball and i want to be able to networking
+
+currently whenever i feel stressed, i just shut down and dont know what to do
+
+i just feel overwhelmed when im that stress, it may be like choice paralasis, but when that happens, i just want to have a clear mind and be able to think
+
+currently i manage that pressure with breathing exercises and listening to music
+
+im currently practicing knife skills and making some new recipes
+
+yea i have friends i regularly see, but i want to work on my proffesional communication and networking skills
+
+i play volleyball a lot with my friends but i want more focused practice sessions. Whether its Plyometrics or Dedicated spiking practice. Currently i dont do them but i want to do them
+
+im doing Plyometrics and spiking drills
+
+
+
+Current Status Report
+What's working
+TEST 1: Basic Goal Functionality — mostly passing
+All goals asked: PASS
+No hallucinated goals: PASS
+Quest extraction: working (minor issue: getting 3 quests instead of 2 for one goal)
+TEST 2: Follow-up question — PASS
+"Followup When Insufficient Quests": PASS (fixed)
+What still needs fixing
+TEST 2: Skill level request
+Issue: Architect not asking for skill level when user confirms only 1 quest
+Status: Decision logic may not be triggering correctly
+TEST 1: Quest count issue
+Issue: "Deadlift 200kg" has 3 quests instead of 2
+Status: Compound extraction may be adding an extra quest
+TEST 3: Relevance detection
+Issue: Architect not detecting when user provides quest for wrong goal
+Status: Prompt instructions exist but LLM isn't following them
+TEST 4: Duplicate detection
+Issue: Architect not detecting similar/duplicate quests
+Status: Prompt instructions exist but LLM isn't following them
+Thinking output
+Issue: Some thinking outputs are empty or don't match expected content
+Status: Partially working (some thinking is generated)
+Current Plan
+Priority 1: Fix skill level request (TEST 2)
+Check why should_ask_skill_level isn't being set correctly
+Verify goal_state_tracker updates when user says "that's all"
+Priority 2: Fix quest count issue (TEST 1)
+Investigate why "Deadlift 200kg" has 3 quests
+Check if compound extraction is adding duplicates
+Priority 3: Improve relevance/duplicate detection (TEST 3 & 4)
+Make prompt instructions more explicit
+Consider adding post-processing checks in code (not just LLM)
+Priority 4: Thinking output quality
+Ensure thinking is always generated
+Validate thinking content matches behavior
+Next Steps
+Fix skill level request logic
+Investigate the 3-quest issue
+Strengthen relevance/duplicate detection (prompt + code checks)

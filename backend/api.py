@@ -1,9 +1,10 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import asyncio
 import base64
 import json
 import os
+import uuid
 import urllib.error
 import urllib.request
 
@@ -167,6 +168,9 @@ class ArchitectRequest(BaseModel):
     pending_debuffs: List[Dict[str, str]] = []  # Debuffs waiting for confirmation
     pillars_asked_about: List[str] = []  # Pillars that have been asked about in Phase 1
     pending_goals: List[Dict] = []  # Goals from pillars not yet asked about (pillars is a list, not string)
+    accumulated_goals: List[Dict] = []  # Goals accumulated so far (with IDs)
+    active_goal_id: Optional[str] = None  # ID of the goal currently being discussed
+    user_id: str = "user_01"  # User ID for persistence
 
 
 load_dotenv()
@@ -412,46 +416,78 @@ async def phone_detect_ws(websocket: WebSocket):
         return
 
 
+
+# ============================================================================
+# SNAPSHOT ARCHITECTURE: State Machine Controller
+# ============================================================================
+
+def _get_goal_by_id(sheet: CharacterSheet, goal_id: str):
+    """Helper to find a goal by ID."""
+    return next((g for g in sheet.goals if g.id == goal_id), None)
+
+def _find_next_incomplete_goal(sheet: CharacterSheet, current_phase: str) -> str | None:
+    """Find the next goal that needs attention based on the current phase."""
+    for goal in sheet.goals:
+        if current_phase == "phase2":
+            # A goal is incomplete if it has < 2 quests AND no skill_level
+            if len(goal.current_quests) < 2 and goal.skill_level is None:
+                return goal.id
+        # Add other phase logic if needed
+    return None
+
+def _is_goal_complete(goal, phase: str) -> bool:
+    """Check if a goal is considered complete for the current phase."""
+    if phase == "phase2":
+        # Complete if: 2+ quests OR has skill_level (which implies we're done asking)
+        return len(goal.current_quests) >= 2 or goal.skill_level is not None
+    return True
+
+def _all_pillars_covered(sheet: CharacterSheet) -> bool:
+    """Check if all 4 pillars have at least one goal."""
+    from src.models import Pillar
+    covered = set()
+    for goal in sheet.goals:
+        covered.update(goal.pillars)
+    return len(covered) >= len(Pillar)
+
+
 @app.post("/api/onboarding/architect-reply")
 def architect_reply(payload: ArchitectRequest):
-    """Return a single Architect reply for the given history and user input.
-
-    This is a thin HTTP wrapper around ArchitectAgent.generate_response so the
-    frontend can drive the noir onboarding chat.
     """
+    SNAPSHOT ARCHITECTURE: State Machine Controller for Onboarding.
+    
+    Flow:
+    1. Load/Initialize State
+    2. Prepare Context for Critic
+    3. Critic Analysis (Delta Mode)
+    4. Apply Deltas to Sheet
+    5. Transition Logic (Phase/Goal)
+    6. Generate Architect Response
+    7. Return State (frontend persists for now)
+    """
+    from src.onboarding.agent import CriticAgent, ArchitectAgent
+    from src.models import PendingDebuff, PendingGoal, Pillar, Goal
 
-    from src.onboarding.agent import CriticAgent
-    from src.models import PendingDebuff, PendingGoal, Pillar
-
-    sheet = CharacterSheet(user_id="user_01")
+    # =========================================================================
+    # 1. INITIALIZE STATE (Frontend-driven for now, will move to DB persistence)
+    # =========================================================================
+    sheet = CharacterSheet(user_id=payload.user_id)
     state = ConversationState(
-        missing_fields=[
-            "north_star_goals",
-            "current_quests",
-            "stats_career",
-            "stats_physical",
-            "stats_mental",
-            "stats_social",
-        ],
+        missing_fields=["goals", "quests"],
         current_topic="Intro",
         phase=payload.phase,
+        active_goal_id=payload.active_goal_id  # Accept from frontend
     )
     
-    # Convert pending debuffs from frontend to PendingDebuff objects
-    state.pending_debuffs = [
-        PendingDebuff(**d) for d in payload.pending_debuffs
-    ]
-    
-    # Convert pillars asked about from frontend
+    # Restore state from frontend payload
+    state.pending_debuffs = [PendingDebuff(**d) for d in payload.pending_debuffs]
     state.pillars_asked_about = []
     for p in payload.pillars_asked_about:
         try:
             state.pillars_asked_about.append(Pillar(p.upper()))
         except (ValueError, AttributeError):
-            print(f"[Warning] Invalid pillar value: {p}")
             continue
     
-    # Convert pending goals from frontend to PendingGoal objects
     state.pending_goals = []
     for d in payload.pending_goals:
         try:
@@ -487,34 +523,40 @@ def architect_reply(payload: ArchitectRequest):
             print(f"[Warning] Failed to parse pending goal: {e}")
             continue
 
-    # Seed conversation history with what the frontend has seen so far.
+    # Seed conversation history
     state.conversation_history = [
         {"role": m.role, "content": m.content} for m in payload.history
     ]
+    
+    # Rebuild sheet from accumulated_goals passed from frontend (no replay!)
+    if payload.accumulated_goals:
+        for goal_data in payload.accumulated_goals:
+            pillars_data = goal_data.get("pillars", [])
+            pillar_enums = []
+            for p in pillars_data:
+                try:
+                    pillar_enums.append(Pillar(p.upper()))
+                except:
+                    continue
+            if pillar_enums:
+                existing = next((g for g in sheet.goals if g.name.lower() == goal_data.get("name", "").lower()), None)
+                if not existing:
+                    new_goal = Goal(
+                        id=goal_data.get("id", str(uuid.uuid4())),
+                        name=goal_data.get("name", ""),
+                        pillars=pillar_enums,
+                        current_quests=goal_data.get("current_quests", []),
+                        skill_level=goal_data.get("skill_level"),
+                        description=goal_data.get("description")
+                    )
+                    sheet.goals.append(new_goal)
+                else:
+                    # Update existing goal
+                    existing.current_quests = goal_data.get("current_quests", existing.current_quests)
+                    existing.skill_level = goal_data.get("skill_level", existing.skill_level)
 
     architect = ArchitectAgent()
     critic = CriticAgent()
-
-    # Process ALL previous user messages through Critic to build up the character sheet
-    # This ensures progress is calculated correctly based on accumulated goals
-    # Process conversation history to build up the sheet state
-    # CRITICAL: This must preserve ALL goals from previous messages
-    for msg in state.conversation_history:
-        if msg["role"] == "user":
-            # Store goals before processing to ensure we don't lose any
-            goals_before_processing = {g.name.lower(): g for g in sheet.goals}
-            sheet, _, _, _ = critic.analyze(
-                msg["content"], 
-                sheet, 
-                state.conversation_history[:state.conversation_history.index(msg) + 1],
-                state.phase
-            )
-            # Ensure all previous goals are still present (safety check)
-            for goal_name, goal_obj in goals_before_processing.items():
-                if not any(g.name.lower() == goal_name for g in sheet.goals):
-                    # Goal was lost - restore it
-                    print(f"[WARNING] Goal '{goal_obj.name}' was lost during processing, restoring it")
-                    sheet.goals.append(goal_obj)
 
     # Determine current phase based on sheet state
     # Count pillars that have at least 1 goal (accounting for multi-pillar goals)
@@ -600,51 +642,264 @@ def architect_reply(payload: ArchitectRequest):
         {"role": "user", "content": payload.user_input}
     ]
     
-    # Store goals before processing to detect new ones
-    goals_before = {g.name: g for g in sheet.goals}
+    # =========================================================================
+    # 2. PREPARE CONTEXT FOR CRITIC (Goal ID List)
+    # =========================================================================
+    existing_goals_summary = [
+        f"ID: {g.id} | Name: {g.name} | Pillars: {', '.join([p.value for p in g.pillars])}"
+        for g in sheet.goals
+    ]
     
-    sheet, feedback, critic_analysis, new_pending_debuffs = critic.analyze(
-        payload.user_input, 
-        sheet, 
-        history_plus_user,
-        state.phase
+    # Get active goal ID from state (or find first incomplete goal)
+    active_goal_id = state.active_goal_id
+    print(f"[Controller] active_goal_id from state: {active_goal_id}")
+    print(f"[Controller] sheet.goals count: {len(sheet.goals)}")
+    
+    if not active_goal_id and sheet.goals:
+        # Default to first incomplete goal
+        print(f"[Controller] active_goal_id is None, finding first incomplete goal...")
+        active_goal_id = _find_next_incomplete_goal(sheet, state.phase)
+        print(f"[Controller] _find_next_incomplete_goal returned: {active_goal_id}")
+        if not active_goal_id and sheet.goals:
+            active_goal_id = sheet.goals[0].id
+            print(f"[Controller] Using first goal as fallback: {active_goal_id}")
+    
+    print(f"[Controller] Active Goal ID: {active_goal_id}")
+    print(f"[Controller] Existing Goals: {existing_goals_summary}")
+    
+    # =========================================================================
+    # 3. CRITIC ANALYSIS (Delta Mode)
+    # =========================================================================
+    critic_response, critic_raw_response = critic.analyze(
+        user_input=payload.user_input,
+        active_goal_id=active_goal_id,
+        existing_goals=existing_goals_summary
     )
     
+    # Extract fields from Critic response
+    user_intent = critic_response.get("intent", "PROVIDING_INFO")
+    deltas = critic_response.get("deltas", [])
+    topic_switch_confidence = critic_response.get("topic_switch_confidence", 0.0)
+    detected_topic_id = critic_response.get("detected_topic_id")
+    feedback = critic_response.get("feedback_for_architect", "")
+    
+    print(f"[Controller] Critic Response - Intent: {user_intent}, Deltas: {len(deltas)}, Confidence: {topic_switch_confidence}")
+    print(f"[Controller] Deltas detail: {deltas}")
+    
+    # =========================================================================
+    # 4a. GUARDRAIL: Phase 1 Force-Convert to add_goal
+    # =========================================================================
+    # If active_goal_id is None, we're in Phase 1 - user is listing goals.
+    # Force-convert any add_quest or update_skill to add_goal.
+    if active_goal_id is None:
+        converted_count = 0
+        for delta in deltas:
+            original_op = delta.get("operation")
+            if original_op in ["add_quest", "update_skill"]:
+                delta["operation"] = "add_goal"
+                delta["target_id"] = None  # New goals don't have a target
+                converted_count += 1
+                print(f"[Controller] Phase 1 guardrail: Converted {original_op} -> add_goal for payload: {delta.get('payload')}")
+        if converted_count > 0:
+            print(f"[Controller] Phase 1 guardrail: Converted {converted_count} operations to add_goal")
+    
+    # =========================================================================
+    # 4b. GUARDRAIL: Topic Switch Handling
+    # =========================================================================
+    if user_intent == "TOPIC_SWITCH":
+        if topic_switch_confidence >= 0.8 and detected_topic_id:
+            print(f"[Controller] Topic switch detected with high confidence. Switching to: {detected_topic_id}")
+            state.active_goal_id = detected_topic_id
+            active_goal_id = detected_topic_id
+        elif topic_switch_confidence < 0.8:
+            # Low confidence - might need clarification (handle in Architect response)
+            print(f"[Controller] Topic switch with low confidence ({topic_switch_confidence}). May need clarification.")
+    
+    # =========================================================================
+    # 5. APPLY DELTAS
+    # =========================================================================
+    # Track goals before applying deltas for Phase 1 queuing logic
+    goals_before = {g.name: g for g in sheet.goals}
+    
+    print(f"[Controller] Processing {len(deltas)} deltas with active_goal_id={active_goal_id}")
+    
+    for delta in deltas:
+        operation = delta.get("operation")
+        raw_target_id = delta.get("target_id")
+        payload_data = delta.get("payload") or delta.get("content")
+        
+        # =========================================================================
+        # GUARDRAIL: Validate target_id exists, fallback to active_goal_id if not
+        # =========================================================================
+        # The LLM sometimes copies example UUIDs from the prompt instead of real ones
+        if raw_target_id:
+            validated_goal = _get_goal_by_id(sheet, raw_target_id)
+            if validated_goal:
+                target_id = raw_target_id
+            else:
+                print(f"[Controller] GUARDRAIL: target_id '{raw_target_id}' not found in sheet, falling back to active_goal_id '{active_goal_id}'")
+                target_id = active_goal_id
+        else:
+            target_id = active_goal_id
+        
+        print(f"[Controller] Applying delta: {operation} -> {target_id} = {payload_data}")
+        
+        if operation == "add_quest" and payload_data:
+            # Use validated target_id (already validated above)
+            goal_id_to_use = target_id
+            print(f"[Controller] add_quest: raw_target_id={raw_target_id}, active_goal_id={active_goal_id}, goal_id_to_use={goal_id_to_use}")
+            if goal_id_to_use:
+                target_goal = _get_goal_by_id(sheet, goal_id_to_use)
+                print(f"[Controller] Found target_goal: {target_goal.name if target_goal else 'None'}")
+                if target_goal:
+                    quest_text = str(payload_data)
+                    if quest_text not in target_goal.current_quests:
+                        target_goal.current_quests.append(quest_text)
+                        print(f"[Controller] Added quest '{quest_text}' to goal '{target_goal.name}'")
+                    else:
+                        print(f"[Controller] Quest '{quest_text}' already exists in goal '{target_goal.name}'")
+        
+        elif operation == "update_skill":
+            # Use validated target_id (already validated above in the guardrail)
+            goal_id_to_use = target_id
+            if goal_id_to_use:
+                target_goal = _get_goal_by_id(sheet, goal_id_to_use)
+                if target_goal and payload_data is not None:
+                    try:
+                        skill_val = int(payload_data)
+                        target_goal.skill_level = max(1, min(10, skill_val))
+                        print(f"[Controller] Updated skill level for '{target_goal.name}' to {target_goal.skill_level}")
+                    except (ValueError, TypeError):
+                        print(f"[Controller] Failed to parse skill level: {payload_data}")
+        
+        elif operation == "add_goal" and payload_data:
+            # Phase 1: Add new goal
+            goal_name = str(payload_data)
+            exists = any(g.name.lower() == goal_name.lower() for g in sheet.goals)
+            if not exists:
+                # Infer pillar from goal name keywords
+                inferred_pillars = []
+                goal_lower = goal_name.lower()
+                
+                # Career keywords
+                if any(kw in goal_lower for kw in ["job", "career", "work", "accountant", "developer", "engineer", "business", "money", "income", "professional", "promotion"]):
+                    inferred_pillars.append(Pillar.CAREER)
+                # Physical keywords
+                if any(kw in goal_lower for kw in ["fitness", "gym", "run", "exercise", "weight", "muscle", "health", "endurance", "sport", "physical"]):
+                    inferred_pillars.append(Pillar.PHYSICAL)
+                # Mental keywords (includes self-focused goals)
+                if any(kw in goal_lower for kw in ["mental", "stress", "calm", "mindful", "focus", "anxiety", "meditation", "awareness", "peace", "myself", "self", "tune", "inner", "wellbeing", "well-being", "emotion", "feeling"]):
+                    inferred_pillars.append(Pillar.MENTAL)
+                # Social keywords
+                if any(kw in goal_lower for kw in ["social", "friend", "network", "relationship", "people", "connect", "communication", "talk"]):
+                    inferred_pillars.append(Pillar.SOCIAL)
+                
+                # Default to CAREER if no match
+                if not inferred_pillars:
+                    inferred_pillars = [Pillar.CAREER]
+                
+                new_goal = Goal(name=goal_name, pillars=inferred_pillars)
+                sheet.goals.append(new_goal)
+                print(f"[Controller] Added new goal '{goal_name}' with pillars: {[p.value for p in inferred_pillars]}")
+    
+    print(f"[Controller] User Intent: {user_intent}")
+    
+    # Initialize pending debuffs (extracted from deltas if any "add_debuff" operations)
+    new_pending_debuffs = []
+    for delta in deltas:
+        if delta.get("operation") == "add_debuff":
+            debuff_name = delta.get("payload") or delta.get("content")
+            if debuff_name:
+                new_pending_debuffs.append({
+                    "name": str(debuff_name),
+                    "evidence": "Extracted from conversation",
+                    "confidence": "medium"
+                })
+    
+    # =========================================================================
+    # 6. TRANSITION LOGIC (Phase 2)
+    # =========================================================================
+    architect_directive = None
+    extracted_data_context = []
+    
+    # Log full sheet state after deltas
+    print(f"\n[Controller] ========== STATE AFTER DELTAS ==========")
+    for g in sheet.goals:
+        print(f"[Controller] Goal: '{g.name}' | ID: {g.id} | Pillars: {[p.value for p in g.pillars]} | Quests: {list(g.current_quests)} | Skill: {g.skill_level}")
+    print(f"[Controller] ==============================================\n")
+    
+    # Get the active goal object
+    active_goal = _get_goal_by_id(sheet, active_goal_id) if active_goal_id else None
+    
+    print(f"[Controller] Active Goal: {active_goal.name if active_goal else 'None'}")
+    
+    if state.phase == "phase2" and active_goal:
+        print(f"[Controller] Goal '{active_goal.name}': quests={len(active_goal.current_quests)}, skill_level={active_goal.skill_level}, intent={user_intent}")
+        
+        # Check if goal is now complete
+        if _is_goal_complete(active_goal, state.phase):
+            print(f"[Controller] Goal '{active_goal.name}' is COMPLETE!")
+            # Find next incomplete goal
+            next_goal_id = _find_next_incomplete_goal(sheet, state.phase)
+            if next_goal_id:
+                next_goal = _get_goal_by_id(sheet, next_goal_id)
+                state.active_goal_id = next_goal_id
+                architect_directive = f"Great! We've covered '{active_goal.name}'. Now let's move on to '{next_goal.name}'. What are you currently doing to work towards this goal?"
+                print(f"[Controller] Moving to next goal: {next_goal.name}")
+            else:
+                # All goals complete for Phase 2
+                print(f"[Controller] All goals complete for Phase 2!")
+        
+        # Check if we should ask for skill level (STOP_SIGNAL logic)
+        elif user_intent == "STOP_SIGNAL" and active_goal.skill_level is None:
+            if len(active_goal.current_quests) >= 1:
+                print(f"[Controller] STOP_SIGNAL with quests. Asking for skill level.")
+                architect_directive = f"The user has finished listing activities for '{active_goal.name}'. Acknowledge what they mentioned ({', '.join(active_goal.current_quests)}). Then, ask them to rate their current skill level on a scale of 1-10."
+                extracted_data_context = list(active_goal.current_quests)
+            else:
+                print(f"[Controller] STOP_SIGNAL with 0 quests. Asking for skill level directly.")
+                # Simplified: Don't require confirmation, just acknowledge and ask for skill level directly
+                architect_directive = f"The user admits they are not currently doing anything for '{active_goal.name}'. Say something like 'That's okay, we all have to start somewhere.' Then IMMEDIATELY ask: 'On a scale of 1-10, how would you rate your current ability in this area?' DO NOT move to another goal."
+        
+        else:
+            # Goal is NOT complete yet - need more quests or skill level
+            quest_count = len(active_goal.current_quests)
+            print(f"[Controller] Continuing Phase 2: Goal '{active_goal.name}' needs more quests ({quest_count}/2)")
+            
+            # Special case: If goal has 0 quests and user just responded with a short confirmation 
+            # (like "yea", "yes", "ok"), they've likely confirmed they're doing nothing.
+            # In this case, ask for skill level directly instead of asking about activities again.
+            user_input_lower = payload.user_input.strip().lower()
+            is_short_confirmation = user_input_lower in ["yea", "yeah", "yes", "yep", "ok", "okay", "sure", "right", "correct", "true", "that's right", "thats right"]
+            
+            if quest_count == 0 and is_short_confirmation:
+                print(f"[Controller] Detected confirmation after 0 quests. Asking for skill level.")
+                architect_directive = f"The user confirmed they're not doing anything for '{active_goal.name}'. That's okay. Now ask: 'On a scale of 1-10, how would you rate your current ability in this area?' DO NOT move to another goal until you get the skill rating."
+            elif quest_count == 0:
+                architect_directive = f"Ask the user what they are currently doing to work towards '{active_goal.name}'."
+            else:
+                # Has some quests but needs more - ask for additional activities
+                architect_directive = f"The user mentioned they are doing: {', '.join(active_goal.current_quests)}. Acknowledge this briefly, then ask: 'What else are you doing to work towards {active_goal.name}? Any other activities or habits?' DO NOT move to a different goal yet - we need at least 2 activities for this goal."
+
     # Phase transition logic - Check AFTER processing current message
-    # Check if all 4 pillars have at least 1 goal AND each has at least one pure goal
+    # Check if all 4 pillars are covered by at least one goal (relaxed constraint)
     all_pillars_in_goals_set = set()
     for goal in sheet.goals:
         all_pillars_in_goals_set.update(goal.pillars)
     
-    def has_pure_goal_for_pillar(goals, pillar):
-        """Check if a pillar has at least one pure goal (single-pillar goal)."""
-        return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
-    
     all_4_pillars_covered = len(all_pillars_in_goals_set) >= 4
-    all_pillars_have_pure_goals = all(
-        has_pure_goal_for_pillar(sheet.goals, p) for p in Pillar if p in all_pillars_in_goals_set
-    ) if all_4_pillars_covered else False
     
     # Debug phase transition - ALWAYS initialize this
     phase_transition_debug = {
         "current_phase": state.phase,
         "all_4_pillars_covered": all_4_pillars_covered,
         "pillars_covered": [p.value for p in all_pillars_in_goals_set],
-        "all_pillars_have_pure_goals": all_pillars_have_pure_goals,
-        "pillar_pure_goals": {}
     }
-    if all_4_pillars_covered:
-        for p in Pillar:
-            if p in all_pillars_in_goals_set:
-                has_pure = has_pure_goal_for_pillar(sheet.goals, p)
-                phase_transition_debug["pillar_pure_goals"][p.value] = has_pure
-                print(f"[Phase Transition Check] Pillar {p.value} has pure goal: {has_pure}")
     
     print(f"[Phase Transition Check] Current phase: {state.phase}")
     print(f"[Phase Transition Check] All 4 pillars covered: {all_4_pillars_covered} (pillars: {[p.value for p in all_pillars_in_goals_set]})")
-    print(f"[Phase Transition Check] All pillars have pure goals: {all_pillars_have_pure_goals}")
     
-    if state.phase == "phase1" and all_4_pillars_covered and all_pillars_have_pure_goals:
+    if state.phase == "phase1" and all_4_pillars_covered:
         print(f"[Phase Transition] Transitioning from phase1 to phase2!")
         state.phase = "phase2"
         phase_transition_debug["transition"] = "phase1 -> phase2"
@@ -690,10 +945,6 @@ def architect_reply(payload: ArchitectRequest):
             
             return None
         
-        def has_pure_goal_for_pillar(goals, pillar):
-            """Check if a pillar has at least one pure goal (single-pillar goal)."""
-            return any(len(g.pillars) == 1 and pillar in g.pillars for g in goals)
-        
         current_pillar = determine_current_pillar(state.pillars_asked_about, sheet.goals)
         
         # Process newly extracted goals
@@ -732,10 +983,16 @@ def architect_reply(payload: ArchitectRequest):
                     # Goal is already in sheet.goals, just remove from pending queue to mark it as presented
                     state.pending_goals.remove(pg)
         
-        # After processing all goals, check if current pillar has a pure goal
-        # Only mark pillar as asked about if it has a pure goal
+        # After processing all goals, mark current pillar as asked about if it has ANY goal
         if current_pillar and current_pillar not in state.pillars_asked_about:
-            if has_pure_goal_for_pillar(sheet.goals, current_pillar):
+            # Check if current pillar is covered by any goal
+            is_covered = False
+            for goal in sheet.goals:
+                if current_pillar in goal.pillars:
+                    is_covered = True
+                    break
+            
+            if is_covered:
                 state.pillars_asked_about.append(current_pillar)
     
     # Handle Phase 2 pillar cycling
@@ -851,6 +1108,79 @@ def architect_reply(payload: ArchitectRequest):
         elif previous_phase == "phase3.5" and state.phase == "phase4":
             phase_transition_message = "Perfect! I've got everything I need. Let me generate your skill tree now."
     
+    # Calculate granular progress percentage (before generating reply so we can add it)
+    def calculate_progress(sheet, state):
+        """Calculate progress percentage based on actual completion."""
+        total_progress = 0
+        
+        if state.phase == "phase1":
+            # Phase 1: 0-40% based on pillars with goals
+            all_pillars_in_goals = set()
+            for goal in sheet.goals:
+                all_pillars_in_goals.update(goal.pillars)
+            
+            pillars_with_goals = len(all_pillars_in_goals)
+            total_pillars = 4
+            # Progress: 0-40% (10% per pillar)
+            total_progress = int((pillars_with_goals / total_pillars) * 40)
+            
+        elif state.phase == "phase2":
+            # Phase 2: 40-70% based on goals with quests/skill levels
+            def is_goal_complete_for_phase2(goal):
+                return len(goal.current_quests) >= 2 or goal.skill_level is not None
+            
+            if not sheet.goals:
+                total_progress = 40  # Just started phase 2
+            else:
+                completed_goals = sum(1 for g in sheet.goals if is_goal_complete_for_phase2(g))
+                total_goals = len(sheet.goals)
+                # Progress: 40-70% (30% range, distributed across goals)
+                phase2_progress = (completed_goals / total_goals) * 30 if total_goals > 0 else 0
+                total_progress = 40 + int(phase2_progress)
+                
+        elif state.phase == "phase3":
+            # Phase 3: 70-85% based on debuff confirmations
+            # Assume we start at 70% and progress to 85% as debuffs are confirmed
+            # For simplicity, if we're in phase3, we're at least 70%
+            # Progress increases as pending_debuffs decrease
+            total_debuffs = len(sheet.debuffs) + len(state.pending_debuffs)
+            if total_debuffs == 0:
+                total_progress = 85  # No debuffs to confirm
+            else:
+                confirmed_debuffs = len(sheet.debuffs)
+                # Progress: 70-85% (15% range)
+                phase3_progress = (confirmed_debuffs / total_debuffs) * 15 if total_debuffs > 0 else 0
+                total_progress = 70 + int(phase3_progress)
+                
+        elif state.phase == "phase3.5":
+            # Phase 3.5: 85-95% based on goal prioritization
+            if state.goals_prioritized:
+                total_progress = 95
+            else:
+                total_progress = 85  # Just started prioritization
+                
+        elif state.phase == "phase4":
+            # Phase 4: 95-100% (skill tree generation)
+            total_progress = 100
+            
+        else:
+            # Fallback: use phase-based progress
+            phase_progress_map = {
+                "phase1": 20,
+                "phase2": 55,
+                "phase3": 77,
+                "phase3.5": 90,
+                "phase4": 100
+            }
+            total_progress = phase_progress_map.get(state.phase, 0)
+        
+        # Ensure progress is between 0-100
+        return max(0, min(100, total_progress))
+    
+    # Calculate progress
+    progress_percentage = calculate_progress(sheet, state)
+    progress_tag = f"[Progress: {progress_percentage}%]"
+    
     # Generate Architect response with Critic feedback
     # Skip Architect for phase3.5 transition (use only transition message) and phase4
     if phase_transition_message and previous_phase in ["phase2", "phase3"] and state.phase == "phase3.5":
@@ -866,24 +1196,76 @@ def architect_reply(payload: ArchitectRequest):
         reply = custom_phase2_message
         architect_thinking = "Phase 1->2 transition - using custom message with first goal."
     else:
+        # For Phase 2, determine target_goal_name BEFORE calling Architect
+        # This ensures we use the updated sheet state (including skill_level if just set by Critic)
+        target_goal_name_for_architect = None
+        if state.phase == "phase2":
+            # Re-check incomplete goals after Critic processing (using updated sheet state)
+            incomplete_goals_for_architect = []
+            current_pillar_enum_for_target = None
+            if current_pillar_phase2:
+                current_pillar_enum_for_target = current_pillar_phase2
+            elif current_pillar_value:
+                try:
+                    current_pillar_enum_for_target = Pillar(current_pillar_value.upper())
+                except ValueError:
+                    pass
+            
+            if current_pillar_enum_for_target:
+                incomplete_goals_for_architect = [
+                    g for g in sheet.goals 
+                    if current_pillar_enum_for_target in g.pillars and not is_goal_complete_for_phase2(g)
+                ]
+            else:
+                # If no current pillar, find first incomplete goal across all pillars
+                for p in Pillar:
+                    incomplete_goals_for_architect = [
+                        g for g in sheet.goals 
+                        if p in g.pillars and not is_goal_complete_for_phase2(g)
+                    ]
+                    if incomplete_goals_for_architect:
+                        break
+            
+            if incomplete_goals_for_architect:
+                target_goal_name_for_architect = incomplete_goals_for_architect[0].name
+                print(f"[Phase 2] Target goal for Architect: {target_goal_name_for_architect} (quests: {len(incomplete_goals_for_architect[0].current_quests)}, skill_level: {incomplete_goals_for_architect[0].skill_level})")
+        
         # DEBUG: Log what goals are in sheet.goals before passing to Architect
         print(f"[DEBUG] Sheet goals before Architect call: {[(g.name, [p.value for p in g.pillars]) for g in sheet.goals]}")
         print(f"[DEBUG] Sheet JSON: {sheet.model_dump_json()}")
         
-        reply, architect_thinking = architect.generate_response(
-            history_plus_user, 
-            sheet, 
-            feedback,
-            ask_for_prioritization=(state.phase == "phase3.5" and not state.goals_prioritized),
-            phase=state.phase,
-            pending_debuffs=pending_debuffs_dict,
-            current_pillar=current_pillar_value,
-            queued_goals=queued_goals_for_current_pillar
-        )
+        # =========================================================================
+        # 7. GENERATE ARCHITECT RESPONSE (Directive-Driven)
+        # =========================================================================
+        # Build directive if not already set
+        if not architect_directive:
+            if state.phase == "phase1":
+                # Phase 1: Ask about goals for missing pillars
+                missing_pillars = [p.value for p in Pillar if p not in all_pillars_in_goals_set]
+                if missing_pillars:
+                    architect_directive = f"Ask the user about their goals for the {missing_pillars[0]} pillar of their life."
+                else:
+                    architect_directive = "Confirm the user's goals and prepare to transition to Phase 2."
+            elif state.phase == "phase2":
+                if active_goal:
+                    architect_directive = f"Ask the user what they are currently doing to work towards '{active_goal.name}'."
+                else:
+                    architect_directive = "Ask about activities for the user's goals."
+            elif state.phase == "phase3.5":
+                architect_directive = "Ask the user to prioritize their goals in order of importance."
+            else:
+                architect_directive = "Continue the conversation naturally."
+        
+        reply = architect.generate_response(history_plus_user, architect_directive)
+        architect_thinking = f"Directive: {architect_directive}"
         
         # Prepend phase transition message for other transitions
         if phase_transition_message:
             reply = f"{phase_transition_message}\n\n{reply}"
+    
+    # Add progress tag to the beginning of the reply (frontend will extract and remove it)
+    if reply and progress_tag not in reply:
+        reply = f"{progress_tag} {reply}"
 
     # Generate and log quest status and debugging info for Phase 2
     quest_status_message = None
@@ -947,10 +1329,18 @@ def architect_reply(payload: ArchitectRequest):
             "current_pillar": current_pillar_value
         }
         print(f"[Phase 2 Debug] Target goal: {target_goal_name}, Incomplete goals: {[g.name for g in incomplete_goals]}")
+        
+        # Add temporary debug info to the reply for testing
+        if target_goal_name and state.phase == "phase2":
+            target_goal_for_debug = next((g for g in sheet.goals if g.name == target_goal_name), None)
+            if target_goal_for_debug:
+                debug_text = f"\n\n---\n**[DEBUG]** Target: `{target_goal_name}` | Quests: {len(target_goal_for_debug.current_quests)}/2 | Skill: {target_goal_for_debug.skill_level or 'None'} | Intent: {user_intent}"
+                reply = reply + debug_text
 
-    # Get accumulated goals for logging (include current_quests and skill_level)
+    # Get accumulated goals for logging (include ID, current_quests and skill_level)
     accumulated_goals = [
         {
+            "id": g.id,  # CRITICAL: Include ID for state tracking
             "name": g.name, 
             "pillars": [p.value for p in g.pillars], 
             "description": g.description, 
@@ -970,6 +1360,7 @@ def architect_reply(payload: ArchitectRequest):
     return {
         "reply": reply,
         "phase": state.phase,
+        "active_goal_id": state.active_goal_id,  # For state tracking
         "pending_debuffs": pending_debuffs_dict,
         "pillars_asked_about": pillars_asked_about_dict,
         "pending_goals": pending_goals_dict,
@@ -977,11 +1368,14 @@ def architect_reply(payload: ArchitectRequest):
         "goals_prioritized": state.goals_prioritized,
         "should_extract_profile": state.phase == "phase4" and state.goals_prioritized,
         "debug": {
-            "critic_analysis": critic_analysis,
+            "critic_analysis": critic_raw_response,
             "architect_thinking": architect_thinking,
             "phase_transition": phase_transition_debug,
             "quest_status": quest_status_message,
-            "phase2_debug": phase2_debug_info
+            "phase2_debug": phase2_debug_info,
+            "user_intent": user_intent,
+            "architect_directive": architect_directive,
+            "active_goal_id": state.active_goal_id
         }
     }
 
@@ -1007,6 +1401,9 @@ def extract_profile(payload: ExtractProfileRequest):
     PHASE 4: Runs planners to generate needed_quests
     PHASE 5: Generates skill tree from needed_quests
     """
+    # #region agent log
+    import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:entry","message":"extract-profile called","data":{"user_id": payload.user_id, "history_length": len(payload.history)},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H1"})+'\n')
+    # #endregion
     try:
         from src.onboarding.agent import CriticAgent
         from src.skill_tree.generator import SkillTreeGenerator
@@ -1021,29 +1418,92 @@ def extract_profile(payload: ExtractProfileRequest):
             {"role": m.role, "content": m.content} for m in payload.history
         ]
         
-        # PHASE 1: Extract goals
-        phase = "phase1"
+        # Process all user messages through the new delta-based Critic
+        # Build goal list progressively
         for i, msg in enumerate(conversation_history):
             if msg["role"] == "user":
-                history_up_to_now = conversation_history[:i+1]
-                sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
-                # Check if we should move to phase 2 (all 4 pillars have at least 1 goal)
-                all_pillars_in_goals = set()
-                for goal in sheet.goals:
-                    all_pillars_in_goals.update(goal.pillars)
-                if len(all_pillars_in_goals) >= 4:
-                    phase = "phase2"
+                # Prepare existing goals context
+                existing_goals_summary = [
+                    f"ID: {g.id} | Name: {g.name}" for g in sheet.goals
+                ]
+                
+                # Get active goal (first incomplete or None)
+                active_goal_id = None
+                for g in sheet.goals:
+                    if len(g.current_quests) < 2 and g.skill_level is None:
+                        active_goal_id = g.id
+                        break
+                
+                # Analyze with new signature
+                critic_response, _ = critic.analyze(
+                    user_input=msg["content"],
+                    active_goal_id=active_goal_id,
+                    existing_goals=existing_goals_summary
+                )
+                
+                # Apply deltas
+                for delta in critic_response.get("deltas", []):
+                    op = delta.get("operation")
+                    target_id = delta.get("target_id") or active_goal_id
+                    payload_data = delta.get("payload") or delta.get("content")
+                    
+                    if op == "add_goal" and payload_data:
+                        exists = any(g.name.lower() == str(payload_data).lower() for g in sheet.goals)
+                        if not exists:
+                            from src.models import Goal
+                            goal_name = str(payload_data)
+                            
+                            # Infer pillar from goal name keywords (same logic as architect-reply)
+                            inferred_pillars = []
+                            goal_lower = goal_name.lower()
+                            
+                            # Career keywords
+                            if any(kw in goal_lower for kw in ["job", "career", "work", "accountant", "developer", "engineer", "business", "money", "income", "professional", "promotion"]):
+                                inferred_pillars.append(Pillar.CAREER)
+                            # Physical keywords
+                            if any(kw in goal_lower for kw in ["fitness", "gym", "run", "exercise", "weight", "muscle", "health", "endurance", "sport", "physical"]):
+                                inferred_pillars.append(Pillar.PHYSICAL)
+                            # Mental keywords (includes self-focused goals)
+                            if any(kw in goal_lower for kw in ["mental", "stress", "calm", "mindful", "focus", "anxiety", "meditation", "awareness", "peace", "myself", "self", "tune", "inner", "wellbeing", "well-being", "emotion", "feeling"]):
+                                inferred_pillars.append(Pillar.MENTAL)
+                            # Social keywords
+                            if any(kw in goal_lower for kw in ["social", "friend", "network", "relationship", "people", "connect", "communication", "talk"]):
+                                inferred_pillars.append(Pillar.SOCIAL)
+                            
+                            # Default to CAREER if no match
+                            if not inferred_pillars:
+                                inferred_pillars = [Pillar.CAREER]
+                            
+                            new_goal = Goal(name=goal_name, pillars=inferred_pillars)
+                            sheet.goals.append(new_goal)
+                            
+                            # #region agent log
+                            import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:add_goal","message":"Added goal with inferred pillars","data":{"goal_name": goal_name, "pillars": [p.value for p in inferred_pillars]},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H1"})+'\n')
+                            # #endregion
+                    
+                    elif op == "add_quest" and target_id and payload_data:
+                        target = next((g for g in sheet.goals if g.id == target_id), None)
+                        if target and str(payload_data) not in target.current_quests:
+                            target.current_quests.append(str(payload_data))
+                    
+                    elif op == "update_skill" and target_id:
+                        target = next((g for g in sheet.goals if g.id == target_id), None)
+                        if target:
+                            try:
+                                target.skill_level = int(payload_data)
+                            except:
+                                pass
         
-        # PHASE 2: Extract current_quests
-        phase = "phase2"
-        for i, msg in enumerate(conversation_history):
-            if msg["role"] == "user":
-                history_up_to_now = conversation_history[:i+1]
-                sheet, _, _, _ = critic.analyze(msg["content"], sheet, history_up_to_now, phase)
+        # #region agent log
+        import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:pre_planners","message":"Goals before planners","data":{"goals_count": len(sheet.goals), "goals": [{"name": g.name, "pillars": [p.value for p in g.pillars] if g.pillars else [], "current_quests": g.current_quests} for g in sheet.goals]},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H1-H2"})+'\n')
+        # #endregion
         
         # PHASE 4: Run planners to generate needed_quests
         # For goals with multiple pillars, we'll use the first pillar's planner
         for goal in sheet.goals:
+            # #region agent log
+            import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:planner_check","message":"Checking goal for planner","data":{"goal_name": goal.name, "pillars": [p.value for p in goal.pillars] if goal.pillars else [], "has_pillars": bool(goal.pillars)},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H2"})+'\n')
+            # #endregion
             # Use the first pillar for the planner (could be enhanced to use multiple planners)
             if goal.pillars:
                 planner = get_planner(goal.pillars[0].value)
@@ -1053,10 +1513,25 @@ def extract_profile(payload: ExtractProfileRequest):
                     debuffs=sheet.debuffs
                 )
                 goal.needed_quests = [node.name for node in needed_skill_nodes]
+                # #region agent log
+                import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:planner_result","message":"Planner generated needed_quests","data":{"goal_name": goal.name, "needed_quests": goal.needed_quests},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H2-H3"})+'\n')
+                # #endregion
+            else:
+                # #region agent log
+                import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:no_pillars","message":"SKIPPED - Goal has no pillars!","data":{"goal_name": goal.name},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H1"})+'\n')
+                # #endregion
+        
+        # #region agent log
+        import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:pre_skilltree","message":"Goals before skill tree generation","data":{"goals": [{"name": g.name, "pillars": [p.value for p in g.pillars] if g.pillars else [], "needed_quests": g.needed_quests} for g in sheet.goals]},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H3"})+'\n')
+        # #endregion
         
         # PHASE 5: Generate skill tree from needed_quests
         skill_tree_generator = SkillTreeGenerator()
         skill_tree = skill_tree_generator.generate_skill_tree(sheet)
+        
+        # #region agent log
+        import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:post_skilltree","message":"Skill tree generated","data":{"nodes_count": len(skill_tree.nodes), "node_types": {n.type.value: sum(1 for x in skill_tree.nodes if x.type == n.type) for n in skill_tree.nodes[:1]} if skill_tree.nodes else {}},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H3"})+'\n')
+        # #endregion
         
         # Activate 1-2 habits per pillar automatically
         _activate_initial_habits(sheet, skill_tree)
