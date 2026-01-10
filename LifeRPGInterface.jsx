@@ -919,6 +919,10 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
                 // Determine status (default to LOCKED if not in progress map or explicitly active)
                 const status = progressData?.status === 'ACTIVE' ? 'ACTIVE' : 'LOCKED';
 
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LifeRPGInterface.jsx:processHabit',message:'Processing habit node',data:{habitId:habit.id,habitName:habit.name,required_completions:habit.required_completions,progressData:progressData,completed:completed,required:required,hasHabitProgress:!!characterSheet?.habit_progress,habitProgressKeys:characterSheet?.habit_progress?Object.keys(characterSheet.habit_progress):[]},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+                // #endregion
+
                 processedNodes.push({ 
                     ...habit, 
                     x: habitX, 
@@ -1016,6 +1020,9 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
                         {/* TOOLTIP FOR HABITS - Controlled by React State */}
                         {node.type === 'Habit' && hoveredNodeId === node.id && (
                             <div className="absolute bottom-full mb-3 bg-slate-900/95 backdrop-blur text-white p-3 rounded-lg shadow-xl z-50 w-56 text-xs border border-slate-700 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-200">
+                                {/* #region agent log */}
+                                {(() => { fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LifeRPGInterface.jsx:tooltip',message:'Hover tooltip displayed',data:{nodeId:node.id,nodeName:node.name,nodeCompleted:node.completed,nodeRequired:node.required,hasCompleted:node.hasOwnProperty('completed'),hasRequired:node.hasOwnProperty('required'),nodeKeys:Object.keys(node),required_completions:node.required_completions},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{}); return null; })()}
+                                {/* #endregion */}
                                 <div className="font-bold text-sm mb-1 text-blue-200">{node.name}</div>
                                 <div className="flex justify-between items-center mb-2 border-b border-slate-700 pb-1">
                                     <span className="text-slate-400">Progress</span>

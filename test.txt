@@ -28,4 +28,5 @@ yea i want to get a job, a job in data visualizations
 
   uvicorn backend.api:app --reload --port 8000
 cd frontend/test/life-rpg
+npm run dev
   fQmr8dTaOQq116mo2X7F

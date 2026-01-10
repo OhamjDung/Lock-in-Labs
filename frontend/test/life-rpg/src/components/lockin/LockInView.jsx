@@ -18,21 +18,22 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   const [videoReady, setVideoReady] = useState(false);
   const [lastSentFrameTs, setLastSentFrameTs] = useState(0);
 
-  const DETECTOR_WS_URL = useMemo(() => {
+  // Fatigue Detection WebSocket URL (metrics only, no camera)
+  const FATIGUE_WS_URL = useMemo(() => {
     try {
       const hostname = window.location?.hostname || '127.0.0.1';
       const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '';
       
       if (isLocalhost) {
-        return 'ws://127.0.0.1:8000/ws/phone-detect';
+        return 'ws://127.0.0.1:8000/ws/fatigue-detect';
       }
       
       // In production, construct from current origin
       const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-      return `${proto}://${hostname}/ws/phone-detect`;
+      return `${proto}://${hostname}/ws/fatigue-detect`;
     } catch (e) {
       console.warn('Failed to construct WebSocket URL, using default:', e);
-      return 'ws://127.0.0.1:8000/ws/phone-detect';
+      return 'ws://127.0.0.1:8000/ws/fatigue-detect';
     }
   }, []);
 
@@ -52,61 +53,117 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editingTaskText, setEditingTaskText] = useState('');
-  const [phoneDetectionCount, setPhoneDetectionCount] = useState(0);
-  const [showPhoneNotification, setShowPhoneNotification] = useState(false);
-  const lastPhoneDetectionRef = useRef(null);
+  // Fatigue detection state
+  const [fatigueMetrics, setFatigueMetrics] = useState(null);
+  const [pvtChallengeActive, setPvtChallengeActive] = useState(false);
+  const [pvtChallengeDelay, setPvtChallengeDelay] = useState(0);
+  const [pvtStartTime, setPvtStartTime] = useState(null);
+  const [pvtReactionTime, setPvtReactionTime] = useState(null);
+  const fatigueWsRef = useRef(null);
   const tabs = ['lockin', 'gemini-map', 'placeholder2']; // Array of tab identifiers
   const [activeTabIndex, setActiveTabIndex] = useState(0); // Index of current tab
 
-  const toggleCamera = async () => {
-    if (cameraActive) {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
-      if (pendingStreamRef.current) {
-        pendingStreamRef.current.getTracks().forEach(t => t.stop());
-        pendingStreamRef.current = null;
-      }
-      setCameraActive(false);
-    } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        pendingStreamRef.current = stream;
-        setCameraActive(true);
-      } catch (err) { /* camera denied */ }
+  // Connect to fatigue detection WebSocket (no camera capture needed)
+  const connectFatigueWS = () => {
+    if (fatigueWsRef.current) return;
+    
+    try {
+      const ws = new WebSocket(FATIGUE_WS_URL);
+      fatigueWsRef.current = ws;
+      
+      ws.onopen = () => {
+        console.log('[Fatigue] Connected to detection daemon');
+        setDetectionConnState('connected');
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          
+          if (msg.type === 'metrics') {
+            // Update UI with lightweight JSON metrics
+            setFatigueMetrics(msg.data);
+            
+            // Handle fatigue events
+            if (msg.data.fatigue_score >= 0.7) {
+              // High fatigue - could show break suggestion
+            }
+          } else if (msg.type === 'pvt_challenge') {
+            // Show PVT challenge UI
+            setPvtChallengeDelay(msg.delay_ms);
+            setPvtChallengeActive(true);
+            
+            // Wait for delay, then show challenge
+            setTimeout(() => {
+              setPvtStartTime(Date.now());
+            }, msg.delay_ms);
+          } else if (msg.type === 'error') {
+            console.error('[Fatigue] Error:', msg.message);
+          }
+        } catch (e) {
+          console.error('[Fatigue] Failed to parse message:', e);
+        }
+      };
+      
+      ws.onerror = (error) => {
+        console.error('[Fatigue] WebSocket error:', error);
+        setDetectionConnState('offline');
+      };
+      
+      ws.onclose = () => {
+        console.log('[Fatigue] Disconnected from detection daemon');
+        fatigueWsRef.current = null;
+        setDetectionConnState('offline');
+        
+        // Reconnect after delay
+        setTimeout(() => {
+          if (!fatigueWsRef.current) {
+            connectFatigueWS();
+          }
+        }, 3000);
+      };
+    } catch (e) {
+      console.error('[Fatigue] Failed to create WebSocket:', e);
+      setDetectionConnState('offline');
     }
   };
 
-  const sendFrame = async () => {
-    try {
-      const ws = detectionWsRef.current;
-      const video = videoRef.current;
-      if (!ws || ws.readyState !== WebSocket.OPEN) return;
-      if (!video || !video.videoWidth || !video.videoHeight) return;
-
-      const targetW = 320;
-      const scale = targetW / video.videoWidth;
-      const cw = targetW;
-      const ch = Math.round(video.videoHeight * scale);
-
-      let canvas = canvasRef.current;
-      if (!canvas) {
-        canvas = document.createElement('canvas');
-        canvasRef.current = canvas;
-      }
-      canvas.width = cw;
-      canvas.height = ch;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, cw, ch);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
-      const frameId = `${Date.now()}`;
-      const payload = { type: 'frame', frame_id: frameId, image: dataUrl };
-      setLastSentFrameTs(Date.now());
-      try { ws.send(JSON.stringify(payload)); } catch (e) { /* ignore send errors */ }
-    } catch (e) { /* sendFrame error */ }
+  // Handle PVT challenge response (spacebar press)
+  const handlePVTResponse = () => {
+    if (!pvtChallengeActive || !pvtStartTime) return;
+    
+    const reactionTime = Date.now() - pvtStartTime;
+    setPvtReactionTime(reactionTime);
+    setPvtChallengeActive(false);
+    
+    // Send response to server
+    if (fatigueWsRef.current && fatigueWsRef.current.readyState === WebSocket.OPEN) {
+      fetch('http://127.0.0.1:8000/api/fatigue/pvt-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reaction_time_ms: reactionTime })
+      }).catch(err => console.error('Failed to send PVT response:', err));
+    }
+    
+    // Reset after showing result
+    setTimeout(() => {
+      setPvtReactionTime(null);
+      setPvtStartTime(null);
+    }, 3000);
   };
+
+  // Listen for spacebar for PVT challenge
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.code === 'Space' && pvtChallengeActive && pvtStartTime) {
+        e.preventDefault();
+        handlePVTResponse();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [pvtChallengeActive, pvtStartTime]);
 
   const takePhotoAndDither = async () => {
     const video = videoRef.current;
@@ -126,179 +183,20 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
     });
   };
 
-  const scheduleReconnect = () => {
-    if (reconnectTimerRef.current) return;
-    const delay = backoffRef.current;
-    reconnectTimerRef.current = setTimeout(() => {
-      reconnectTimerRef.current = null;
-      if (cameraActive) connectWS();
-    }, delay);
-    backoffRef.current = Math.min(MAX_BACKOFF, backoffRef.current * 2);
-  };
-
-  const connectWS = () => {
-    // Don't connect if camera is not active or if already connected
-    if (!cameraActive || detectionWsRef.current) return;
-    
-    // Don't connect if WebSocket is already in connecting state
-    if (detectionConnState === 'connecting') return;
-    
-    setDetectionConnState('connecting');
-    try {
-      const ws = new WebSocket(DETECTOR_WS_URL);
-      detectionWsRef.current = ws;
-      
-      ws.onopen = () => {
-        setDetectionConnState('connected');
-        backoffRef.current = 1000;
-        if (detectionIntervalRef.current) clearInterval(detectionIntervalRef.current);
-        detectionIntervalRef.current = setInterval(sendFrame, 333);
-      };
-      
-      ws.onmessage = (ev) => {
-        try { 
-          const msg = JSON.parse(ev.data); 
-          if (msg.type === 'detection') setDetectionState(msg); 
-        } catch (e) { 
-          console.debug('Failed to parse WebSocket message:', e);
-        }
-      };
-      
-      ws.onclose = (event) => {
-        setDetectionConnState('offline');
-        if (detectionIntervalRef.current) { 
-          clearInterval(detectionIntervalRef.current); 
-          detectionIntervalRef.current = null; 
-        }
-        detectionWsRef.current = null;
-        // Only reconnect if camera is still active
-        if (cameraActive && event.code !== 1000) { // Don't reconnect on normal close
-          scheduleReconnect();
-        }
-      };
-      
-      ws.onerror = (error) => {
-        console.debug('WebSocket error:', error);
-        try { 
-          if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-            ws.close();
-          }
-        } catch (e) {
-          console.debug('Error closing WebSocket:', e);
-        }
-      };
-    } catch (e) {
-      console.debug('Failed to create WebSocket:', e);
-      setDetectionConnState('offline');
-      detectionWsRef.current = null;
-      // Only schedule reconnect if camera is still active
-      if (cameraActive) {
-        scheduleReconnect();
-      }
-    }
-  };
-
-  const stopDetection = () => {
-    try {
-      if (reconnectTimerRef.current) { clearTimeout(reconnectTimerRef.current); reconnectTimerRef.current = null; }
-      if (detectionIntervalRef.current) { clearInterval(detectionIntervalRef.current); detectionIntervalRef.current = null; }
-      const ws = detectionWsRef.current;
-      if (ws) { try { ws.onopen = ws.onmessage = ws.onclose = ws.onerror = null; ws.close(); } catch (e) {} detectionWsRef.current = null; }
-      backoffRef.current = 1000;
-      setDetectionConnState('idle');
-      setDetectionState({ detections: [] });
-    } catch (e) { console.error('stopDetection', e); }
-  };
-
+  // Connect to fatigue detection on mount (Python owns camera)
   useEffect(() => {
-    if (takePhotoRef) { takePhotoRef.current = takePhotoAndDither; }
-    return () => { if (takePhotoRef && takePhotoRef.current === takePhotoAndDither) takePhotoRef.current = null; };
-  }, [takePhotoRef]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    function onPlaying() { setVideoReady(true); }
-    if (cameraActive) {
-      setVideoReady(false);
-      if (video) {
-        video.addEventListener('playing', onPlaying);
-        if (!video.paused && (video.readyState >= 2 || video.currentTime > 0)) setVideoReady(true);
-      }
-      // Only connect WebSocket when camera becomes active
-      if (!detectionWsRef.current) {
-        connectWS();
-      }
-    } else {
-      // Stop detection when camera is turned off
-      stopDetection();
+    if (lockdownRunning) {
+      connectFatigueWS();
     }
-    return () => { 
-      if (!cameraActive) {
-        stopDetection();
+    
+    return () => {
+      if (fatigueWsRef.current) {
+        fatigueWsRef.current.close();
+        fatigueWsRef.current = null;
       }
-      if (video) video.removeEventListener('playing', onPlaying); 
     };
-  }, [cameraActive]);
+  }, [lockdownRunning]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (cameraActive && pendingStreamRef.current && video) {
-      try {
-        video.srcObject = pendingStreamRef.current;
-        pendingStreamRef.current = null;
-        video.onloadedmetadata = () => { setVideoReady(true); video.play().catch(e => console.debug('video.play failed', e)); };
-      } catch (e) { console.error('error attaching stream', e); }
-    }
-  }, [cameraActive]);
-
-  useEffect(() => {
-    const canvas = overlayRef.current;
-    const video = videoRef.current;
-    if (!canvas || !video) return;
-    const ctx = canvas.getContext('2d');
-    const w = video.videoWidth || canvas.clientWidth || 320;
-    const h = video.videoHeight || canvas.clientHeight || 240;
-    canvas.width = w; canvas.height = h;
-    ctx.clearRect(0, 0, w, h);
-    const dets = detectionState && detectionState.detections ? detectionState.detections : [];
-    
-    // Check for phone detections
-    const phoneDetections = dets.filter(d => {
-      const className = (d.class || '').toLowerCase();
-      return className.includes('phone') || className.includes('cell phone') || className.includes('mobile phone');
-    });
-    
-    // If phone detected and camera is active, show notification and increment counter
-    if (phoneDetections.length > 0 && cameraActive) {
-      const now = Date.now();
-      // Only trigger notification if it's been at least 3 seconds since last detection (to avoid spam)
-      if (!lastPhoneDetectionRef.current || (now - lastPhoneDetectionRef.current) > 3000) {
-        lastPhoneDetectionRef.current = now;
-        setPhoneDetectionCount(prev => prev + 1);
-        setShowPhoneNotification(true);
-        // Auto-hide notification after 5 seconds
-        setTimeout(() => setShowPhoneNotification(false), 5000);
-      }
-    }
-    
-    dets.forEach(d => {
-      const bb = d.bbox || {};
-      const x = (bb.x || 0) * w;
-      const y = (bb.y || 0) * h;
-      const bw = (bb.w || 0) * w;
-      const bh = (bb.h || 0) * h;
-      ctx.lineWidth = 3;
-      // Use red color for phone detections
-      const isPhone = (d.class || '').toLowerCase().includes('phone');
-      ctx.strokeStyle = isPhone ? 'rgba(255,0,0,0.9)' : 'rgba(57,255,20,0.9)';
-      ctx.strokeRect(x, y, bw, bh);
-      ctx.fillStyle = 'rgba(0,0,0,0.6)';
-      ctx.fillRect(x, y - 18, Math.max(60, ctx.measureText(d.class || '').width + 12), 18);
-      ctx.fillStyle = isPhone ? '#ff0000' : '#39ff14';
-      ctx.font = '12px monospace';
-      ctx.fillText(`${d.class || ''} ${(d.confidence||0).toFixed(2)}`, x + 6, y - 4);
-    });
-  }, [detectionState, cameraActive]);
 
   useEffect(() => {
     let interval = null;
@@ -581,35 +479,90 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                     </div>
                     
                     <div className={`w-full h-full grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-0 transition-opacity duration-500 ${powerOn ? 'opacity-100' : 'opacity-0'}`}>
-                    {/* CAMERA */}
+                    {/* FATIGUE DETECTION */}
                     <div className="relative border-b md:border-r border-[#39ff14]/30 p-6 flex flex-col overflow-hidden group bg-black">
                         <div className="absolute top-3 left-4 text-[10px] font-bold tracking-widest z-20 flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${cameraActive ? 'bg-red-500 animate-pulse' : 'bg-[#003300]'}`}></div>
-                          <div className="text-[#39ff14]">CAM_01 [MONITORING]</div>
+                          <div className={`w-2 h-2 rounded-full ${detectionConnState === 'connected' ? 'bg-green-500 animate-pulse' : 'bg-[#003300]'}`}></div>
+                          <div className="text-[#39ff14]">FATIGUE_DETECTOR [MONITORING]</div>
                           <div className="ml-3 text-[10px] z-30">
-                            {detectionConnState === 'connected' && <span className="text-[#39ff14]">DETECTOR: online</span>}
-                            {detectionConnState === 'connecting' && <span className="text-[#ffb86b]">DETECTOR: connecting</span>}
-                            {detectionConnState === 'offline' && <span className="text-[#ff6b6b]">DETECTOR: offline</span>}
-                            {detectionConnState === 'idle' && <span className="text-[#888]">DETECTOR: idle</span>}
+                            {detectionConnState === 'connected' && <span className="text-[#39ff14]">STATUS: online</span>}
+                            {detectionConnState === 'connecting' && <span className="text-[#ffb86b]">STATUS: connecting</span>}
+                            {detectionConnState === 'offline' && <span className="text-[#ff6b6b]">STATUS: offline</span>}
+                            {detectionConnState === 'idle' && <span className="text-[#888]">STATUS: idle</span>}
                           </div>
-                          {phoneDetectionCount > 0 && (
-                            <div className="ml-3 text-[10px] text-red-400">
-                              PHONE_DETECTIONS: <span className="font-bold">{phoneDetectionCount}</span>
+                        </div>
+                        <div className="flex-1 bg-[#020a02] rounded-sm mt-4 overflow-hidden relative border border-[#39ff14]/20 shadow-[inset_0_0_20px_rgba(57,255,20,0.05)] p-4">
+                          {fatigueMetrics ? (
+                            <div className="w-full h-full flex flex-col gap-3 text-xs font-mono">
+                              <div className="text-[#39ff14] text-sm font-bold mb-2">FATIGUE METRICS</div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Fatigue Score:</span>
+                                <span className={`font-bold ${fatigueMetrics.fatigue_score >= 0.7 ? 'text-red-400' : fatigueMetrics.fatigue_score >= 0.3 ? 'text-yellow-400' : 'text-[#39ff14]'}`}>
+                                  {(fatigueMetrics.fatigue_score * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Level:</span>
+                                <span className="text-[#39ff14] uppercase">{fatigueMetrics.fatigue_level || 'focused'}</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Blink Rate:</span>
+                                <span className="text-[#39ff14]">{fatigueMetrics.blink_rate?.toFixed(1) || '0.0'} /min</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Gaze Stability:</span>
+                                <span className="text-[#39ff14]">{(fatigueMetrics.gaze_stability * 100).toFixed(1) || '0.0'}%</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Fidgeting:</span>
+                                <span className="text-[#39ff14]">{(fatigueMetrics.fidgeting_score * 100).toFixed(1) || '0.0'}%</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-[#00cc00]">Yawns (5min):</span>
+                                <span className="text-[#39ff14]">{fatigueMetrics.yawn_count_5min || 0}</span>
+                              </div>
+                              
+                              <div className="mt-2 pt-2 border-t border-[#39ff14]/20">
+                                <div className="text-[#00cc00] text-xs">Recommendation:</div>
+                                <div className="text-[#39ff14] text-xs mt-1 uppercase">{fatigueMetrics.recommendation || 'continue'}</div>
+                              </div>
+                              
+                              {/* PVT Challenge UI */}
+                              {pvtChallengeActive && (
+                                <div className="mt-4 p-3 border-2 border-yellow-400 bg-yellow-900/20 rounded">
+                                  {!pvtStartTime ? (
+                                    <div className="text-yellow-400 text-center">
+                                      <div className="text-xs mb-2">PVT Challenge starting...</div>
+                                      <div className="text-sm font-bold">Wait for shape to appear</div>
+                                    </div>
+                                  ) : pvtReactionTime === null ? (
+                                    <div className="text-yellow-400 text-center">
+                                      <div className="text-lg font-bold mb-2">⚡ PRESS SPACEBAR NOW ⚡</div>
+                                      <div className="text-xs">Shape appeared - react as fast as possible</div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-center">
+                                      <div className="text-[#39ff14] text-sm font-bold">Reaction Time:</div>
+                                      <div className="text-[#39ff14] text-xl font-bold">{pvtReactionTime}ms</div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-[#004400]">
+                              <div className="text-xs tracking-widest mb-2">WAITING FOR METRICS...</div>
+                              {detectionConnState === 'offline' && (
+                                <div className="text-[10px] text-red-400 mt-2">Daemon not connected</div>
+                              )}
                             </div>
                           )}
-                        </div>
-                        <div className="flex-1 bg-[#020a02] rounded-sm mt-4 overflow-hidden relative border border-[#39ff14]/20 shadow-[inset_0_0_20px_rgba(57,255,20,0.05)]">
-                             {cameraActive ? (
-                                <>
-                                  <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover opacity-80 contrast-125 saturate-0 sepia hue-rotate-[50deg] brightness-125" style={{ objectFit: 'cover' }} />
-                                  <canvas ref={overlayRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-                                </>
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-[#004400]"><VideoOff size={32} className="mb-2 opacity-50" /><span className="text-xs tracking-widest">NO SIGNAL</span></div>
-                            )}
-                            <button onClick={toggleCamera} className="absolute bottom-4 right-4 text-[#39ff14] hover:text-white transition-colors p-2 border border-[#39ff14]/30 bg-[#002200]/50 rounded-sm z-10">
-                              {cameraActive ? <VideoOff size={16} /> : <Video size={16} />}
-                            </button>
                         </div>
                     </div>
                     {/* CHRONOMETER */}
@@ -723,22 +676,6 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
              </div>
           </div>
           
-          {/* Phone Detection Notification */}
-          {showPhoneNotification && (
-            <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-2 duration-300">
-              <div className="bg-red-900/95 border-2 border-red-500 rounded-sm p-4 shadow-[0_0_20px_rgba(255,0,0,0.5)] backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                  <div className="text-[#39ff14] font-mono text-sm font-bold">
-                    ⚠️ PHONE DETECTED - TURN OFF CAMERA ⚠️
-                  </div>
-                </div>
-                <div className="mt-2 text-[#ff6b6b] text-xs font-mono">
-                  Detections: {phoneDetectionCount} | Please turn off your camera to maintain focus.
-                </div>
-              </div>
-            </div>
-          )}
           <div className="w-full mt-6 flex justify-between items-center px-8 md:px-12">
               <div className="flex items-center gap-4">
                   <button onClick={() => setPowerOn(!powerOn)} className="group relative w-12 h-12 bg-[#202020] rounded-full shadow-[0_5px_10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] flex items-center justify-center active:translate-y-1 active:shadow-inner transition-all border border-[#333]">

@@ -315,7 +315,10 @@ export default function LifeRPGInterface() {
         <div style={{ display: activeTab === 'map' ? 'block' : 'none' }}>
           <BlueprintView 
             skillTree={skillTree} 
-            characterSheet={characterSheet} 
+            characterSheet={characterSheet}
+            onSkillTreeUpdate={(updatedTree) => {
+              setSkillTree(updatedTree);
+            }}
           />
                 </div>
 

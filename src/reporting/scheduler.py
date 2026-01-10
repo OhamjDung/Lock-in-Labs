@@ -129,14 +129,71 @@ def ensure_daily_schedule_for_date(
 
 
 def mark_newly_unlocked_nodes(sheet: CharacterSheet, tree: SkillTree) -> None:
-    """Placeholder for unlocking logic.
-
-    In a future iteration we can:
-    - Inspect each node's prerequisites.
-    - If all prerequisite habits are MASTERED, set this node's status to ACTIVE
-      in a separate progress structure if desired.
-
-    For now this is a no-op stub so the reporting flow can compile.
+    """Unlock nodes when all prerequisites are MASTERED.
+    
+    Rules:
+    - Only unlock habits (Sub-Skills and Goals don't have progress tracking yet)
+    - A habit is unlocked if ALL its prerequisite habits are MASTERED
+    - Unlocking is recursive: after unlocking one node, check if others can now be unlocked
+    - Only sets status to ACTIVE if currently LOCKED (doesn't overwrite ACTIVE or MASTERED)
+    
+    This is called after applying daily reports, so newly MASTERED prerequisites
+    can trigger unlocking of dependent habits.
     """
-
-    return None
+    # Build a map of all nodes by ID for quick lookup
+    node_map = {node.id: node for node in tree.nodes}
+    
+    # Get all habit nodes (only habits have progress tracking currently)
+    habit_nodes = [node for node in tree.nodes if node.type == NodeType.HABIT]
+    
+    # Recursive unlocking: keep checking until no more unlocks happen
+    max_iterations = len(habit_nodes)  # Safety limit to prevent infinite loops
+    iteration = 0
+    any_unlocked = True
+    
+    while any_unlocked and iteration < max_iterations:
+        any_unlocked = False
+        iteration += 1
+        
+        for habit_node in habit_nodes:
+            # Skip if not LOCKED (already ACTIVE or MASTERED)
+            if habit_node.id not in sheet.habit_progress:
+                sheet.habit_progress[habit_node.id] = HabitProgress(node_id=habit_node.id)
+            
+            progress = sheet.habit_progress[habit_node.id]
+            if progress.status != NodeStatus.LOCKED:
+                continue
+            
+            # If no prerequisites, skip (handled by initial selection, not unlocking)
+            if not habit_node.prerequisites or len(habit_node.prerequisites) == 0:
+                continue
+            
+            # Check if ALL prerequisite habits are MASTERED
+            # Only check prerequisites that are habits (skip Sub-Skills/Goals for now)
+            habit_prereqs = [
+                prereq_id for prereq_id in habit_node.prerequisites
+                if node_map.get(prereq_id) and node_map[prereq_id].type == NodeType.HABIT
+            ]
+            
+            # If no habit prerequisites, skip (Sub-Skill/Goal prerequisites not checked yet)
+            if len(habit_prereqs) == 0:
+                continue
+            
+            # Check if ALL habit prerequisites are MASTERED
+            all_prereqs_mastered = True
+            for prereq_id in habit_prereqs:
+                prereq_progress = sheet.habit_progress.get(prereq_id)
+                if not prereq_progress:
+                    # Prerequisite doesn't have progress yet - not unlocked
+                    all_prereqs_mastered = False
+                    break
+                
+                if prereq_progress.status != NodeStatus.MASTERED:
+                    # Prerequisite is not MASTERED - not all prerequisites met
+                    all_prereqs_mastered = False
+                    break
+            
+            # If all prerequisite habits are MASTERED, unlock this habit
+            if all_prereqs_mastered:
+                progress.status = NodeStatus.ACTIVE
+                any_unlocked = True

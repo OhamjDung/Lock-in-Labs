@@ -153,6 +153,12 @@ class CharacterSheet(BaseModel):
     
     debuffs: List[str] = Field(default_factory=list, description="Obstacles or challenges the user is facing.")
     skill_tree: Optional[SkillTree] = None
+    
+    # Pillar prioritization from phase 3.5
+    pillar_rankings: List[Pillar] = Field(
+        default_factory=list,
+        description="User's prioritized pillar order from phase 3.5 (most to least important)."
+    )
 
     # XP and reporting-related fields
     xp_total: int = Field(default=0, description="Total XP accumulated across all pillars.")

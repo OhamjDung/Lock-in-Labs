@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Minus, Maximize, Star, Diamond, Circle } from 'lucide-react';
 import { skillTreeJson } from '../../data/mockData';
-import dagre from 'dagre'; 
+import dagre from 'dagre';
+import NodeContextMenu from './NodeContextMenu';
+import NodeQuestionDialog from './NodeQuestionDialog';
+import NodeDifficultyDialog from './NodeDifficultyDialog';
 
-const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
+const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }) => {
     const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
     const [isDragging, setIsDragging] = useState(false);
     const [startPan, setStartPan] = useState({ x: 0, y: 0 });
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
+    const [contextMenu, setContextMenu] = useState(null);
+    const [questionDialog, setQuestionDialog] = useState(null);
+    const [difficultyDialog, setDifficultyDialog] = useState(null);
 
     const layout = useMemo(() => {
         // #region agent log
@@ -84,16 +90,24 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
             let progressPercent = 0;
             let status = 'LOCKED';
             let completed = 0;
-            let required = 1;
+            // Default to node's required_completions or 30 (model default), only use 1 as fallback for non-habits
+            let required = (node.type === 'Habit') ? (node.required_completions ?? 30) : 1;
             
             if (node.type === 'Habit' && characterSheet && characterSheet.habit_progress) {
                 const progress = characterSheet.habit_progress[node.id];
                 if (progress) {
                     completed = progress.completed_total || 0;
-                    required = node.required_completions || 1;
+                    // Use nullish coalescing to preserve 0 values, only default if null/undefined
+                    required = node.required_completions ?? 30;
                     progressPercent = Math.min(100, Math.max(0, (completed / required) * 100));
                     status = progress.status === 'ACTIVE' ? 'ACTIVE' : 'LOCKED';
+                } else {
+                    // Even if no progress yet, set the required value from the node
+                    required = node.required_completions ?? 30;
                 }
+            } else if (node.type === 'Habit') {
+                // Set required even if no characterSheet or habit_progress
+                required = node.required_completions ?? 30;
             }
             
             processedNodes.push({
@@ -203,7 +217,10 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
         };
     }, []);
 
-    const handleMouseDown = (e) => { 
+    const handleMouseDown = (e) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleMouseDown',message:'Container mousedown event',data:{button:e.button,targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY,isRightClick:e.button===2},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+        // #endregion
         if (e.button !== 0) return; // Only handle left mouse button
         setIsDragging(true); 
         setStartPan({ x: e.clientX - transform.x, y: e.clientY - transform.y }); 
@@ -221,6 +238,77 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
         });
     };
     const handleMouseUp = () => setIsDragging(false);
+
+    const handleNodeContextMenu = (e, node) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu handler called',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,clientX:e.clientX,clientY:e.clientY,targetTag:e.target.tagName,targetClassName:e.target.className},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+        // #endregion
+        // Only show context menu for Habit and Sub-Skill nodes
+        if (node.type !== 'Habit' && node.type !== 'Sub-Skill') {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu rejected - wrong node type',data:{nodeType:node.type},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+            // #endregion
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Setting context menu state',data:{nodeId:node.id,positionX:e.clientX,positionY:e.clientY,pageX:e.pageX,pageY:e.pageY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+        // #endregion
+        // Use clientX/Y for fixed positioning (viewport coordinates)
+        // Apply offset at source so it stays consistent (adjust these values)
+        const cursorOffsetX = -40; // Horizontal: negative = left, positive = right
+        const cursorOffsetY = -80; // Vertical: negative = up, positive = down
+        setContextMenu({
+            node: node,
+            position: { x: e.clientX + cursorOffsetX, y: e.clientY + cursorOffsetY }
+        });
+    };
+
+    const handleCloseContextMenu = () => {
+        setContextMenu(null);
+    };
+
+    const handleAskQuestion = () => {
+        if (!contextMenu) return;
+        setQuestionDialog(contextMenu.node);
+        setContextMenu(null);
+    };
+
+    const handleAdjustDifficulty = () => {
+        if (!contextMenu) return;
+        setDifficultyDialog(contextMenu.node);
+        setContextMenu(null);
+    };
+
+    const handleQuestionAnswered = () => {
+        // Question answered - no tree updates needed
+        // Dialog will be closed by user
+    };
+
+    const handleDifficultyAdjusted = async (data) => {
+        // Refresh skill tree data after difficulty adjustment
+        if (data.skill_tree && onSkillTreeUpdate) {
+            onSkillTreeUpdate(data.skill_tree);
+        } else {
+            // Fallback: reload from backend
+            const userId = characterSheet?.user_id || 'user_01';
+            try {
+                const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+                const res = await fetch(`${backend}/api/profile/${userId}`);
+                if (res.ok) {
+                    const profileData = await res.json();
+                    if (profileData.skill_tree && onSkillTreeUpdate) {
+                        onSkillTreeUpdate(profileData.skill_tree);
+                    }
+                }
+            } catch (error) {
+                console.error('Error reloading skill tree:', error);
+            }
+        }
+    };
     
     // #region agent log
     React.useEffect(() => {
@@ -233,15 +321,25 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
     // #endregion
     
     return (
-        <div 
-            ref={containerRef}
-            className="w-full h-full relative bg-[#f0f9ff] border-t-4 border-blue-900/10 overflow-auto cursor-grab active:cursor-grabbing select-none"
-            onMouseDown={handleMouseDown} 
-            onMouseMove={handleMouseMove} 
-            onMouseUp={handleMouseUp} 
-            onMouseLeave={handleMouseUp}
-            style={{ overscrollBehavior: 'none' }}
-        >
+            <div 
+                ref={containerRef}
+                className="w-full h-full relative bg-[#f0f9ff] border-t-4 border-blue-900/10 overflow-auto cursor-grab active:cursor-grabbing select-none"
+                onMouseDown={handleMouseDown} 
+                onMouseMove={handleMouseMove} 
+                onMouseUp={handleMouseUp} 
+                onMouseLeave={handleMouseUp}
+                onContextMenu={(e) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:container-contextmenu',message:'Container context menu event',data:{targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+                    // #endregion
+                    // Only prevent default if not clicking on a node (let node handler handle it)
+                    const isNode = e.target.closest('[data-node-id]');
+                    if (!isNode) {
+                        e.preventDefault();
+                    }
+                }}
+                style={{ overscrollBehavior: 'none' }}
+            >
             <div 
                 className={`absolute origin-top-left ${!isDragging ? 'transition-transform duration-75 ease-out' : ''}`}
                 style={{ 
@@ -286,9 +384,36 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
                         <path key={e.id} d={e.d} stroke="#3b82f6" strokeWidth="2" fill="none" strokeOpacity="0.4" />
                     ))}
                 </svg>
-                {layout.nodes.map(node => (
-                    <div key={node.id} className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 hover:z-50"
-                        style={{ left: node.x, top: node.y }} onMouseEnter={() => setHoveredNodeId(node.id)} onMouseLeave={() => setHoveredNodeId(null)}>
+                {layout.nodes.map(node => {
+                    // #region agent log
+                    if (node.type === 'Habit' || node.type === 'Sub-Skill') {
+                        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-render',message:'Rendering node with context menu handler',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,nodeX:node.x,nodeY:node.y},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+                    }
+                    // #endregion
+                    return (
+                    <div 
+                        key={node.id}
+                        data-node-id={node.id}
+                        className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 hover:z-50"
+                        style={{ left: node.x, top: node.y }} 
+                        onMouseEnter={() => setHoveredNodeId(node.id)} 
+                        onMouseLeave={() => setHoveredNodeId(null)}
+                        onContextMenu={(e) => {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-contextmenu-event',message:'onContextMenu event fired on node',data:{nodeId:node.id,nodeType:node.type,clientX:e.clientX,clientY:e.clientY,defaultPrevented:e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+                            // #endregion
+                            handleNodeContextMenu(e, node);
+                        }}
+                        onMouseDown={(e) => {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-mousedown',message:'Node mousedown event',data:{nodeId:node.id,nodeType:node.type,button:e.button,isRightClick:e.button===2,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+                            // #endregion
+                            if (e.button === 2) {
+                                // Right click - stop propagation to prevent container handler
+                                e.stopPropagation();
+                            }
+                        }}
+                    >
                         {node.type === 'Habit' && hoveredNodeId === node.id && (
                             <div className="absolute bottom-full mb-3 bg-slate-900/95 backdrop-blur text-white p-3 rounded-lg shadow-xl z-50 w-56 text-xs border border-slate-700 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-200">
                                 <div className="font-bold text-sm mb-1 text-blue-200">{node.name}</div>
@@ -317,13 +442,45 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet }) => {
                         </div>
                         <div className="mt-4 text-center font-mono font-bold bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded border border-slate-100 shadow-sm text-[10px] w-28 text-slate-600">{node.name}</div>
                     </div>
-                ))}
+                    );
+                })}
             </div>
             <div className="absolute bottom-4 right-4 flex flex-col gap-2 pointer-events-auto shadow-lg bg-white/50 backdrop-blur-sm p-1 rounded-lg border border-blue-200">
                 <button onClick={() => setTransform(p => ({...p, k: p.k + 0.2}))} className="bg-white p-2 rounded hover:bg-blue-50 text-blue-600 shadow-sm border border-blue-100"><Plus size={20} /></button>
                 <button onClick={() => setTransform(p => ({...p, k: p.k - 0.2}))} className="bg-white p-2 rounded hover:bg-blue-50 text-blue-600 shadow-sm border border-blue-100"><Minus size={20} /></button>
                 <button onClick={() => setTransform({x:0, y:0, k:0.8})} className="bg-white p-2 rounded hover:bg-blue-50 text-blue-600 shadow-sm border border-blue-100"><Maximize size={20} /></button>
             </div>
+
+            {/* Context Menu */}
+            {contextMenu && (
+                <NodeContextMenu
+                    node={contextMenu.node}
+                    position={contextMenu.position}
+                    onClose={handleCloseContextMenu}
+                    onAskQuestion={handleAskQuestion}
+                    onAdjustDifficulty={handleAdjustDifficulty}
+                />
+            )}
+
+            {/* Question Dialog */}
+            {questionDialog && (
+                <NodeQuestionDialog
+                    node={questionDialog}
+                    userId={characterSheet?.user_id}
+                    onClose={() => setQuestionDialog(null)}
+                    onQuestionAnswered={handleQuestionAnswered}
+                />
+            )}
+
+            {/* Difficulty Adjustment Dialog */}
+            {difficultyDialog && (
+                <NodeDifficultyDialog
+                    node={difficultyDialog}
+                    userId={characterSheet?.user_id}
+                    onClose={() => setDifficultyDialog(null)}
+                    onDifficultyAdjusted={handleDifficultyAdjusted}
+                />
+            )}
         </div>
     );
 };

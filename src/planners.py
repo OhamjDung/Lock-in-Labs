@@ -42,15 +42,50 @@ class BasePlanner:
 
     def _generate_deep_prompt(self, north_star, current_quests, debuffs, skill_level, pillar_name):
         """Generates prompt that enforces tree depth based on skill level."""
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                import json as json_log, time
+                f.write(json_log.dumps({"location":"planners.py:_generate_deep_prompt:entry","message":"Generating depth prompt","data":{"skill_level":skill_level,"north_star":north_star,"pillar":pillar_name},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2"}) + '\n')
+        except: pass
+        # #endregion
+        
         if skill_level <= 3:
             depth_instruction = "The user is a BEGINNER. Create a TALL, DEEP tree (4-5 layers). Break down complex skills into foundational prerequisites."
+            max_layers = 5
+            max_nodes = 8
             capstone_examples = "Level 1-3 Capstone Examples: 'Have a 5-minute conversation', 'Complete first project', 'Run 1 mile without stopping'"
+            branch = "BEGINNER"
         elif skill_level <= 7:
             depth_instruction = "The user is INTERMEDIATE. Create a balanced tree (2-3 layers). Focus on bridging the gap to mastery."
+            max_layers = 3
+            max_nodes = 5
             capstone_examples = "Level 4-6 Capstone Examples: 'Attend 3 meetups and initiate 5 conversations', 'Complete portfolio project', 'Run 5K in 25 minutes'"
+            branch = "INTERMEDIATE"
         else:
-            depth_instruction = "The user is an EXPERT. Create a WIDE, FLAT tree (1-2 layers). Focus only on elite-level refinements."
+            depth_instruction = "The user is an EXPERT. Create a WIDE, FLAT tree (1-2 layers MAXIMUM). Focus only on elite-level refinements."
+            max_layers = 2
+            max_nodes = 3
             capstone_examples = "Level 7-10 Capstone Examples: 'Host a networking event', 'Land senior role', 'Run marathon in under 3 hours'"
+            branch = "EXPERT"
+        
+        if skill_level <= 3:
+            max_layers = 5
+            max_nodes = 8
+        elif skill_level <= 7:
+            max_layers = 3
+            max_nodes = 5
+        else:
+            max_layers = 2
+            max_nodes = 3
+        
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                import json as json_log, time
+                f.write(json_log.dumps({"location":"planners.py:_generate_deep_prompt:branch_selected","message":"Depth instruction branch selected","data":{"skill_level":skill_level,"branch":branch,"depth_instruction":depth_instruction,"max_layers":max_layers,"max_nodes":max_nodes},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2"}) + '\n')
+        except: pass
+        # #endregion
 
         # Include RAG retrieval
         verified_skills = retrieve_relevant_skills(north_star, top_k=5, pillar=Pillar[pillar_name.upper()])
@@ -66,25 +101,28 @@ class BasePlanner:
         **VERIFIED SKILL LIBRARY (Prioritize these):**
         {rag_context}
         
-        **CRITICAL RULES FOR DEPTH:**
-        1. **Chain Prerequisites**: Do NOT connect everything to the Goal. Connect Basic Skills -> Intermediate Skills -> Advanced Skills -> Goal.
-        2. **CHECK THE LIBRARY**: If a Verified Skill fits a step, USE IT exactly as written.
-        3. **FILL GAPS**: If the library doesn't cover a necessary step, GENERATE a new skill node.
-        4. **CAPSTONE RULE**: The final node MUST be a concrete milestone appropriate for skill level {skill_level}/10, NOT the Goal name itself.
+        **CRITICAL RULES FOR DEPTH (MANDATORY - DO NOT VIOLATE):**
+        0. **DEPTH LIMIT (CRITICAL)**: You MUST create EXACTLY {max_layers} layers or fewer. The maximum depth from any starting node to the capstone must be {max_layers} layers or less. If you need to simplify, create fewer nodes, not more layers.
+        1. **MAXIMUM NODES**: Generate AT MOST {max_nodes} Sub-Skill nodes total. For EXPERT level (skill_level > 7), use 1-3 nodes maximum.
+        2. **Chain Prerequisites**: Do NOT connect everything to the Goal. Connect Basic Skills -> Intermediate Skills -> Advanced Skills -> Goal.
+        3. **CHECK THE LIBRARY**: If a Verified Skill fits a step, USE IT exactly as written.
+        4. **FILL GAPS**: If the library doesn't cover a necessary step, GENERATE a new skill node (but respect the {max_layers} layer limit).
+        5. **CAPSTONE RULE**: The final node MUST be a concrete milestone appropriate for skill level {skill_level}/10, NOT the Goal name itself.
            {capstone_examples}
            **CRITICAL**: 
            - Match the capstone complexity to the user's level. A Level 4 user should NOT get a Level 9-10 milestone.
            - The capstone name MUST be DIFFERENT from the Goal name. If Goal is "Become an accountant", capstone should be "Pass CPA Exam" or "Land First Job", NOT "Become an Accountant".
            - The capstone must describe a MECHANISM OF COMPLETION (certification, job offer, project completion), not restate the goal.
-        5. **DEPENDENCY LOGIC**: Only link Skill A -> Skill B if A is strictly required to learn B. 
+        6. **DEPENDENCY LOGIC**: Only link Skill A -> Skill B if A is strictly required to learn B. 
            - *Bad Logic:* Data Analysis -> Tax Law (These are parallel skills).
            - *Good Logic:* Accounting Principles -> Financial Statement Analysis (Principles are foundational).
-        6. **NO FILLER**: Do not use generic names like "Advanced {{north_star}}". Use specific industry terms (e.g., "Forensic Accounting").
-        7. **Example of Depth**: 
-           - 'Variables' (Prereq: None)
-           - 'Loops' (Prereq: ['Variables'])
-           - 'Functions' (Prereq: ['Loops'])
-           - 'Build App' (Prereq: ['Functions'])
+        7. **NO FILLER**: Do not use generic names like "Advanced {{north_star}}". Use specific industry terms (e.g., "Forensic Accounting").
+        8. **Examples of Correct Depth**:
+           For EXPERT (1-2 layers):
+           - Example 1: 'Intermediate Skill' (Prereq: None) -> 'Capstone' (Prereq: ['Intermediate Skill']) = 2 layers ✓
+           - Example 2: 'Capstone' (Prereq: None) = 1 layer ✓
+           For INTERMEDIATE (2-3 layers):
+           - Example: 'Basic Skill' (Prereq: None) -> 'Intermediate Skill' (Prereq: ['Basic Skill']) -> 'Capstone' (Prereq: ['Intermediate Skill']) = 3 layers ✓
         
         **OUTPUT SCHEMA (JSON):**
         {{
@@ -173,6 +211,14 @@ class BasePlanner:
 
 class CareerPlanner(BasePlanner):
     def generate_roadmap(self, north_star: str, current_quests: List[str], debuffs: List[str], skill_level: int = 1) -> List[SkillNode]:
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                import json as json_log, time
+                f.write(json_log.dumps({"location":"planners.py:CareerPlanner.generate_roadmap:entry","message":"CareerPlanner.generate_roadmap called","data":{"north_star":north_star,"skill_level":skill_level,"current_quests":current_quests,"default_skill_level":1},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"H1"}) + '\n')
+        except: pass
+        # #endregion
+        
         base_prompt = self._generate_deep_prompt(north_star, current_quests, debuffs, skill_level, "Career")
         
         # Add Career-specific constraints

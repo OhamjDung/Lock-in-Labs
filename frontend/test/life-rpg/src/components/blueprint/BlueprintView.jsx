@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import TreeVisualizer from './TreeVisualizer';
 
-export default function BlueprintView({ skillTree, characterSheet }) {
+export default function BlueprintView({ skillTree, characterSheet, onSkillTreeUpdate }) {
   const [activePillar, setActivePillar] = useState('CAREER');
 
   // #region agent log
@@ -30,7 +30,12 @@ export default function BlueprintView({ skillTree, characterSheet }) {
         </div>
       </div>
       <div className="flex-1 overflow-hidden pt-20">
-        <TreeVisualizer pillar={activePillar} skillTree={skillTree} characterSheet={characterSheet} />
+        <TreeVisualizer 
+          pillar={activePillar} 
+          skillTree={skillTree} 
+          characterSheet={characterSheet}
+          onSkillTreeUpdate={onSkillTreeUpdate}
+        />
       </div>
     </div>
   );

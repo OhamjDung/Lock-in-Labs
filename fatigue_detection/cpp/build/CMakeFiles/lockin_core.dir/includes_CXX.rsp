@@ -1,0 +1,1 @@
+-I"D:/Noobcept/Lock In Labs/fatigue_detection/cpp/src" -I"D:/Noobcept/Lock In Labs/fatigue_detection/cpp/build/_deps/json-include" -isystem C:/msys64/ucrt64/include/opencv4 -isystem C:/Users/ohamj/AppData/Local/Programs/Python/Python313/Include -isystem C:/msys64/ucrt64/include/eigen3

@@ -489,14 +489,23 @@
             // Get progress data for habits
             let progressPercent = 0;
             let isActive = false;
+            let completed = 0;
+            let required = (data.type === 'Habit') ? (data.required_completions ?? 30) : 1;
             if (data.type === 'Habit' && characterSheet && characterSheet.habit_progress) {
                 const progress = characterSheet.habit_progress[data.id];
                 if (progress) {
-                    const completed = progress.completed_total || 0;
-                    const required = data.required_completions || 1;
+                    completed = progress.completed_total || 0;
+                    // Use nullish coalescing to preserve 0 values, only default if null/undefined
+                    required = data.required_completions ?? 30;
                     progressPercent = Math.min(100, Math.max(0, (completed / required) * 100));
                     isActive = progress.status === 'ACTIVE';
+                } else {
+                    // Even if no progress yet, set the required value from the node
+                    required = data.required_completions ?? 30;
                 }
+            } else if (data.type === 'Habit') {
+                // Set required even if no characterSheet or habit_progress
+                required = data.required_completions ?? 30;
             }
             
             // Render inner shape based on type

@@ -76,13 +76,6 @@ def main():
         st.subheader("🌟 North Star Goals")
         for goal in sheet.get("north_star_goals", []):
             st.markdown(f"- {goal}")
-            
-        st.divider()
-        
-        if "debuffs" in sheet and sheet["debuffs"]:
-            st.subheader("⚠️ Active Debuffs")
-            for debuff in sheet["debuffs"]:
-                st.error(debuff)
 
     # --- HUD (HEADS UP DISPLAY) ---
     st.subheader("📊 Core Pillars")

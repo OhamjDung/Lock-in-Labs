@@ -424,6 +424,40 @@ def _get_goal_by_id(sheet: CharacterSheet, goal_id: str):
     """Helper to find a goal by ID."""
     return next((g for g in sheet.goals if g.id == goal_id), None)
 
+def _extract_pillar_rankings(user_input: str) -> List[Pillar]:
+    """Extract ordered list of pillars from user's ranking response."""
+    pillar_keywords = {
+        "career": Pillar.CAREER,
+        "physical": Pillar.PHYSICAL,
+        "mental": Pillar.MENTAL,
+        "social": Pillar.SOCIAL
+    }
+    
+    found_pillars = []
+    input_lower = user_input.lower()
+    
+    # Look for pillar names in order
+    for keyword, pillar_enum in pillar_keywords.items():
+        if keyword in input_lower and pillar_enum not in found_pillars:
+            found_pillars.append(pillar_enum)
+    
+    # Also check for numbered lists (1. Career, 2. Physical, etc.)
+    for i, pillar_enum in enumerate([Pillar.CAREER, Pillar.PHYSICAL, Pillar.MENTAL, Pillar.SOCIAL]):
+        keyword = list(pillar_keywords.keys())[i]
+        # Check for patterns like "1. career", "first career", "career first"
+        pattern1 = f"{i+1}. {keyword}"
+        pattern2 = f"first {keyword}" if i == 0 else f"second {keyword}" if i == 1 else f"third {keyword}" if i == 2 else f"fourth {keyword}"
+        pattern3 = f"{keyword} first" if i == 0 else f"{keyword} second" if i == 1 else f"{keyword} third" if i == 2 else f"{keyword} fourth"
+        
+        if (pattern1 in input_lower or pattern2 in input_lower or pattern3 in input_lower) and pillar_enum not in found_pillars:
+            # Insert at correct position if not already there
+            if len(found_pillars) <= i:
+                found_pillars.append(pillar_enum)
+            else:
+                found_pillars.insert(i, pillar_enum)
+    
+    return found_pillars
+
 def _find_next_incomplete_goal(sheet: CharacterSheet, current_phase: str) -> str | None:
     """Find the next goal that needs attention based on the current phase."""
     for goal in sheet.goals:
@@ -600,6 +634,22 @@ def architect_reply(payload: ArchitectRequest):
         
         # If user mentioned at least 2 goals/pillars, used ranking words, or wants to move on after providing ranking, consider it complete
         if (len(mentioned_goals) >= 2 or len(mentioned_pillars) >= 2) or (has_ranking_words and (len(mentioned_goals) >= 1 or len(mentioned_pillars) >= 1)) or (wants_to_move_on and state.goals_prioritized == False):
+            # Extract pillar rankings from user input
+            pillar_rankings = _extract_pillar_rankings(payload.user_input)
+            if pillar_rankings:
+                sheet.pillar_rankings = pillar_rankings
+                print(f"[Phase 3.5] Extracted pillar rankings: {[p.value for p in pillar_rankings]}")
+            else:
+                # Fallback: if no explicit ranking found, use order from goals (first pillar of each goal)
+                seen_pillars = []
+                for goal in sheet.goals:
+                    for pillar in goal.pillars:
+                        if pillar not in seen_pillars:
+                            seen_pillars.append(pillar)
+                if seen_pillars:
+                    sheet.pillar_rankings = seen_pillars
+                    print(f"[Phase 3.5] Using inferred pillar order from goals: {[p.value for p in seen_pillars]}")
+            
             # If user wants to move on and we haven't detected a ranking yet, check if they provided one earlier
             # For now, if they explicitly want to move on, mark as prioritized
             state.goals_prioritized = True
@@ -1493,9 +1543,53 @@ def extract_profile(payload: ExtractProfileRequest):
                             except:
                                 pass
         
+        # Extract pillar_rankings from conversation history (phase 3.5)
+        # Look for ranking mentions in recent conversation
+        for msg in reversed(conversation_history[-10:]):  # Check last 10 messages
+            if msg["role"] == "user":
+                rankings = _extract_pillar_rankings(msg["content"])
+                if rankings:
+                    sheet.pillar_rankings = rankings
+                    print(f"[extract_profile] Extracted pillar rankings from conversation: {[p.value for p in rankings]}")
+                    break
+        
+        # Fallback: if no rankings found, infer from goal order
+        if not sheet.pillar_rankings:
+            seen_pillars = []
+            for goal in sheet.goals:
+                for pillar in goal.pillars:
+                    if pillar not in seen_pillars:
+                        seen_pillars.append(pillar)
+            if seen_pillars:
+                sheet.pillar_rankings = seen_pillars
+                print(f"[extract_profile] Using inferred pillar order from goals: {[p.value for p in seen_pillars]}")
+        
         # #region agent log
         import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:pre_planners","message":"Goals before planners","data":{"goals_count": len(sheet.goals), "goals": [{"name": g.name, "pillars": [p.value for p in g.pillars] if g.pillars else [], "current_quests": g.current_quests} for g in sheet.goals]},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H1-H2"})+'\n')
         # #endregion
+        
+        # STATROLLER PHASE: Derive skill levels and calculate initial XP
+        print("[StatRoller] Deriving skill levels for goals missing them...")
+        for goal in sheet.goals:
+            if not goal.skill_level and goal.pillars:
+                planner = get_planner(goal.pillars[0].value)
+                goal.skill_level = planner.derive_skill_level(goal.name, goal.current_quests)
+                print(f"[StatRoller] Derived skill level for '{goal.name}': {goal.skill_level}/10")
+        
+        print("[StatRoller] Calculating initial XP based on user's past experience...")
+        from src.onboarding.stat_roller import StatRollerAgent
+        stat_roller = StatRollerAgent()
+        initial_xp = stat_roller.calculate_initial_xp(sheet)
+        
+        # Update sheet XP fields
+        sheet.xp_career = initial_xp.get("xp_career", 0)
+        sheet.xp_physical = initial_xp.get("xp_physical", 0)
+        sheet.xp_mental = initial_xp.get("xp_mental", 0)
+        sheet.xp_social = initial_xp.get("xp_social", 0)
+        sheet.xp_total = sheet.xp_career + sheet.xp_physical + sheet.xp_mental + sheet.xp_social
+        
+        print(f"[StatRoller] Initial XP awarded: Career={sheet.xp_career}, Physical={sheet.xp_physical}, Mental={sheet.xp_mental}, Social={sheet.xp_social}, Total={sheet.xp_total}")
+        print(f"[StatRoller] Justification: {initial_xp.get('justification', '')}")
         
         # PHASE 4: Run planners to generate needed_quests
         # For goals with multiple pillars, we'll use the first pillar's planner
@@ -1506,10 +1600,12 @@ def extract_profile(payload: ExtractProfileRequest):
             # Use the first pillar for the planner (could be enhanced to use multiple planners)
             if goal.pillars:
                 planner = get_planner(goal.pillars[0].value)
+                # Pass skill_level to planner (now that we've derived it)
                 needed_skill_nodes = planner.generate_roadmap(
                     north_star=goal.name,
                     current_quests=goal.current_quests,
-                    debuffs=sheet.debuffs
+                    debuffs=sheet.debuffs,
+                    skill_level=goal.skill_level or 1
                 )
                 goal.needed_quests = [node.name for node in needed_skill_nodes]
                 # #region agent log
@@ -1532,13 +1628,35 @@ def extract_profile(payload: ExtractProfileRequest):
         import json as _json; open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a').write(_json.dumps({"location":"api.py:extract_profile:post_skilltree","message":"Skill tree generated","data":{"nodes_count": len(skill_tree.nodes), "node_types": {n.type.value: sum(1 for x in skill_tree.nodes if x.type == n.type) for n in skill_tree.nodes[:1]} if skill_tree.nodes else {}},"timestamp":__import__('time').time()*1000,"sessionId":"debug-session","hypothesisId":"H3"})+'\n')
         # #endregion
         
-        # Activate 1-2 habits per pillar automatically
-        _activate_initial_habits(sheet, skill_tree)
+        # DIRECTOR PHASE: Select 3-5 starter habits from top 2 prioritized pillars
+        print("[Director] Selecting starter directives from top 2 prioritized pillars...")
+        from src.onboarding.director import DirectorAgent
+        from src.models import HabitProgress, NodeStatus, NodeType
         
-        # Return the complete profile
+        director = DirectorAgent()
+        selected_node_ids, onboarding_message = director.select_starter_directives(skill_tree, sheet)
+        
+        # Initialize HabitProgress for all habit nodes, activate selected ones
+        for node in skill_tree.nodes:
+            if node.type == NodeType.HABIT:
+                if node.id not in sheet.habit_progress:
+                    sheet.habit_progress[node.id] = HabitProgress(node_id=node.id)
+                
+                # Activate if selected, otherwise lock
+                if node.id in selected_node_ids:
+                    sheet.habit_progress[node.id].status = NodeStatus.ACTIVE
+                    print(f"[Director] Activated habit: {node.name} (ID: {node.id})")
+                else:
+                    sheet.habit_progress[node.id].status = NodeStatus.LOCKED
+        
+        print(f"[Director] Selected {len(selected_node_ids)} starter habits from top 2 pillars")
+        print(f"[Director] Onboarding message: {onboarding_message}")
+        
+        # Return the complete profile with onboarding message
         return {
             "character_sheet": sheet.model_dump(),
-            "skill_tree": skill_tree.model_dump()
+            "skill_tree": skill_tree.model_dump(),
+            "onboarding_message": onboarding_message
         }
     except Exception as e:
         import traceback
@@ -2536,3 +2654,374 @@ async def voice_ws(websocket: WebSocket):
         # HTTP client in fetch_tts_pcm, which is created and torn down per
         # request.
         pass
+
+
+@app.post("/api/skill-tree/node/question")
+def ask_node_question(payload: dict):
+    """Handle user questions about a skill tree node (clarification only, no modifications)."""
+    from src.llm import LLMClient
+    from src.models import SkillNode, NodeType
+    
+    user_id = payload.get("user_id")
+    node_id = payload.get("node_id")
+    question = payload.get("question")
+    
+    if not user_id or not node_id or not question:
+        raise HTTPException(status_code=400, detail="Missing required fields: user_id, node_id, question")
+    
+    # Load profile and skill tree
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    skill_tree_dict = data.get("skill_tree")
+    if not skill_tree_dict:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+    
+    # Find the node
+    nodes = skill_tree_dict.get("nodes", [])
+    node_dict = next((n for n in nodes if n.get("id") == node_id), None)
+    if not node_dict:
+        raise HTTPException(status_code=404, detail="Node not found")
+    
+    # Convert to SkillNode for easier access
+    node = SkillNode(**node_dict)
+    
+    # Generate clarification using LLM
+    llm_client = LLMClient()
+    prompt = f"""The user is asking a question about a skill/habit in a Life RPG system.
+
+NODE INFORMATION:
+- Name: {node.name}
+- Type: {node.type.value}
+- Description: {node.description or "No description provided"}
+- Required completions: {node.required_completions or 30}
+- Pillar: {node.pillar.value if hasattr(node.pillar, 'value') else node.pillar}
+- XP Reward: {node.xp_reward}
+
+USER'S QUESTION:
+"{question}"
+
+Provide a helpful, clear answer that clarifies what this node/habit/skill is about and how to approach it. 
+Be encouraging and practical. If the question is about difficulty or completion, explain the requirements clearly.
+Keep your response concise (2-4 sentences) and actionable.
+
+Answer:"""
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    try:
+        answer = llm_client.chat_completion(messages, json_mode=False)
+        return {
+            "answer": answer.strip(),
+            "node": node.model_dump()
+        }
+    except Exception as e:
+        print(f"Error generating answer: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate answer: {str(e)}")
+
+
+@app.post("/api/skill-tree/node/adjust-difficulty")
+def adjust_node_difficulty(payload: dict):
+    """Adjust the difficulty of a habit or sub-skill node.
+    
+    For "easier": Creates intermediate prerequisite nodes that lead up to the target node.
+    For "harder": Modifies the current node to be harder (increases difficulty/complexity).
+    """
+    # #region agent log
+    import json as json_log
+    import time
+    try:
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:entry","message":"Endpoint called","data":{"payload_keys":list(payload.keys()),"user_id":payload.get("user_id"),"node_id":payload.get("node_id"),"direction":payload.get("direction"),"amount":payload.get("amount"),"has_reason":bool(payload.get("reason"))},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"H1,H2"}) + '\n')
+    except: pass
+    # #endregion
+    
+    try:
+        from src.skill_tree.node_regenerator import regenerate_node_with_difficulty, generate_easier_prerequisite_nodes
+        from src.models import SkillNode, SkillTree, NodeType
+    except Exception as import_err:
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:import-error","message":"Import failed","data":{"error":str(import_err),"errorType":type(import_err).__name__},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H3"}) + '\n')
+        except: pass
+        # #endregion
+        raise HTTPException(status_code=500, detail=f"Import error: {str(import_err)}")
+    
+    user_id = payload.get("user_id")
+    node_id = payload.get("node_id")
+    direction = payload.get("direction")  # "easier" or "harder"
+    amount = payload.get("amount")  # "little", "moderate", "a_lot"
+    reason = payload.get("reason")  # Optional user-provided reason
+    
+    # #region agent log
+    try:
+        import time
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:params_extracted","message":"Extracted parameters from payload","data":{"user_id":user_id,"node_id":node_id,"direction":direction,"amount":amount,"reason":reason},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"H1"}) + '\n')
+    except: pass
+    # #endregion
+    
+    # #region agent log
+    try:
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:validation","message":"Validating parameters","data":{"user_id":user_id,"node_id":node_id,"direction":direction,"amount":amount,"hasAllRequired":bool(user_id and node_id and direction and amount)},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H1"}) + '\n')
+    except: pass
+    # #endregion
+    
+    if not user_id or not node_id or not direction or not amount:
+        raise HTTPException(status_code=400, detail="Missing required fields: user_id, node_id, direction, amount")
+    
+    if direction not in ["easier", "harder"]:
+        raise HTTPException(status_code=400, detail="direction must be 'easier' or 'harder'")
+    
+    if amount not in ["little", "moderate", "a_lot"]:
+        raise HTTPException(status_code=400, detail="amount must be 'little', 'moderate', or 'a_lot'")
+    
+    # Load profile and skill tree
+    # #region agent log
+    try:
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:pre-load","message":"About to load profile","data":{"user_id":user_id},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H2"}) + '\n')
+    except: pass
+    # #endregion
+    
+    try:
+        from src.storage import load_profile
+        from src.models import CharacterSheet
+        data = load_profile(user_id)
+    except Exception as load_err:
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:load-error","message":"load_profile failed","data":{"error":str(load_err),"errorType":type(load_err).__name__},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H2"}) + '\n')
+        except: pass
+        # #endregion
+        raise HTTPException(status_code=500, detail=f"Failed to load profile: {str(load_err)}")
+    
+    if not data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Load character sheet for planner context
+    character_sheet_dict = data.get("character_sheet")
+    if character_sheet_dict:
+        try:
+            character_sheet = CharacterSheet(**character_sheet_dict)
+        except Exception as cs_err:
+            print(f"Warning: Failed to load character sheet, using empty one: {cs_err}")
+            character_sheet = CharacterSheet(user_id=user_id)
+    else:
+        character_sheet = CharacterSheet(user_id=user_id)
+    
+    skill_tree_dict = data.get("skill_tree")
+    if not skill_tree_dict:
+        raise HTTPException(status_code=404, detail="Skill tree not found")
+    
+    # Find the node
+    nodes = skill_tree_dict.get("nodes", [])
+    node_dict = next((n for n in nodes if n.get("id") == node_id), None)
+    if not node_dict:
+        raise HTTPException(status_code=404, detail="Node not found")
+    
+    # Convert to SkillNode
+    # #region agent log
+    try:
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:pre-convert","message":"About to convert to SkillNode","data":{"node_dict_keys":list(node_dict.keys()),"node_type":node_dict.get("type")},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H3"}) + '\n')
+    except: pass
+    # #endregion
+    
+    try:
+        node = SkillNode(**node_dict)
+    except Exception as convert_err:
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:convert-error","message":"SkillNode conversion failed","data":{"error":str(convert_err),"errorType":type(convert_err).__name__,"node_dict":node_dict},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H3"}) + '\n')
+        except: pass
+        # #endregion
+        raise HTTPException(status_code=500, detail=f"Failed to convert node: {str(convert_err)}")
+    
+    # Only allow difficulty adjustment for Habits and Sub-Skills
+    if node.type not in [NodeType.HABIT, NodeType.SUB_SKILL]:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot adjust difficulty for {node.type.value} nodes. Only Habits and Sub-Skills can be adjusted."
+        )
+    
+    # Build set of used IDs to avoid conflicts
+    used_ids = {n.get("id") for n in nodes if n.get("id")}
+    
+    # #region agent log
+    try:
+        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+            f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:pre-process","message":"About to process difficulty adjustment","data":{"direction":direction,"node_type":node.type.value if hasattr(node.type,'value') else str(node.type),"node_id":node.id},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H4,H5"}) + '\n')
+    except: pass
+    # #endregion
+    
+    try:
+        if direction == "easier":
+            # #region agent log
+            try:
+                with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                    f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:pre-generate-easier","message":"About to generate easier nodes","data":{"amount":amount,"used_ids_count":len(used_ids)},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H4"}) + '\n')
+            except: pass
+            # #endregion
+            # Convert existing skill tree nodes to SkillNode objects for deduplication
+            existing_skill_tree_nodes = []
+            node_dict_to_index_map = {}  # Map node ID to index in nodes list for updates
+            for i, node_dict_item in enumerate(nodes):
+                try:
+                    existing_node = SkillNode(**node_dict_item)
+                    existing_skill_tree_nodes.append(existing_node)
+                    node_dict_to_index_map[existing_node.id] = i
+                except Exception:
+                    # Skip invalid nodes
+                    continue
+            
+            # Generate intermediate prerequisite nodes using planner system (with deduplication)
+            intermediate_nodes = generate_easier_prerequisite_nodes(
+                node, 
+                amount=amount, 
+                reason=reason, 
+                used_ids=used_ids,
+                character_sheet=character_sheet,
+                existing_skill_tree_nodes=existing_skill_tree_nodes  # Pass for pillar-scoped deduplication
+            )
+            
+            if not intermediate_nodes:
+                raise HTTPException(status_code=500, detail="Failed to generate easier prerequisite nodes")
+            
+            # The function returns only NEW nodes. Reused nodes were modified in-place in existing_skill_tree_nodes.
+            # Update the skill tree's nodes list to reflect changes to reused nodes (prerequisites merged).
+            # Create a mapping of modified existing nodes by ID
+            modified_existing_nodes_by_id = {n.id: n for n in existing_skill_tree_nodes}
+            
+            # Update existing nodes in the skill tree that were reused and modified
+            for node_id, node_index in node_dict_to_index_map.items():
+                if node_id in modified_existing_nodes_by_id:
+                    # This node was potentially modified (prerequisites merged), update it
+                    updated_node = modified_existing_nodes_by_id[node_id]
+                    nodes[node_index] = updated_node.model_dump()
+            
+            # Separate Sub-Skills from Habits in the NEW nodes returned
+            new_subskill_nodes = [n for n in intermediate_nodes if n.type == NodeType.SUB_SKILL]
+            habit_nodes = [n for n in intermediate_nodes if n.type == NodeType.HABIT]
+            
+            # Find terminal Sub-Skill nodes from BOTH new nodes AND potentially reused nodes
+            # Terminal nodes = Sub-Skills that are NOT prerequisites for other Sub-Skills in the same pillar
+            all_subskill_ids_in_pillar = {n.id for n in existing_skill_tree_nodes if n.type == NodeType.SUB_SKILL and n.pillar == node.pillar}
+            all_subskill_ids_in_pillar.update({n.id for n in new_subskill_nodes})
+            
+            # Collect all prerequisite IDs from all Sub-Skills in this pillar (including reused ones)
+            all_subskill_prereq_ids = set()
+            for existing_node in existing_skill_tree_nodes:
+                if existing_node.type == NodeType.SUB_SKILL and existing_node.pillar == node.pillar:
+                    for prereq_id in (existing_node.prerequisites or []):
+                        if prereq_id in all_subskill_ids_in_pillar:
+                            all_subskill_prereq_ids.add(prereq_id)
+            for subskill in new_subskill_nodes:
+                for prereq_id in (subskill.prerequisites or []):
+                    if prereq_id in all_subskill_ids_in_pillar:
+                        all_subskill_prereq_ids.add(prereq_id)
+            
+            # Terminal nodes are Sub-Skills that are not prerequisites of any other Sub-Skill
+            terminal_subskill_ids = []
+            
+            # Terminal nodes from new Sub-Skills
+            for subskill in new_subskill_nodes:
+                if subskill.id not in all_subskill_prereq_ids:
+                    terminal_subskill_ids.append(subskill.id)
+            
+            # Terminal nodes from existing/reused Sub-Skills in this pillar
+            for existing_node in existing_skill_tree_nodes:
+                if (existing_node.type == NodeType.SUB_SKILL and 
+                    existing_node.pillar == node.pillar and 
+                    existing_node.id not in all_subskill_prereq_ids):
+                    # Only include if this node was actually used in the breakdown (check if it's in our processed set)
+                    # For now, include all terminal Sub-Skills in the pillar (safe but might be too broad)
+                    # TODO: Track which nodes were actually reused to be more precise
+                    terminal_subskill_ids.append(existing_node.id)
+            
+            # Remove duplicates
+            terminal_subskill_ids = list(set(terminal_subskill_ids))
+            
+            # If no terminal nodes found, use new Sub-Skills with no prerequisites
+            if not terminal_subskill_ids:
+                terminal_subskill_ids = [n.id for n in new_subskill_nodes if not n.prerequisites]
+            
+            # Update original node's prerequisites: add terminal Sub-Skill nodes
+            original_node_dict = node_dict.copy()
+            original_prereqs = list(original_node_dict.get("prerequisites", []) or [])
+            
+            # Add terminal nodes to original node's prerequisites
+            for terminal_id in terminal_subskill_ids:
+                if terminal_id not in original_prereqs:
+                    original_prereqs.append(terminal_id)
+            
+            original_node_dict["prerequisites"] = original_prereqs
+            
+            # Add all intermediate nodes to the skill tree
+            for intermediate_node in intermediate_nodes:
+                nodes.append(intermediate_node.model_dump())
+                used_ids.add(intermediate_node.id)
+            
+            # Update the original node in the tree
+            node_index = next((i for i, n in enumerate(nodes) if n.get("id") == node_id), None)
+            if node_index is not None:
+                nodes[node_index] = original_node_dict
+            
+            # Return the last intermediate node as the "updated_node" (closest to original)
+            result_node = intermediate_nodes[-1].model_dump()
+            
+        else:  # direction == "harder"
+            # #region agent log
+            try:
+                with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                    f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:pre-regenerate","message":"About to regenerate node harder","data":{"amount":amount},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H5"}) + '\n')
+            except: pass
+            # #endregion
+            # Modify the current node to be harder
+            updated_node = regenerate_node_with_difficulty(node, direction, amount, reason=reason)
+            
+            # Update the node in the skill tree
+            node_index = next((i for i, n in enumerate(nodes) if n.get("id") == node_id), None)
+            if node_index is not None:
+                nodes[node_index] = updated_node.model_dump()
+            
+            result_node = updated_node.model_dump()
+            intermediate_nodes = []  # No intermediate nodes for harder
+        
+    except ValueError as e:
+        # This is the "easier" case error from regenerate_node_with_difficulty
+        # #region agent log
+        try:
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:value-error","message":"ValueError caught","data":{"error":str(e)},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H4"}) + '\n')
+        except: pass
+        # #endregion
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # #region agent log
+        try:
+            import traceback
+            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                f.write(json_log.dumps({"location":"api.py:adjust_node_difficulty:exception","message":"Exception caught","data":{"error":str(e),"errorType":type(e).__name__,"traceback":traceback.format_exc()},"timestamp":int(time.time()*1000),"sessionId":"debug-session","hypothesisId":"H4,H5"}) + '\n')
+        except: pass
+        # #endregion
+        print(f"Error adjusting node difficulty: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to adjust difficulty: {str(e)}")
+    
+    # Save updated profile
+    skill_tree_dict["nodes"] = nodes
+    data["skill_tree"] = skill_tree_dict
+    save_profile(data, user_id)
+    
+    return {
+        "updated_node": result_node,
+        "new_nodes": [n.model_dump() for n in intermediate_nodes] if direction == "easier" else [],
+        "skill_tree": skill_tree_dict
+    }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Terminal, Paperclip, PenTool, User, Target, Brain, Swords, ShieldAlert, 
+  Terminal, Paperclip, PenTool, User, Target, Brain, Swords, 
   Clock, Video, FileText, X, Camera, Plus, Save
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
@@ -256,14 +256,6 @@ export default function ProfileView({ displayData, ditheredPreviewUrl, fileInput
             <div className="flex items-center justify-between mb-4 text-stone-600 border-b border-[#d4c5a9] pb-2"><span className="text-xs font-bold uppercase flex items-center gap-2"><Swords size={14} /> Capability Set</span></div>
             <div className="space-y-1 overflow-y-auto max-h-[240px] pr-2 custom-scrollbar">
               {displayData.skills.map((skill, idx) => <SkillItem key={idx} skill={skill} />)}
-            </div>
-            <div className="mt-auto pt-4">
-              <div className="text-[10px] font-bold text-red-700 mb-2 flex items-center gap-1 uppercase tracking-wide"><ShieldAlert size={12} /> Negative Status</div>
-              {displayData.debuffs.map((d, idx) => (
-                <div key={idx} className="text-xs text-red-900 bg-red-100/50 border border-red-200/60 p-2 rounded-sm flex justify-between items-center shadow-sm">
-                  <span className="font-bold">{d.name}</span><span className="font-mono bg-[#fdf2f2] px-1 border border-red-100 rounded text-[10px]">{d.effect}</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>
