@@ -96,3 +96,89 @@ REPORTING_JSON_PROMPT_TEMPLATE = dedent(
     - If it was partially completed, use PARTIAL and set completed_repetitions accordingly.
     """
 )
+
+
+# Decision generation prompt - enforces "Causal Chain" requirements
+DECISION_LOGIC_RULES = """
+**DECISION LOGIC (Follow Strictly):**
+1. IF (Completion > 90%) AND (No Negative Diaries) -> **INCREASE_INTENSITY** (Progressive Overload).
+2. IF (Completion < 70%) OR (Diaries contain 'pain', 'injury', 'tired') -> **DECREASE_INTENSITY** (Recovery/Deload).
+3. IF (Completion is 70-90%) -> **MAINTAIN** (Consistency building).
+
+**CITATION RULES:**
+- If you cite "Consistency" or "Completion Rate", cite the **Hard Data** section. (Verification not required for stats, cite "Weekly Stats").
+- If you cite "Pain", "Motivation", or "Insights", you MUST quote the **User Diary** section exactly.
+"""
+
+DECISION_GENERATION_PROMPT_TEMPLATE = dedent(
+    """
+    You are an expert {persona} analyzing adjustments to a user's goal plan.
+
+    GOAL: {goal_name}
+    PILLAR: {pillar}
+    
+    CURRENT PLAN:
+    {current_plan}
+    
+    **HARD DATA (Trust this 100%):**
+    {hard_data}
+
+    **USER DIARY (Qualitative Context):**
+    {user_diary}
+    
+    TASK: Analyze the user's progress and recommend an adjustment to their plan for next week.
+    {logic_rules}
+    
+    CRITICAL DECISION RULE - CAUSAL CHAIN REQUIREMENT:
+    You are not allowed to change a variable without citing evidence.
+    For every adjustment (e.g., increasing reps, decreasing distance, changing strategy), you MUST:
+    
+    1. Identify Contributing Factors:
+       - DATA FACTOR: A hard metric or pattern (e.g., "Completed 7/7 days this week", "Failed 3 times on Tuesdays")
+       - SUBJECTIVE FACTOR: User sentiment or self-report (e.g., "User said it was too easy on [DATE]", "User expressed frustration about [TOPIC] on [DATE]")
+       - PATTERN FACTOR: Behavioral trend across time (e.g., "Consistently struggles when sleep < 6 hours")
+    
+    2. Cite Evidence:
+       - For each factor, you MUST include citation_date (the exact date from history above) and citation_text (exact quote)
+       - If you cannot find a matching date in the history, use decision_type "MAINTAIN" and explain why
+       - NEVER make up dates or quotes - only use what is provided in the history
+    
+    3. Explain the Causal Chain:
+       - Show how each factor connects to the decision
+       - Use format: "Because [factor], we are [decision]"
+       - Cite specific dates in your explanation
+    
+    OUTPUT REQUIREMENTS:
+    Return ONLY valid JSON (no markdown, no explanations) with this exact structure:
+    {{
+        "target": "running_distance" | "workout_frequency" | "pushups_reps" | etc.,
+        "target_habit_id": "node_id_123" | null,
+        "old_value": "5km" | 20 | "3x per week" | etc.,
+        "new_value": "3km" | 25 | "2x per week" | etc.,
+        "decision_type": "INCREASE_INTENSITY" | "DECREASE_INTENSITY" | "MAINTAIN" | "CHANGE_STRATEGY",
+        "confidence_score": 0.95,
+        "explanation": "Natural language explanation citing specific dates and events. Show the causal chain.",
+        "contributing_factors": [
+            {{
+                "factor": "Consistency Streak" | "Injury Risk" | "User Feedback" | etc.,
+                "weight": "positive" | "negative" | "neutral",
+                "description": "How this factor influenced the decision. Include the date when referencing events.",
+                "factor_type": "data" | "subjective" | "pattern",
+                "citation_date": "2025-12-24",
+                "citation_text": "Exact quote or phrase from the history above"
+            }}
+        ]
+    }}
+    
+    VALIDATION RULES:
+    1. Every contributing_factor MUST have citation_date and citation_text
+    2. citation_date MUST match a date from "USER'S RELEVANT HISTORY" above
+    3. citation_text MUST be an exact quote or phrase from that date's entry
+    4. If no relevant memories exist, use decision_type "MAINTAIN"
+    5. target should be concrete and measurable
+    6. Include at least 2 contributing_factors (prefer 3-4)
+    7. Mix factor_type: include both "data" and "subjective" factors when possible
+    
+    Return ONLY the JSON object.
+    """
+)

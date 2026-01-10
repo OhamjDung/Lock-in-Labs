@@ -1,0 +1,59 @@
+{
+  "decision": {
+    "target": "running_distance",
+    "target_habit_id": null,
+    "old_value": "3x per week",
+    "new_value": "3km, 5km, 7km",
+    "decision_type": "DECREASE_INTENSITY",
+    "confidence_score": 0.85,
+    "explanation": "Because the current plan includes distances of 3km, 5km, and 7km, and there are no significant memories of injury or difficulty, we are maintaining the current plan. However, given the lack of historical data, a slight decrease in intensity is prudent to avoid potential overexertion. The plan currently includes a 7km run, which may be challenging for the user without sufficient preparation. It's important to monitor the user's feedback closely.",
+    "contributing_factors": [
+      {
+        "factor": "Lack of Historical Data",
+        "weight": "neutral",
+        "description": "No significant memories found yet, making it difficult to assess the user's current fitness level and potential risk of overtraining.",
+        "citation_date": "2026-01-08",
+        "citation_text": "No significant memories found yet.",
+        "verified_date": null,
+        "verified_id": null,
+        "is_verified": false,
+        "verification_score": 0.2857142857142857,
+        "verification_type": "sequence_match",
+        "date_corrected": false,
+        "factor_type": "data"
+      },
+      {
+        "factor": "Potential for Overtraining",
+        "weight": "negative",
+        "description": "The inclusion of a 7km run without prior data suggests a potential risk of overtraining, especially if the user is not consistently performing at a high level.",
+        "citation_date": "2026-01-02",
+        "citation_text": null,
+        "verified_date": "2026-01-02",
+        "verified_id": "report_2026-01-02",
+        "is_verified": true,
+        "verification_score": 1.0,
+        "verification_type": "exact_substring",
+        "date_corrected": false,
+        "factor_type": "pattern"
+      }
+    ],
+    "generated_at": null,
+    "goal_id": "goal_running_test",
+    "pillar": "PHYSICAL"
+  },
+  "metadata": {
+    "generated_at": "2026-01-09T18:46:41.726149",
+    "goal_name": "Run 5km, 3x per week",
+    "goal_id": "goal_running_test",
+    "pillar": "PHYSICAL",
+    "reports_count": 30,
+    "recent_reports_count": 7
+  },
+  "sample_data": {
+    "old_value": "3x per week",
+    "new_value": "3km, 5km, 7km",
+    "decision_type": "DECREASE_INTENSITY",
+    "factors_count": 2,
+    "verified_factors_count": 1
+  }
+}

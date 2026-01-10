@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Literal
 from enum import Enum
 import uuid
 from pydantic import BaseModel, Field
@@ -328,3 +328,71 @@ class ReportingState(BaseModel):
         default_factory=list,
         description="Skill tree modifications proposed during the conversation.",
     )
+
+
+# --- Agentic Decision Explainability Models ---
+
+class ContributingFactor(BaseModel):
+    """A single factor that contributed to a decision, with verifiable citation.
+    
+    This enables "Explainable AI" - every decision can cite its sources.
+    """
+    factor: str = Field(..., description="The variable driving the decision (e.g., 'Consistency Streak', 'Sleep Quality', 'Injury Risk')")
+    weight: str = Field(..., description="Impact direction: 'positive', 'negative', or 'neutral'")
+    description: str = Field(..., description="Contextual explanation of how this factor influenced the decision")
+    
+    # Citation fields (for evidence verification)
+    citation_date: Optional[str] = Field(None, description="Original date cited by LLM (may be hallucinated)")
+    citation_text: Optional[str] = Field(None, description="Exact quote or phrase from the cited log entry")
+    
+    # Grounding/verification fields (added by citation verification step)
+    verified_date: Optional[str] = Field(None, description="Corrected date after grounding (actual log entry date)")
+    verified_id: Optional[str] = Field(None, description="ID of the verified log entry")
+    is_verified: bool = Field(default=False, description="True if citation was verified against actual logs")
+    verification_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Match confidence score (0.0-1.0)")
+    verification_type: Optional[str] = Field(None, description="How citation was matched: 'exact_substring', 'sequence_match', etc.")
+    date_corrected: bool = Field(default=False, description="True if date was wrong and got corrected by grounding")
+    
+    # Additional metadata
+    factor_type: Optional[str] = Field(None, description="Type of factor: 'data' (hard metric), 'subjective' (user sentiment), 'pattern' (behavioral trend)")
+
+
+class Decision(BaseModel):
+    """Explainable AI decision object - every adjustment cites its evidence.
+    
+    This transforms the Reporting Agent from a "black box" into a trusted coach
+    that can explain every decision with verifiable citations.
+    """
+    target: str = Field(..., description="What is being adjusted (e.g., 'running_distance', 'workout_frequency', 'pushups_reps')")
+    target_habit_id: Optional[str] = Field(None, description="ID of the specific habit/skill node being adjusted (if applicable)")
+    
+    old_value: Union[int, str, float] = Field(..., description="Current value before adjustment")
+    new_value: Union[int, str, float] = Field(..., description="Recommended value after adjustment")
+    
+    decision_type: str = Field(..., description="Type of adjustment: 'INCREASE_INTENSITY', 'DECREASE_INTENSITY', 'MAINTAIN', 'CHANGE_STRATEGY'")
+    
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Confidence in this decision (0.0-1.0)")
+    
+    explanation: str = Field(..., description="High-level natural language summary of the 'Why' - cites specific dates and events")
+    
+    contributing_factors: List[ContributingFactor] = Field(
+        default_factory=list,
+        description="List of factors that drove this decision, each with verifiable citations"
+    )
+    
+    # Metadata
+    generated_at: Optional[str] = Field(None, description="ISO datetime when decision was generated")
+    goal_id: Optional[str] = Field(None, description="ID of the goal this decision relates to")
+    pillar: Optional[Pillar] = Field(None, description="Life pillar this decision affects")
+    
+    def get_verified_factors(self) -> List[ContributingFactor]:
+        """Get only factors with verified citations."""
+        return [f for f in self.contributing_factors if f.is_verified]
+    
+    def get_date_corrections(self) -> List[ContributingFactor]:
+        """Get factors where date was corrected by grounding."""
+        return [f for f in self.contributing_factors if f.date_corrected]
+    
+    def has_unverified_citations(self) -> bool:
+        """Check if any citations failed verification."""
+        return any(not f.is_verified for f in self.contributing_factors)

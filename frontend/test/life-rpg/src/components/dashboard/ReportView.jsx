@@ -5,6 +5,53 @@ import { auth } from '../../config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import ReportingChat from './ReportingChat';
 import VoiceReporting from './VoiceReporting';
+import DecisionCard from './DecisionCard';
+
+// Component to load test decision data for development
+function TestDecisionLoader() {
+  const [testDecision, setTestDecision] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    // Try to load test decision data from public folder
+    fetch('/test_decision_output.json')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.decision) {
+          setTestDecision(data.decision);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-4 bg-stone-50 border border-stone-300 rounded-sm text-xs font-mono text-stone-600 text-center">
+        Loading test decision data...
+      </div>
+    );
+  }
+
+  if (!testDecision) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-sm text-xs font-mono text-yellow-800">
+        No decision data available. Run: <code className="bg-yellow-100 px-1 rounded">python debug/test_decision_with_running_data.py</code> to generate test data.
+      </div>
+    );
+  }
+
+  return (
+    <DecisionCard
+      decision={testDecision}
+      onCitationClick={(citation) => {
+        console.log('Citation clicked:', citation);
+      }}
+    />
+  );
+}
 
 export default function ReportView({ displayData }) {
   const [userId, setUserId] = useState(null);
@@ -16,6 +63,8 @@ export default function ReportView({ displayData }) {
   const [isToggling, setIsToggling] = useState({});
   const [showChat, setShowChat] = useState(false);
   const [showVoiceLog, setShowVoiceLog] = useState(false);
+  const [decisions, setDecisions] = useState([]);
+  const [loadingDecisions, setLoadingDecisions] = useState(false);
 
   // Get current user
   useEffect(() => {
@@ -234,6 +283,29 @@ export default function ReportView({ displayData }) {
   useEffect(() => {
     fetchReportData();
   }, [fetchReportData]);
+
+  // Fetch weekly decisions (Explainable AI decisions)
+  useEffect(() => {
+    const fetchDecisions = async () => {
+      if (!userId) return;
+      
+      setLoadingDecisions(true);
+      try {
+        const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+        // TODO: Replace with actual API endpoint when backend is wired up
+        // const res = await fetch(`${backend}/api/reporting/generate-decision?goal_id=${goalId}`);
+        // For now, use empty array (will be populated when API is ready)
+        setDecisions([]);
+      } catch (error) {
+        console.error('Error fetching decisions:', error);
+        setDecisions([]);
+      } finally {
+        setLoadingDecisions(false);
+      }
+    };
+
+    fetchDecisions();
+  }, [userId]);
 
   return (
     <div className="flex-1 flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-4 duration-500 items-center justify-center min-h-[700px]">
@@ -545,6 +617,40 @@ export default function ReportView({ displayData }) {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Section 3: Weekly Plan Adjustments (Explainable AI Decisions) */}
+          {(decisions.length > 0 || loadingDecisions || true) && (
+            <div>
+              <h3 className="font-bold border-b-2 border-stone-800 mb-4 text-sm uppercase tracking-wider text-stone-900 flex items-center gap-2">
+                <Activity size={16} /> Weekly Plan Adjustments (Test Data)
+              </h3>
+              <div className="text-xs font-mono text-stone-500 mb-4 italic">
+                AI-generated decisions with verified citations. Hover over factors to see evidence.
+              </div>
+              
+              {loadingDecisions ? (
+                <div className="p-8 bg-white/40 border border-[#d4c5a9] rounded-sm text-center text-stone-600 font-serif italic">
+                  Analyzing your progress...
+                </div>
+              ) : decisions.length > 0 ? (
+                <div className="space-y-6">
+                  {decisions.map((decision, idx) => (
+                    <DecisionCard
+                      key={idx}
+                      decision={decision}
+                      onCitationClick={(citation) => {
+                        // TODO: Open a modal or navigate to log entry view
+                        console.log('Citation clicked:', citation);
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                // Fallback: Try to load test decision data
+                <TestDecisionLoader />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer: Input Controls */}

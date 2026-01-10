@@ -243,30 +243,41 @@ class SemanticMemory:
             List of SearchResult objects sorted by final relevance (similarity * recency)
         """
         # Build where clause for metadata filtering
-        where_clause = {"user_id": self.user_id}  # Always filter by user
+        # ChromaDB requires $and operator when multiple conditions are present
+        conditions = [{"user_id": self.user_id}]  # Always filter by user
         
         if filters:
-            where_clause.update(filters)
+            # If filters is a dict, convert each key-value to a condition
+            if isinstance(filters, dict):
+                conditions.extend([{k: v} for k, v in filters.items() if v is not None])
         
         if level:
-            where_clause["level"] = level.value
+            conditions.append({"level": level.value})
         
         if chunk_type:
-            where_clause["chunk_type"] = chunk_type.value
+            conditions.append({"chunk_type": chunk_type.value})
         
         if pillar:
-            where_clause["pillar"] = pillar
+            conditions.append({"pillar": pillar})
         
         if sentiment:
-            where_clause["sentiment"] = sentiment
+            conditions.append({"sentiment": sentiment})
         
         if day_of_week is not None:
-            where_clause["day_of_week"] = day_of_week
+            conditions.append({"day_of_week": day_of_week})
         
         # Date range filtering (ChromaDB supports comparison operators)
         if date_range:
             start_date, end_date = date_range
-            where_clause["date"] = {"$gte": start_date, "$lte": end_date}
+            conditions.append({"date": {"$gte": start_date, "$lte": end_date}})
+        
+        # Build final where clause
+        if len(conditions) == 1:
+            where_clause = conditions[0]
+        elif len(conditions) > 1:
+            where_clause = {"$and": conditions}
+        else:
+            where_clause = None
         
         # Generate query embedding
         query_embedding = self._encode_text(query)

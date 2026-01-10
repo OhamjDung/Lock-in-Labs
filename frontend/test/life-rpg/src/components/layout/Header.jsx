@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Activity, User, Map, ClipboardList, Calendar, Lock, Settings, LogOut } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -11,10 +31,18 @@ export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) 
       if (onLogout) {
         onLogout();
       }
+      setIsMenuOpen(false);
     } catch (error) {
       console.error('[Auth] Error signing out:', error);
     }
   };
+
+  const handleSettings = () => {
+    // TODO: Implement settings functionality
+    console.log('[Settings] Settings clicked');
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className={`h-16 border-b flex items-center justify-between px-4 md:px-8 fixed w-full z-50 top-0 shadow-lg transition-all duration-500 ${isLockIn ? 'bg-black/90 border-[#39ff14]/30 backdrop-blur-none' : 'bg-stone-900/40 border-white/10 backdrop-blur-md'}`}>
       <div className="flex items-center gap-4">
@@ -57,13 +85,40 @@ export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) 
             <Lock size={12} /> Lock-In
           </button>
         </div>
-        <button
-          onClick={handleLogout}
-          className="px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-stone-300 hover:text-red-400 hover:bg-red-500/10 border border-white/10"
-          title="Sign Out"
-        >
-          <LogOut size={12} /> Logout
-        </button>
+        
+        {/* Burger Menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-1 text-stone-300 hover:text-white hover:bg-white/10 border border-white/10 min-w-[40px] h-10"
+            title="Menu"
+          >
+            <div className="w-4 h-0.5 bg-current"></div>
+            <div className="w-4 h-0.5 bg-current"></div>
+            <div className="w-4 h-0.5 bg-current"></div>
+          </button>
+
+          {/* Dropdown Menu */}
+          {isMenuOpen && (
+            <div className={`absolute right-0 top-full mt-2 min-w-[180px] rounded-md shadow-lg border backdrop-blur-md transition-all duration-200 ${isLockIn ? 'bg-black/95 border-[#39ff14]/30' : 'bg-stone-900/95 border-white/20'}`}>
+              <div className="py-1">
+                <button
+                  onClick={handleSettings}
+                  className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-stone-300 hover:text-white hover:bg-white/10"
+                >
+                  <Settings size={14} /> Settings
+                </button>
+                <div className="border-t border-white/10 my-1"></div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-stone-300 hover:text-red-400 hover:bg-red-500/10"
+                >
+                  <LogOut size={14} /> Logout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </nav>
     </header>
   );

@@ -17,8 +17,10 @@ from src.models import (
     NodeType,
     DailyScheduleItem,
     Pillar,
+    Decision,
+    ContributingFactor,
 )
-from .prompts import REPORTING_CONVERSATION_PROMPT, REPORTING_JSON_PROMPT_TEMPLATE
+from .prompts import REPORTING_CONVERSATION_PROMPT, REPORTING_JSON_PROMPT_TEMPLATE, DECISION_GENERATION_PROMPT_TEMPLATE, DECISION_LOGIC_RULES
 from .utils import verify_citations
 
 
@@ -640,12 +642,12 @@ class ReportingAgent:
         sheet: CharacterSheet,
         tree: SkillTree,
         recent_reports: Optional[List[DailyReport]] = None,
-    ) -> Dict[str, Any]:
+    ) -> Decision:
         """Generate a decision object with citations for adjusting a goal's plan.
         
-        This creates the structured Decision JSON with:
+        This creates a validated Decision object (Explainable AI) with:
         - target, old_value, new_value, decision_type
-        - contributing_factors with citations
+        - contributing_factors with verifiable citations
         - All citations verified/grounded against actual logs
         
         Args:
@@ -655,7 +657,7 @@ class ReportingAgent:
             recent_reports: Optional list of recent DailyReports (defaults to last 7 days)
             
         Returns:
-            Verified decision object with grounded citations
+            Decision: Validated Decision object with grounded citations (Pydantic model)
         """
         from src.memory.vector_store import SemanticMemory
         
@@ -671,7 +673,7 @@ class ReportingAgent:
         relevant_results = memory.search(
             query=query,
             n_results=10,
-            filters={"pillar": goal.pillars[0].value if goal.pillars else None},
+            pillar=goal.pillars[0].value if goal.pillars else None,  # Use pillar parameter, not filters dict
             apply_recency_weighting=True,
         )
         
@@ -706,54 +708,65 @@ class ReportingAgent:
         
         current_plan_str = "\n".join([f"- {item}" for item in current_plan]) if current_plan else "No specific plan yet"
         
-        # Format memories as context
-        memory_context = "\n".join([
-            f"- {m['date']}: {m['content']}"
-            for m in relevant_memories[:10]
-        ])
+        # --- CALCULATE HARD DATA (New Logic) ---
+        target_node_ids = set()
+        if goal.roadmap:
+            target_node_ids = {n.id for n in goal.roadmap}
         
-        # Create decision prompt
-        prompt = f"""You are an expert {persona} analyzing adjustments to a user's goal plan.
+        # Optimization: Node lookup
+        node_map = {n.id: n for n in tree.nodes}
+        
+        task_stats = {} # name -> {completed, total}
+        
+        for rep in recent_reports:
+            for t_rep in rep.tasks:
+                is_relevant = False
+                if t_rep.node_id in target_node_ids:
+                    is_relevant = True
+                else:
+                    # Check pillar match if node exists and roadmap didn't catch it
+                    node = node_map.get(t_rep.node_id)
+                    if node and node.pillar in goal.pillars:
+                        # Loose match: same pillar
+                        is_relevant = True
+                
+                if is_relevant:
+                    node = node_map.get(t_rep.node_id)
+                    t_name = node.name if node else t_rep.task_id
+                    
+                    if t_name not in task_stats:
+                        task_stats[t_name] = {"completed": 0, "total": 0}
+                    
+                    task_stats[t_name]["total"] += 1
+                    if t_rep.status in [DailyTaskStatus.DONE, DailyTaskStatus.PARTIAL]:
+                         task_stats[t_name]["completed"] += 1
 
-GOAL: {goal.name}
-PILLAR: {primary_pillar.value}
+        hard_data_lines = []
+        if task_stats:
+            for name, stats in task_stats.items():
+                pct = int((stats["completed"] / stats["total"]) * 100)
+                hard_data_lines.append(f"- {name}: {stats['completed']}/{stats['total']} days ({pct}%)")
+        else:
+            hard_data_lines.append("No specific habit data recorded this week (0 logs found).")
+        
+        hard_data_str = "\n".join(hard_data_lines)
 
-CURRENT PLAN:
-{current_plan_str}
-
-USER'S RELEVANT HISTORY (High-Significance Memories Only):
-{memory_context if memory_context else "No significant memories found yet."}
-
-TASK: Analyze the user's progress and recommend an adjustment to their plan for next week.
-
-OUTPUT REQUIREMENTS:
-Return ONLY valid JSON (no markdown, no explanations) with this exact structure:
-{{
-    "target": "running_distance" | "workout_frequency" | "study_hours" | etc.,
-    "old_value": "5km" | "3x per week" | etc.,
-    "new_value": "3km" | "2x per week" | etc.,
-    "decision_type": "DECREASE" | "INCREASE" | "MAINTAIN",
-    "confidence_score": 0.95,
-    "contributing_factors": [
-        {{
-            "factor": "Injury Risk" | "User Insight" | "Progress Pattern" | etc.,
-            "weight": "negative" | "positive" | "neutral",
-            "description": "Brief description of this factor. Include the date when referencing specific events.",
-            "citation_date": "2025-12-24",
-            "citation_text": "Exact quote or phrase from the history above"
-        }}
-    ],
-    "explanation": "Natural language explanation citing specific dates and events from the history above."
-}}
-
-CRITICAL RULES:
-1. Every contributing_factor MUST include citation_date and citation_text
-2. citation_date MUST match a date from the "USER'S RELEVANT HISTORY" section above
-3. citation_text MUST be an exact quote or phrase from that date's entry
-4. If no relevant memories exist, use decision_type "MAINTAIN" and explain why
-5. target should be a concrete, measurable aspect of the plan (distance, frequency, duration, etc.)
-
-Return ONLY the JSON object."""
+        # --- FORMAT USER DIARY ---
+        if relevant_memories:
+            user_diary_str = "\n".join([f"- [{m['date']}] {m['content']}" for m in relevant_memories[:10]])
+        else:
+            user_diary_str = "No specific qualitative logs found."
+            
+        # Updated Prompt Construction with strict logic rules 
+        prompt = DECISION_GENERATION_PROMPT_TEMPLATE.format(
+            persona=persona,
+            goal_name=goal.name,
+            pillar=primary_pillar.value,
+            current_plan=current_plan_str,
+            hard_data=hard_data_str,
+            user_diary=user_diary_str,
+            logic_rules=DECISION_LOGIC_RULES
+        )
 
         # Generate decision from LLM
         try:
@@ -779,32 +792,57 @@ Return ONLY the JSON object."""
                 response_clean = response_clean[:-3]
             response_clean = response_clean.strip()
             
-            decision = json.loads(response_clean)
+            decision_dict = json.loads(response_clean)
+            
+            # Validate and create Decision object (ensures schema compliance)
+            # Convert contributing_factors dicts to ContributingFactor objects
+            factors = []
+            for factor_dict in decision_dict.get("contributing_factors", []):
+                factors.append(ContributingFactor(**factor_dict))
+            
+            decision = Decision(
+                target=decision_dict.get("target", goal.name.lower().replace(" ", "_")),
+                target_habit_id=decision_dict.get("target_habit_id"),
+                old_value=decision_dict.get("old_value", "current plan"),
+                new_value=decision_dict.get("new_value", "current plan"),
+                decision_type=decision_dict.get("decision_type", "MAINTAIN"),
+                confidence_score=decision_dict.get("confidence_score", 0.5),
+                explanation=decision_dict.get("explanation", ""),
+                contributing_factors=factors,
+                goal_id=goal.id,
+                pillar=primary_pillar,
+            )
             
         except json.JSONDecodeError as e:
             print(f"[ReportingAgent] Error parsing LLM decision JSON: {e}")
             print(f"[ReportingAgent] Response: {response[:200]}...")
-            # Return a safe default decision
-            decision = {
-                "target": goal.name.lower().replace(" ", "_"),
-                "old_value": "current plan",
-                "new_value": "current plan",
-                "decision_type": "MAINTAIN",
-                "confidence_score": 0.5,
-                "contributing_factors": [],
-                "explanation": "Unable to generate decision due to parsing error."
-            }
+            # Return a safe default decision (validated Decision object)
+            decision = Decision(
+                target=goal.name.lower().replace(" ", "_"),
+                old_value="current plan",
+                new_value="current plan",
+                decision_type="MAINTAIN",
+                confidence_score=0.5,
+                contributing_factors=[],
+                explanation="Unable to generate decision due to parsing error.",
+                goal_id=goal.id,
+                pillar=primary_pillar,
+            )
         except Exception as e:
             print(f"[ReportingAgent] Error generating decision: {e}")
-            decision = {
-                "target": goal.name.lower().replace(" ", "_"),
-                "old_value": "current plan",
-                "new_value": "current plan",
-                "decision_type": "MAINTAIN",
-                "confidence_score": 0.5,
-                "contributing_factors": [],
-                "explanation": "Unable to generate decision due to error."
-            }
+            import traceback
+            traceback.print_exc()
+            decision = Decision(
+                target=goal.name.lower().replace(" ", "_"),
+                old_value="current plan",
+                new_value="current plan",
+                decision_type="MAINTAIN",
+                confidence_score=0.5,
+                contributing_factors=[],
+                explanation="Unable to generate decision due to error.",
+                goal_id=goal.id,
+                pillar=primary_pillar,
+            )
         
         # GROUND THE CITATIONS: Fix hallucinated dates
         # Convert recent reports to log format for grounding
@@ -844,7 +882,24 @@ Return ONLY the JSON object."""
                 "id": f"memory_{mem['date']}",
             })
         
-        # Apply citation verification/grounding
-        verified_decision = verify_citations(decision, user_logs)
+        # GROUND THE CITATIONS: Fix hallucinated dates
+        # Apply citation verification/grounding to Decision object
+        # Convert Decision to dict for grounding function (which expects dict)
+        decision_dict = decision.model_dump()
+        verified_dict = verify_citations(decision_dict, user_logs)
         
-        return verified_decision
+        # Rebuild Decision object with verified citations
+        verified_factors = []
+        for factor_dict in verified_dict.get("contributing_factors", []):
+            verified_factors.append(ContributingFactor(**factor_dict))
+        
+        # Update decision with verified factors
+        decision.contributing_factors = verified_factors
+        
+        # Update citation dates in factors to use verified_date if available
+        for factor in decision.contributing_factors:
+            if factor.verified_date:
+                # Use verified date (grounded/corrected)
+                factor.citation_date = factor.verified_date
+        
+        return decision
