@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowRight, ArrowUp, ArrowDown, Minus, AlertCircle, CheckCircle2, FileText, Calendar } from 'lucide-react';
 
 /**
@@ -7,12 +7,10 @@ import { ArrowRight, ArrowUp, ArrowDown, Minus, AlertCircle, CheckCircle2, FileT
  * Displays a decision with:
  * - Diff view: old_value → new_value (with colored arrow)
  * - Contributing factors grid
- * - Hover tooltips showing citation evidence
+ * - Always-visible citation evidence inline with each factor
  * - Verification badges (verified/unverified citations)
  */
 export default function DecisionCard({ decision, onCitationClick }) {
-  const [hoveredFactor, setHoveredFactor] = useState(null);
-
   if (!decision) return null;
 
   const {
@@ -122,9 +120,7 @@ export default function DecisionCard({ decision, onCitationClick }) {
               return (
                 <div
                   key={idx}
-                  className={`relative p-4 border-2 ${factorStyle.border} rounded-sm ${factorStyle.bg} transition-all duration-200 cursor-pointer hover:shadow-md hover:scale-[1.02]`}
-                  onMouseEnter={() => setHoveredFactor(idx)}
-                  onMouseLeave={() => setHoveredFactor(null)}
+                  className={`relative p-4 border-2 ${factorStyle.border} rounded-sm ${factorStyle.bg} transition-all duration-200 hover:shadow-md`}
                   onClick={() => {
                     if (onCitationClick && factor.verified_date && factor.citation_text) {
                       onCitationClick({
@@ -177,8 +173,47 @@ export default function DecisionCard({ decision, onCitationClick }) {
                     </div>
                   </div>
 
-                  {/* Citation Info */}
-                  {(factor.verified_date || factor.citation_date) && (
+                  {/* Citation Evidence - Always Visible */}
+                  {factor.citation_text && (
+                    <div className="mt-3 pt-3 border-t border-stone-300">
+                      <div className="text-[10px] font-mono text-stone-500 mb-1.5 uppercase tracking-wider flex items-center gap-2">
+                        <FileText size={10} />
+                        EVIDENCE
+                        {(factor.verified_date || factor.citation_date) && (
+                          <span className="ml-auto flex items-center gap-1">
+                            <Calendar size={9} />
+                            <span className="font-bold text-stone-600">
+                              {factor.verified_date || factor.citation_date}
+                            </span>
+                            {dateCorrected && factor.original_citation_date && (
+                              <span className="text-stone-400 line-through text-[9px]">
+                                (was {factor.original_citation_date})
+                              </span>
+                            )}
+                          </span>
+                        )}
+                        {verificationScore > 0 && (
+                          <span className="text-stone-500 text-[9px]">
+                            {Math.round(verificationScore * 100)}% match
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-stone-700 font-serif italic leading-relaxed bg-stone-50 p-2 rounded border border-stone-200">
+                        "{factor.citation_text}"
+                      </div>
+                      {factor.verified_content && factor.verified_content !== factor.citation_text && (
+                        <div className="mt-2 pt-2 border-t border-stone-200">
+                          <div className="text-[10px] font-mono text-stone-500 mb-1">FULL CONTEXT</div>
+                          <div className="text-xs text-stone-600 font-serif italic leading-relaxed">
+                            {factor.verified_content}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Citation Date Only (if no citation_text) */}
+                  {!factor.citation_text && (factor.verified_date || factor.citation_date) && (
                     <div className="mt-2 pt-2 border-t border-stone-300 flex items-center gap-2 text-[10px] font-mono text-stone-600">
                       <Calendar size={10} />
                       <span className="font-bold">
@@ -194,27 +229,6 @@ export default function DecisionCard({ decision, onCitationClick }) {
                           {Math.round(verificationScore * 100)}% match
                         </span>
                       )}
-                    </div>
-                  )}
-
-                  {/* Hover Tooltip - "The Evidence" */}
-                  {hoveredFactor === idx && factor.citation_text && (
-                    <div className="absolute z-50 top-full left-0 right-0 mt-2 p-4 bg-stone-900 text-stone-100 rounded-sm shadow-2xl border-2 border-stone-700 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div className="text-[10px] font-mono text-stone-400 mb-2 uppercase tracking-wider">EVIDENCE</div>
-                      <div className="text-sm font-serif leading-relaxed mb-2">
-                        "{factor.citation_text}"
-                      </div>
-                      {factor.verified_content && factor.verified_content !== factor.citation_text && (
-                        <div className="mt-2 pt-2 border-t border-stone-700">
-                          <div className="text-[10px] font-mono text-stone-400 mb-1">FULL CONTEXT</div>
-                          <div className="text-xs text-stone-300 font-serif italic">
-                            {factor.verified_content}
-                          </div>
-                        </div>
-                      )}
-                      <div className="mt-3 pt-2 border-t border-stone-700 text-[10px] font-mono text-stone-400">
-                        Click to view full log entry
-                      </div>
                     </div>
                   )}
                 </div>

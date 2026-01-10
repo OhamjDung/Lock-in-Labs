@@ -108,6 +108,9 @@ DECISION_LOGIC_RULES = """
 **CITATION RULES:**
 - If you cite "Consistency" or "Completion Rate", cite the **Hard Data** section. (Verification not required for stats, cite "Weekly Stats").
 - If you cite "Pain", "Motivation", or "Insights", you MUST quote the **User Diary** section exactly.
+- If USER DIARY says "[NO ENTRIES]", you **MUST NOT** generate a factor based on "User Insight" or "Reports".
+- In that case, base your decision **100% on the HARD DATA**.
+- If you decide to DECREASE based on lack of data, cite "Lack of historical data" as a 'neutral' factor, but DO NOT invent a fake citation text.
 """
 
 DECISION_GENERATION_PROMPT_TEMPLATE = dedent(
@@ -178,6 +181,12 @@ DECISION_GENERATION_PROMPT_TEMPLATE = dedent(
     5. target should be concrete and measurable
     6. Include at least 2 contributing_factors (prefer 3-4)
     7. Mix factor_type: include both "data" and "subjective" factors when possible
+
+    STYLE RULES (For Explanation):
+    - The 'explanation' field must be natural language ONLY.
+    - Do NOT include citation metadata (e.g. "(citation_date: ...)") in the explanation text.
+    - Do NOT include tags like '[NO ENTRIES]' in the explanation text.
+    - Put the raw evidence/citations in the 'contributing_factors' array ONLY.
     
     Return ONLY the JSON object.
     """

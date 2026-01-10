@@ -755,7 +755,7 @@ class ReportingAgent:
         if relevant_memories:
             user_diary_str = "\n".join([f"- [{m['date']}] {m['content']}" for m in relevant_memories[:10]])
         else:
-            user_diary_str = "No specific qualitative logs found."
+            user_diary_str = "[NO ENTRIES]"
             
         # Updated Prompt Construction with strict logic rules 
         prompt = DECISION_GENERATION_PROMPT_TEMPLATE.format(
