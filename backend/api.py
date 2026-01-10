@@ -2149,14 +2149,15 @@ def toggle_task_completion(user_id: str, node_id: str, payload: dict = None):
 
 @app.post("/api/reporting/chat")
 def reporting_chat(payload: ReportingChatRequest):
-    """Handle reporting agent conversation.
+    """Handle reporting agent conversation with Active Coach workflow.
     
-    Processes user messages through the ReportingAgent and returns responses.
+    Processes user messages through the ReportingAgent state machine and returns responses
+    with decisions and schedule previews when applicable.
     """
-    from datetime import date
+    from datetime import date, timedelta
     from src.reporting import ReportingAgent
     from src.reporting.scheduler import get_todays_tasks, ensure_daily_schedule_for_date
-    from src.models import ReportingState, CharacterSheet, SkillTree
+    from src.models import ReportingState, ReportingPhase, CharacterSheet, SkillTree
     from src.storage import load_profile, save_profile
     
     # Load user profile
@@ -2178,13 +2179,24 @@ def reporting_chat(payload: ReportingChatRequest):
     ensure_daily_schedule_for_date(sheet, todays_tasks, current_date=current_date)
     
     # Initialize or restore reporting state
-    # For simplicity, we'll create a fresh state each time, but in production
-    # you might want to persist this in the user's profile
+    # Try to restore phase from conversation history if available
+    initial_phase = ReportingPhase.REVIEW
+    if payload.conversation_history:
+        # Try to infer phase from last message
+        last_assistant_msg = next(
+            (msg for msg in reversed(payload.conversation_history) if msg.get("role") == "assistant"),
+            None
+        )
+        if last_assistant_msg and "schedule" in last_assistant_msg.get("content", "").lower():
+            initial_phase = ReportingPhase.SCHEDULING
+        elif last_assistant_msg and ("upgrade" in last_assistant_msg.get("content", "").lower() or "master" in last_assistant_msg.get("content", "").lower()):
+            initial_phase = ReportingPhase.PROGRESSION
+    
     state = ReportingState(
         user_id=payload.user_id,
         current_date=current_date,
         todays_tasks=todays_tasks,
-        phase="collecting",
+        phase=initial_phase,
         conversation_history=payload.conversation_history,
     )
     
@@ -2192,6 +2204,11 @@ def reporting_chat(payload: ReportingChatRequest):
     
     # Handle the message
     user_message = payload.message.strip()
+    
+    # Initialize response variables
+    reply_text = ""
+    decisions = None
+    schedule_preview = None
     
     # Check if this is the first message (initial greeting)
     if not state.conversation_history:
@@ -2202,52 +2219,72 @@ def reporting_chat(payload: ReportingChatRequest):
         # If user provided a message, process it
         if user_message:
             state.conversation_history.append({"role": "user", "content": user_message})
-            reply = agent.generate_reply(state, sheet, tree, user_message)
-            state.conversation_history.append({"role": "assistant", "content": reply})
+            response = agent.generate_reply(state, sheet, tree, user_message)
+            
+            # Handle new response format (dict with text, decisions, schedule_preview, phase)
+            if isinstance(response, dict):
+                reply_text = response.get("text", "")
+                decisions = response.get("decisions")
+                schedule_preview = response.get("schedule_preview")
+                try:
+                    state.phase = ReportingPhase(response.get("phase", "REVIEW"))
+                except ValueError:
+                    pass
+            else:
+                # Legacy format (string)
+                reply_text = response
+            
+            state.conversation_history.append({"role": "assistant", "content": reply_text})
         else:
             # Just return the initial message
-            reply = initial_msg
+            reply_text = initial_msg
     else:
         # Add user message to history
         state.conversation_history.append({"role": "user", "content": user_message})
         
-        # Check for confirmation
-        lowered = user_message.lower()
-        if "confirm" in lowered or "done" in lowered:
-            if state.phase == "collecting":
-                # Generate draft report
-                draft = agent.finalize_report(state, sheet, tree)
-                state.pending_report = draft
-                state.phase = "review"
-                reply = f"Here's a draft summary of your day:\n\n{draft.summary}\n\nDoes this work for you? Type 'confirm' again to save."
-            elif state.phase == "review":
-                # Finalize and save
-                draft = state.pending_report
-                if draft:
-                    from src.reporting.apply_updates import apply_daily_report
-                    apply_daily_report(sheet, tree, draft)
-                    save_profile({
-                        "character_sheet": sheet.model_dump(),
-                        "skill_tree": tree.model_dump(),
-                    }, payload.user_id)
-                    reply = f"Report saved for {current_date}. Summary: {draft.summary}"
-                    state.phase = "complete"
-                else:
-                    reply = "No draft report found. Starting over."
-                    state.phase = "collecting"
-            else:
-                reply = agent.generate_reply(state, sheet, tree, user_message)
-        else:
-            # Regular conversation
-            reply = agent.generate_reply(state, sheet, tree, user_message)
+        # Generate reply using state machine
+        response = agent.generate_reply(state, sheet, tree, user_message)
         
-        state.conversation_history.append({"role": "assistant", "content": reply})
+        # Handle new response format (dict with text, decisions, schedule_preview, phase)
+        if isinstance(response, dict):
+            reply_text = response.get("text", "")
+            decisions = response.get("decisions")
+            schedule_preview = response.get("schedule_preview")
+            new_phase = response.get("phase", state.phase.value if isinstance(state.phase, ReportingPhase) else state.phase)
+            
+            # Update state phase
+            try:
+                state.phase = ReportingPhase(new_phase)
+            except ValueError:
+                # Keep existing phase if new_phase doesn't match enum
+                pass
+        else:
+            # Legacy format (string)
+            reply_text = response
+        
+        state.conversation_history.append({"role": "assistant", "content": reply_text})
+        
+        # Handle COMPLETED phase: Save tomorrow's schedule when user confirms
+        if state.phase == ReportingPhase.COMPLETED and state.tomorrow_schedule:
+            lowered = user_message.lower()
+            if "confirm" in lowered or "yes" in lowered or "done" in lowered:
+                tomorrow_date = (date.today() + timedelta(days=1)).isoformat()
+                # Persist the schedule
+                sheet.daily_schedule[tomorrow_date] = state.tomorrow_schedule
+                
+                # Save profile with updated schedule
+                save_profile({
+                    "character_sheet": sheet.model_dump(),
+                    "skill_tree": tree.model_dump(),
+                }, payload.user_id)
     
     return {
-        "reply": reply,
+        "reply": reply_text,
         "conversation_history": state.conversation_history,
-        "phase": state.phase,
-        "is_complete": state.phase == "complete"
+        "phase": state.phase.value if isinstance(state.phase, ReportingPhase) else str(state.phase),
+        "decisions": decisions,
+        "schedule_preview": schedule_preview,
+        "is_complete": state.phase == ReportingPhase.COMPLETED
     }
 
 

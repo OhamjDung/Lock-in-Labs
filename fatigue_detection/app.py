@@ -149,7 +149,7 @@ def display_camera_loop():
             
             # Draw metrics overlay on frame
             try:
-                frame_with_overlay = draw_metrics_overlay(frame.copy(), current_metrics)
+                frame_with_overlay = draw_metrics_overlay(frame.copy(), current_metrics, engine)
                 
                 # Draw face detection indicator directly on frame (visual feedback)
                 if current_metrics.get("face_detected", False):
@@ -173,6 +173,80 @@ def display_camera_loop():
             print("[INFO] Camera window closed by user (press 'q' or ESC)")
             show_camera_window = False
             break
+        elif key == ord('c') or key == ord('C'):  # 'c' for eyes closed calibration
+            if engine and current_metrics.get("face_detected", False):
+                current_ear = current_metrics.get("current_ear", 0.0)
+                if current_ear > 0:
+                    # Set threshold to slightly below current EAR (eyes closed)
+                    new_threshold = max(0.05, current_ear * 0.9)  # 90% of closed EAR
+                    try:
+                        engine.set_ear_threshold(new_threshold)
+                        print(f"[CALIBRATION] EAR threshold set to {new_threshold:.3f} (eyes closed: {current_ear:.3f})")
+                        # Show confirmation on screen (store in metrics for display)
+                        with metrics_lock:
+                            latest_metrics["calibration_message"] = f"EAR calibrated: {new_threshold:.3f}"
+                            latest_metrics["calibration_time"] = time.time()
+                            current_metrics["calibration_message"] = latest_metrics["calibration_message"]
+                            current_metrics["calibration_time"] = latest_metrics["calibration_time"]
+                    except Exception as e:
+                        print(f"[ERROR] Failed to set EAR threshold: {e}")
+                else:
+                    print("[WARNING] Cannot calibrate: No EAR value available (face not detected?)")
+        elif key == ord('y') or key == ord('Y'):  # 'y' for yawn calibration
+            if engine and current_metrics.get("face_detected", False):
+                current_mar = current_metrics.get("current_mar", 0.0)
+                if current_mar > 0:
+                    # Set threshold to slightly below current MAR (mouth open during yawn)
+                    # For yawn, we want to detect when MAR exceeds this threshold
+                    new_threshold = max(0.20, current_mar * 0.85)  # 85% of yawn MAR
+                    try:
+                        engine.set_mar_threshold(new_threshold)
+                        print(f"[CALIBRATION] MAR threshold set to {new_threshold:.3f} (mouth open: {current_mar:.3f})")
+                        # Show confirmation on screen
+                        with metrics_lock:
+                            latest_metrics["calibration_message"] = f"MAR calibrated: {new_threshold:.3f}"
+                            latest_metrics["calibration_time"] = time.time()
+                            current_metrics["calibration_message"] = latest_metrics["calibration_message"]
+                            current_metrics["calibration_time"] = latest_metrics["calibration_time"]
+                    except Exception as e:
+                        print(f"[ERROR] Failed to set MAR threshold: {e}")
+                else:
+                    print("[WARNING] Cannot calibrate: No MAR value available (face not detected?)")
+        elif key == ord('c') or key == ord('C'):  # 'c' for eyes closed calibration
+            if engine and current_metrics.get("face_detected", False):
+                current_ear = current_metrics.get("current_ear", 0.0)
+                if current_ear > 0:
+                    # Set threshold to slightly below current EAR (eyes closed)
+                    new_threshold = max(0.05, current_ear * 0.9)  # 90% of closed EAR
+                    try:
+                        engine.set_ear_threshold(new_threshold)
+                        print(f"[CALIBRATION] EAR threshold set to {new_threshold:.3f} (eyes closed: {current_ear:.3f})")
+                        # Show confirmation on screen
+                        with metrics_lock:
+                            latest_metrics["calibration_message"] = f"EAR calibrated: {new_threshold:.3f}"
+                            latest_metrics["calibration_time"] = time.time()
+                    except Exception as e:
+                        print(f"[ERROR] Failed to set EAR threshold: {e}")
+                else:
+                    print("[WARNING] Cannot calibrate: No EAR value available (face not detected?)")
+        elif key == ord('y') or key == ord('Y'):  # 'y' for yawn calibration
+            if engine and current_metrics.get("face_detected", False):
+                current_mar = current_metrics.get("current_mar", 0.0)
+                if current_mar > 0:
+                    # Set threshold to slightly above current MAR (mouth open during yawn)
+                    # For yawn, we want to detect when MAR exceeds this threshold
+                    new_threshold = max(0.20, current_mar * 0.85)  # 85% of yawn MAR
+                    try:
+                        engine.set_mar_threshold(new_threshold)
+                        print(f"[CALIBRATION] MAR threshold set to {new_threshold:.3f} (mouth open: {current_mar:.3f})")
+                        # Show confirmation on screen
+                        with metrics_lock:
+                            latest_metrics["calibration_message"] = f"MAR calibrated: {new_threshold:.3f}"
+                            latest_metrics["calibration_time"] = time.time()
+                    except Exception as e:
+                        print(f"[ERROR] Failed to set MAR threshold: {e}")
+                else:
+                    print("[WARNING] Cannot calibrate: No MAR value available (face not detected?)")
     
     try:
         cv2.destroyWindow(window_name)
@@ -180,16 +254,17 @@ def display_camera_loop():
         pass
 
 
-def calculate_torso_roi(face_bbox: dict, frame_shape) -> tuple:
+def calculate_torso_roi(face_bbox: dict, frame_shape, scale_factor: float = 1.0) -> tuple:
     """Calculate torso ROI relative to face bounding box (matches C++ logic)."""
     if not face_bbox or face_bbox.get("width", 0) == 0:
         return None
     
     h, w = frame_shape[:2]
-    face_x = face_bbox.get("x", 0)
-    face_y = face_bbox.get("y", 0)
-    face_w = face_bbox.get("width", 0)
-    face_h = face_bbox.get("height", 0)
+    # Scale up from downscaled coordinates to original frame
+    face_x = int(face_bbox.get("x", 0) * scale_factor)
+    face_y = int(face_bbox.get("y", 0) * scale_factor)
+    face_w = int(face_bbox.get("width", 0) * scale_factor)
+    face_h = int(face_bbox.get("height", 0) * scale_factor)
     
     # Torso extends below face: 1.5x face width, 2x face height down
     face_center_x = face_x + face_w // 2
@@ -213,84 +288,144 @@ def calculate_torso_roi(face_bbox: dict, frame_shape) -> tuple:
     return (torso_x, torso_y, torso_width, torso_height)
 
 
-def draw_metrics_overlay(frame, metrics: dict):
+def scale_landmarks(landmarks: list, scale_factor: float) -> list:
+    """Scale landmark coordinates from downscaled to original frame."""
+    if not landmarks or scale_factor <= 0:
+        return []
+    return [coord * scale_factor for coord in landmarks]
+
+
+def draw_metrics_overlay(frame, metrics: dict, engine=None):
     """Draw fatigue metrics as overlay on frame with detection regions."""
     h, w = frame.shape[:2]
     
     # Draw detection regions FIRST (before text overlay)
     face_bbox = metrics.get("face_bbox", {})
     face_detected = face_bbox.get("width", 0) > 0
+    scale_factor = metrics.get("scale_factor", 1.0)  # Scale from downscaled to original
     
     if face_detected:
-        # Draw face bounding box
-        face_x = face_bbox.get("x", 0)
-        face_y = face_bbox.get("y", 0)
-        face_w = face_bbox.get("width", 0)
-        face_h = face_bbox.get("height", 0)
+        # Scale up coordinates from downscaled frame (640x480) to original frame
+        face_x = int(face_bbox.get("x", 0) * scale_factor)
+        face_y = int(face_bbox.get("y", 0) * scale_factor)
+        face_w = int(face_bbox.get("width", 0) * scale_factor)
+        face_h = int(face_bbox.get("height", 0) * scale_factor)
         
-        # Scale up from downscaled frame to original frame
-        # Note: landmarks are on downscaled frame, but we're displaying original
-        # For now, assume they're already scaled (we'll fix this if needed)
-        
+        # Draw face bounding box (GREEN)
         cv2.rectangle(frame, (face_x, face_y), (face_x + face_w, face_y + face_h), 
-                     (0, 255, 0), 2)  # Green box for face
+                     (0, 255, 0), 2)
         cv2.putText(frame, "FACE", (face_x, face_y - 10), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
         
-        # Draw left eye landmarks
-        left_eye = metrics.get("left_eye_points", [])
+        # Draw left eye landmarks (BLUE)
+        left_eye = scale_landmarks(metrics.get("left_eye_points", []), scale_factor)
         if len(left_eye) >= 12:  # 6 points * 2 (x,y)
+            points = []
             for i in range(0, len(left_eye), 2):
                 if i + 1 < len(left_eye):
                     x, y = int(left_eye[i]), int(left_eye[i + 1])
-                    cv2.circle(frame, (x, y), 3, (255, 0, 0), -1)  # Blue for eyes
+                    points.append((x, y))
+                    cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)  # Blue dots
             # Draw eye outline
-            if len(left_eye) >= 12:
-                points = [(int(left_eye[i]), int(left_eye[i+1])) for i in range(0, 12, 2)]
+            if len(points) >= 6:
                 for i in range(len(points)):
-                    cv2.line(frame, points[i], points[(i+1) % len(points)], (255, 0, 0), 1)
-            cv2.putText(frame, "LEFT EYE", (int(left_eye[0]) - 30, int(left_eye[1]) - 15),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+                    cv2.line(frame, points[i], points[(i+1) % len(points)], (255, 0, 0), 2)
+            if len(points) > 0:
+                cv2.putText(frame, "LEFT EYE", (points[0][0] - 40, points[0][1] - 15),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+        else:
+            cv2.putText(frame, "LEFT EYE: NOT FOUND", (face_x, face_y + 30),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         
-        # Draw right eye landmarks
-        right_eye = metrics.get("right_eye_points", [])
+        # Draw right eye landmarks (BLUE)
+        right_eye = scale_landmarks(metrics.get("right_eye_points", []), scale_factor)
         if len(right_eye) >= 12:
+            points = []
             for i in range(0, len(right_eye), 2):
                 if i + 1 < len(right_eye):
                     x, y = int(right_eye[i]), int(right_eye[i + 1])
-                    cv2.circle(frame, (x, y), 3, (255, 0, 0), -1)  # Blue for eyes
+                    points.append((x, y))
+                    cv2.circle(frame, (x, y), 4, (255, 0, 0), -1)  # Blue dots
             # Draw eye outline
-            if len(right_eye) >= 12:
-                points = [(int(right_eye[i]), int(right_eye[i+1])) for i in range(0, 12, 2)]
+            if len(points) >= 6:
                 for i in range(len(points)):
-                    cv2.line(frame, points[i], points[(i+1) % len(points)], (255, 0, 0), 1)
-            cv2.putText(frame, "RIGHT EYE", (int(right_eye[0]) - 30, int(right_eye[1]) - 15),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+                    cv2.line(frame, points[i], points[(i+1) % len(points)], (255, 0, 0), 2)
+            if len(points) > 0:
+                cv2.putText(frame, "RIGHT EYE", (points[0][0] - 40, points[0][1] - 15),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+        else:
+            cv2.putText(frame, "RIGHT EYE: NOT FOUND", (face_x, face_y + 50),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         
-        # Draw mouth landmarks
-        mouth = metrics.get("mouth_points", [])
-        if len(mouth) >= 16:  # At least 8 points
-            for i in range(0, min(16, len(mouth)), 2):
-                if i + 1 < len(mouth):
-                    x, y = int(mouth[i]), int(mouth[i + 1])
-                    cv2.circle(frame, (x, y), 2, (0, 255, 255), -1)  # Yellow for mouth
+        # Draw mouth landmarks (YELLOW) - use scaled landmarks if available
+        landmarks_scaled = metrics.get("landmarks_scaled", [])
+        if landmarks_scaled and len(landmarks_scaled) >= 136:  # 68 landmarks * 2 (x,y pairs)
+            # Mouth landmarks: indices 48-67 (20 points = 40 values)
+            mouth_start_idx = 48 * 2  # Start index in landmarks_scaled array
+            mouth_end_idx = 68 * 2    # End index (exclusive)
+            mouth = landmarks_scaled[mouth_start_idx:mouth_end_idx]
+            
+            if len(mouth) >= 40:  # 20 points (x,y pairs)
+                points = []
+                for i in range(0, len(mouth), 2):  # All 20 mouth points
+                    if i + 1 < len(mouth):
+                        x, y = int(mouth[i]), int(mouth[i + 1])
+                        points.append((x, y))
+                        cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)  # Yellow dots
+                # Draw mouth outline
+                if len(points) >= 12:
+                    # Outer mouth: first 12 points (indices 48-59)
+                    outer_points = np.array(points[:12], np.int32).reshape((-1, 1, 2))
+                    cv2.polylines(frame, [outer_points], True, (0, 255, 255), 2)
+                    # Inner mouth: last 8 points (indices 60-67)
+                    if len(points) >= 20:
+                        inner_points = np.array(points[12:], np.int32).reshape((-1, 1, 2))
+                        cv2.polylines(frame, [inner_points], True, (0, 200, 200), 1)
+                if len(points) > 0:
+                    cv2.putText(frame, "MOUTH", (points[0][0], points[0][1] + 20),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            else:
+                cv2.putText(frame, "MOUTH: NOT FOUND", (face_x, face_y + 70),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        else:
+            # Fallback to old method if scaled landmarks not available
+            mouth = scale_landmarks(metrics.get("mouth_points", []), scale_factor)
+            if len(mouth) >= 16:  # At least 8 points
+                points = []
+                for i in range(0, min(20, len(mouth)), 2):  # Draw first 10 points
+                    if i + 1 < len(mouth):
+                        x, y = int(mouth[i]), int(mouth[i + 1])
+                        points.append((x, y))
+                        cv2.circle(frame, (x, y), 3, (0, 255, 255), -1)  # Yellow dots
+                if len(points) > 0:
+                    cv2.putText(frame, "MOUTH", (points[0][0], points[0][1] + 20),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            else:
+                cv2.putText(frame, "MOUTH: NOT FOUND", (face_x, face_y + 70),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         
-        # Draw nose tip
-        nose_tip = metrics.get("nose_tip", [])
+        # Draw nose tip (YELLOW)
+        nose_tip = scale_landmarks(metrics.get("nose_tip", []), scale_factor)
         if len(nose_tip) >= 2:
             x, y = int(nose_tip[0]), int(nose_tip[1])
-            cv2.circle(frame, (x, y), 4, (0, 255, 255), -1)  # Yellow for nose
-            cv2.putText(frame, "NOSE", (x + 10, y), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+            cv2.circle(frame, (x, y), 5, (0, 255, 255), -1)  # Yellow circle
+            cv2.putText(frame, "NOSE", (x + 15, y), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+        else:
+            cv2.putText(frame, "NOSE: NOT FOUND", (face_x, face_y + 90),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
         
-        # Draw torso/shoulder ROI
-        torso_roi = calculate_torso_roi(face_bbox, frame.shape)
+        # Draw torso/shoulder ROI (ORANGE)
+        torso_roi = calculate_torso_roi(face_bbox, frame.shape, scale_factor)
         if torso_roi:
             tx, ty, tw, th = torso_roi
             cv2.rectangle(frame, (tx, ty), (tx + tw, ty + th), 
-                         (255, 165, 0), 2)  # Orange for torso
-            cv2.putText(frame, "TORSO/SHOULDER", (tx, ty - 10), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 165, 0), 1)
+                         (255, 165, 0), 2)  # Orange rectangle
+            cv2.putText(frame, "TORSO/SHOULDER ROI", (tx, ty - 10), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 165, 0), 2)
+        else:
+            cv2.putText(frame, "TORSO ROI: CAN'T CALCULATE", (face_x, face_y + 110),
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
     else:
         # No face detected - show message
         cv2.putText(frame, "NO FACE DETECTED", (w // 2 - 150, h // 2), 
@@ -341,11 +476,15 @@ def draw_metrics_overlay(frame, metrics: dict):
     cv2.putText(frame, f"LEVEL: {fatigue_level}", (20, y_pos), font, font_scale, fatigue_color, thickness)
     y_pos += line_height + 10
     
-    # Blink rate
+    # Blink rate and counter
     blink_rate = metrics.get("blink_rate", 0.0)
-            cv2.putText(frame, f"Blink Rate: {blink_rate:.1f}/min", (20, y_pos), 
+    blink_count_total = metrics.get("blink_count_total", 0)
+    cv2.putText(frame, f"Blink Rate: {blink_rate:.1f}/min", (20, y_pos), 
                font, font_scale, color_text, thickness)
     y_pos += line_height
+    cv2.putText(frame, f"Blink Count: {blink_count_total}", (20, y_pos), 
+               font, font_scale - 0.1, color_text, 1)
+    y_pos += line_height - 10
     
     # PERCLOS (eye closure) - shows percentage of time eyes are closed
     perclos = metrics.get("perclos", 0.0)
@@ -357,11 +496,42 @@ def draw_metrics_overlay(frame, metrics: dict):
     # EAR value (for calibration/debugging)
     current_ear = metrics.get("current_ear", 0.0)
     if current_ear > 0:  # Only show if available
-        ear_status = "OPEN" if current_ear > 0.25 else "CLOSED"
-        ear_color = color_good if current_ear > 0.25 else color_warning
-        cv2.putText(frame, f"EAR: {current_ear:.3f} ({ear_status})", (20, y_pos), 
+        # Get current threshold from engine if available
+        ear_threshold = 0.20  # Default fallback
+        try:
+            if engine:
+                ear_threshold = engine.get_ear_threshold()
+        except:
+            pass
+        ear_status = "OPEN" if current_ear > ear_threshold else "CLOSED"
+        ear_color = color_good if current_ear > ear_threshold else color_warning
+        cv2.putText(frame, f"EAR: {current_ear:.3f} ({ear_status}) [Th: {ear_threshold:.2f}]", (20, y_pos), 
                    font, font_scale - 0.1, ear_color, 1)
         y_pos += line_height
+    
+    # MAR value (for calibration/debugging)
+    current_mar = metrics.get("current_mar", 0.0)
+    if current_mar > 0:  # Only show if available
+        # Get current threshold from engine if available
+        mar_threshold = 0.35  # Default fallback
+        try:
+            if engine:
+                mar_threshold = engine.get_mar_threshold()
+        except:
+            pass
+        mar_status = "OPEN" if current_mar > mar_threshold else "CLOSED"
+        mar_color = color_warning if current_mar > mar_threshold else color_text
+        cv2.putText(frame, f"MAR: {current_mar:.3f} ({mar_status}) [Th: {mar_threshold:.2f}]", (20, y_pos), 
+                   font, font_scale - 0.1, mar_color, 1)
+        y_pos += line_height
+    
+    # Calibration message (show for 3 seconds after calibration)
+    calibration_msg = metrics.get("calibration_message", "")
+    calibration_time = metrics.get("calibration_time", 0)
+    if calibration_msg and (time.time() - calibration_time) < 3.0:  # Show for 3 seconds
+        cv2.putText(frame, f"✓ {calibration_msg}", (20, y_pos), 
+                   font, font_scale, color_good, 2)
+        y_pos += line_height + 10
     
     # Yawn count
     yawn_count = metrics.get("yawn_count_5min", metrics.get("yawn_count", 0))
@@ -396,9 +566,15 @@ def draw_metrics_overlay(frame, metrics: dict):
     y_pos += 10
     cv2.putText(frame, f"REC: {rec_text}", (20, y_pos), 
                font, font_scale, rec_color, thickness)
+    y_pos += line_height + 10
     
-    # Draw face bounding box if available (we'd need to expose this from C++)
-    # For now, just show detection status
+    # Calibration instructions at bottom
+    cv2.putText(frame, "CALIBRATION:", (20, h - 50), 
+               font, font_scale - 0.1, color_text, 1)
+    cv2.putText(frame, "Press 'C' when eyes CLOSED", (20, h - 30), 
+               font, font_scale - 0.2, (0, 255, 255), 1)
+    cv2.putText(frame, "Press 'Y' when YAWNING", (20, h - 10), 
+               font, font_scale - 0.2, (0, 255, 255), 1)
     
     return frame
 

@@ -19,10 +19,16 @@ public:
     // Mouth Aspect Ratio (MAR) calculation
     static double calculate_mar(const std::vector<cv::Point2f>& landmarks);
     
+    // Allow threshold adjustment for calibration
+    void set_mar_threshold(double threshold) { mar_threshold_ = threshold; }
+    double get_mar_threshold() const { return mar_threshold_; }
+    double get_current_mar() const { return current_mar_; }  // Expose for calibration
+    
 private:
     // Configuration
-    static constexpr double MAR_THRESHOLD = 0.5;  // Threshold for "mouth open"
-    static constexpr double YAWN_DURATION_MS = 2000.0;  // 2 seconds
+    double mar_threshold_ = 0.35;  // Threshold for "mouth open" (configurable, default 0.35)
+    static constexpr double YAWN_DURATION_MS = 1500.0;  // 1.5 seconds (reduced from 2s)
+    static constexpr double YAWN_PEAK_MAR_THRESHOLD = 0.50;  // Peak MAR for yawn detection (must exceed this)
     static constexpr int64_t YAWN_WINDOW_MS = 300000;  // 5 minutes
     
     // State
@@ -31,6 +37,11 @@ private:
     double current_mar_ = 0.0;
     int64_t yawn_start_time_ = -1;
     int yawn_count_5min_ = 0;
+    
+    // Consecutive frame counter for talking vs yawning differentiation
+    int consecutive_frames_open_ = 0;  // Frames with mouth continuously open
+    bool is_yawning_ = false;  // Lock state to prevent double-counting
+    static constexpr int MIN_YAWN_FRAMES = 45;  // 1.5 seconds at 30fps (must be open continuously)
     
     // Detection logic
     void detect_yawn(int64_t current_time);

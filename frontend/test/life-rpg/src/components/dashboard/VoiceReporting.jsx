@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, X, User, Volume2 } from 'lucide-react';
+import { Mic, X, User, Volume2, Check, X as XIcon, Clock, Calendar } from 'lucide-react';
+import DecisionCard from './DecisionCard';
 import { auth } from '../../config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -9,6 +10,7 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
   const [isSending, setIsSending] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
+  const [currentPhase, setCurrentPhase] = useState('REVIEW');
   const speechRecognitionRef = useRef(null);
   const ttsWebSocketRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -165,10 +167,18 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
 
       const data = await response.json();
       
-      // Add initial assistant message
+      // Update phase
+      if (data.phase) {
+        setCurrentPhase(data.phase);
+      }
+      
+      // Add initial assistant message with decisions and schedule preview
       const assistantMessage = { 
         role: 'assistant', 
-        content: data.reply
+        content: data.reply,
+        decisions: data.decisions || null,
+        schedule_preview: data.schedule_preview || null,
+        phase: data.phase || 'REVIEW'
       };
       
       setMessages([assistantMessage]);
@@ -279,9 +289,22 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
 
     setIsSending(true);
 
-    // Add user message immediately
-    const newUserMessage = { role: 'user', content: userMessage };
-    setMessages(prev => [...prev, newUserMessage]);
+    // Get current messages and build conversation history BEFORE adding new message
+    // API will add the current message itself from the 'message' field
+    let conversationHistory;
+    setMessages(prev => {
+      conversationHistory = prev.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+      
+      // Add user message immediately to UI
+      const newUserMessage = { role: 'user', content: userMessage };
+      return [...prev, newUserMessage];
+    });
+
+    // Wait a moment for state to update
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     try {
       const backend = (window && window.location && window.location.hostname === 'localhost') 
@@ -296,7 +319,7 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
         body: JSON.stringify({
           user_id: userId,
           message: userMessage,
-          conversation_history: messages,
+          conversation_history: conversationHistory || messages.map(m => ({ role: m.role, content: m.content })), // Without the current message (API adds it)
         }),
       });
 
@@ -306,13 +329,23 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
 
       const data = await response.json();
       
-      // Add assistant reply
-      const assistantMessage = { 
-        role: 'assistant', 
-        content: data.reply
-      };
+      // Update phase
+      if (data.phase) {
+        setCurrentPhase(data.phase);
+      }
       
-      setMessages(prev => [...prev, assistantMessage]);
+      // Add assistant reply with decisions and schedule preview
+      setMessages(prev => {
+        const assistantMessage = { 
+          role: 'assistant', 
+          content: data.reply,
+          decisions: data.decisions || null,
+          schedule_preview: data.schedule_preview || null,
+          phase: data.phase || currentPhase
+        };
+        
+        return [...prev, assistantMessage];
+      });
 
       // Play TTS for assistant reply
       ensureTtsSocket();
@@ -338,6 +371,30 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
     } finally {
       setIsSending(false);
     }
+  };
+
+  const sendActionMessage = async (messageText) => {
+    // For voice interface, send action via voice input simulation
+    await handleSendMessage(messageText);
+  };
+
+  const handleAcceptDecisions = async (decisionIds = null) => {
+    const acceptMessage = decisionIds 
+      ? `accept ${decisionIds.join(',')}`
+      : 'accept all';
+    await sendActionMessage(acceptMessage);
+  };
+
+  const handleRejectDecisions = async () => {
+    await sendActionMessage('skip');
+  };
+
+  const handleConfirmSchedule = async () => {
+    await sendActionMessage('confirm');
+  };
+
+  const handleSelectDecision = (decisionIndex) => {
+    handleAcceptDecisions([decisionIndex + 1]);
   };
 
   return (
@@ -391,13 +448,113 @@ export default function VoiceReporting({ onClose, userId, onReportComplete }) {
 
                 {messages.map((m, idx) => {
                   const label = m.role === 'user' ? 'You:' : 'RPT:';
+                  const messagePhase = m.phase || currentPhase;
 
                   return (
-                    <div key={`msg-${idx}-${m.content?.substring(0, 20)}`} className="flex gap-4">
-                      <div className="font-bold text-stone-500 select-none w-10 text-right">
-                        {label}
+                    <div key={`msg-${idx}-${m.content?.substring(0, 20)}`} className="space-y-4">
+                      <div className="flex gap-4">
+                        <div className="font-bold text-stone-500 select-none w-10 text-right">
+                          {label}
+                        </div>
+                        <div className="flex-1 whitespace-pre-wrap">{m.content}</div>
                       </div>
-                      <div className="flex-1 whitespace-pre-wrap">{m.content}</div>
+
+                      {/* Display Decision Cards (PROGRESSION phase) */}
+                      {m.role === 'assistant' && m.decisions && m.decisions.length > 0 && (
+                        <div className="ml-14 space-y-4">
+                          <div className="text-xs font-mono text-stone-600 uppercase tracking-wider mb-2">
+                            DECISION CARDS ({m.decisions.length})
+                          </div>
+                          {m.decisions.map((decision, dIdx) => (
+                            <div key={dIdx} className="space-y-2">
+                              <DecisionCard 
+                                decision={decision} 
+                                onCitationClick={(citation) => {
+                                  console.log('Citation clicked:', citation);
+                                }}
+                              />
+                              <div className="flex gap-2 ml-4">
+                                <button
+                                  onClick={() => handleSelectDecision(dIdx)}
+                                  disabled={isSending || isRecording}
+                                  className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white text-xs font-bold uppercase tracking-wider hover:bg-green-800 transition-colors rounded-sm border border-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <Check size={14} />
+                                  Accept This
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex gap-2 ml-4 mt-4">
+                            <button
+                              onClick={() => handleAcceptDecisions(null)}
+                              disabled={isSending || isRecording}
+                              className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white text-xs font-bold uppercase tracking-wider hover:bg-green-800 transition-colors rounded-sm border border-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <Check size={14} />
+                              Accept All
+                            </button>
+                            <button
+                              onClick={handleRejectDecisions}
+                              disabled={isSending || isRecording}
+                              className="flex items-center gap-2 px-4 py-2 bg-stone-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-stone-700 transition-colors rounded-sm border border-stone-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <XIcon size={14} />
+                              Skip All
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Display Schedule Preview (SCHEDULING/COMPLETED phase) */}
+                      {m.role === 'assistant' && m.schedule_preview && m.schedule_preview.length > 0 && (
+                        <div className="ml-14 space-y-3">
+                          <div className="text-xs font-mono text-stone-600 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <Calendar size={14} />
+                            SCHEDULE PREVIEW ({m.schedule_preview.length} items)
+                          </div>
+                          <div className="bg-[#e8dcc5] border-2 border-[#d4c5a9] rounded-sm p-4 space-y-2">
+                            {m.schedule_preview.map((item, sIdx) => (
+                              <div 
+                                key={sIdx} 
+                                className="flex items-center gap-3 p-2 bg-[#f4e9d5] border border-[#d4c5a9] rounded-sm hover:bg-[#ede4d0] transition-colors"
+                              >
+                                <div className="flex items-center gap-2 min-w-[80px]">
+                                  <Clock size={14} className="text-stone-600" />
+                                  <span className="font-mono font-bold text-stone-900 text-sm">{item.time || '09:00'}</span>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-serif text-stone-900 font-bold">{item.label || item.task || 'Task'}</div>
+                                  {item.pillar && (
+                                    <div className="text-[10px] font-mono text-stone-600 uppercase mt-0.5">{item.pillar} PROTOCOL</div>
+                                  )}
+                                </div>
+                                {item.status && (
+                                  <div className={`text-xs font-mono px-2 py-1 rounded ${
+                                    item.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800 border border-yellow-300' :
+                                    item.status === 'DONE' ? 'bg-green-100 text-green-800 border border-green-300' :
+                                    'bg-stone-100 text-stone-800 border border-stone-300'
+                                  }`}>
+                                    {item.status}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          {messagePhase === 'COMPLETED' && (
+                            <div className="flex gap-2 ml-4 mt-3">
+                              <button
+                                onClick={handleConfirmSchedule}
+                                disabled={isSending || isRecording}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white text-xs font-bold uppercase tracking-wider hover:bg-blue-800 transition-colors rounded-sm border border-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <Check size={14} />
+                                Confirm Schedule
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

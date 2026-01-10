@@ -19,22 +19,30 @@ class ProfileManager;
 struct StateVector {
     // Raw metrics
     double blink_rate = 0.0;              // Blinks per minute
+    int blink_count_total = 0;            // Total blinks detected in current session
     double perclos = 0.0;                 // Percentage of eyelid closure (0-1)
     double current_ear = 0.0;             // Current Eye Aspect Ratio (for calibration/debugging)
+    double current_mar = 0.0;             // Current Mouth Aspect Ratio (for calibration/debugging)
     int yawn_count_5min = 0;              // Yawn count in last 5 minutes
     double gaze_stability = 0.0;          // Gaze stability score (0-1, higher = more stable)
     double fidgeting_score = 0.0;         // Fidgeting score (0-1, higher = more fidgeting)
     int neck_crack_count_1min = 0;        // Neck crack count in last minute
     
     // Detection regions (for visualization)
+    // Note: These are on the DOWNSCALED frame (640x480), need to scale up for display
     int face_bbox_x = 0;                  // Face bounding box (x, y, width, height)
     int face_bbox_y = 0;
     int face_bbox_width = 0;
     int face_bbox_height = 0;
+    double scale_factor = 1.0;           // Scale factor from downscaled to original frame
     std::vector<double> left_eye_points;  // Left eye landmarks (6 points: x,y pairs)
     std::vector<double> right_eye_points; // Right eye landmarks (6 points: x,y pairs)
-    std::vector<double> mouth_points;     // Mouth landmarks (8 points: x,y pairs)
+    std::vector<double> mouth_points;     // Mouth landmarks (20 points: x,y pairs for 48-67)
     std::vector<double> nose_tip;         // Nose tip (x, y)
+    
+    // Scaled coordinates for visualization (already scaled to original frame)
+    std::vector<double> face_bbox_scaled;  // [x, y, width, height] scaled to original frame
+    std::vector<double> landmarks_scaled;  // All 68 landmarks (x,y pairs) scaled to original frame
     
     // Z-scores (clamped)
     double z_score_blink = 0.0;
@@ -69,6 +77,12 @@ public:
     // Configuration
     void set_downscale_width(int width) { downscale_width_ = width; }
     void set_downscale_height(int height) { downscale_height_ = height; }
+    
+    // Calibration methods (forward to detectors)
+    void set_ear_threshold(double threshold);
+    void set_mar_threshold(double threshold);
+    double get_ear_threshold() const;
+    double get_mar_threshold() const;
     
 private:
     // Frame processing hierarchy

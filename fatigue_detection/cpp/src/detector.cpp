@@ -86,8 +86,8 @@ StateVector FatigueEngine::process_frame(const cv::Mat& frame, int64_t /*timesta
     int new_height = static_cast<int>(frame.rows * scale_factor);
     cv::resize(frame, small_frame, cv::Size(downscale_width_, new_height));
     
-    // Store scale factor for mapping landmarks back if needed
-    // (For ratios like MAR/EAR, we don't need original scale)
+    // Store scale factor for mapping landmarks back to original frame
+    current_state_.scale_factor = 1.0 / scale_factor;  // Inverse: to scale up from small to original
     
     // Every frame (30/sec): Face detection
     process_face_landmarks(small_frame);
@@ -124,8 +124,10 @@ void FatigueEngine::process_face_landmarks(const cv::Mat& frame) {
         
         // Update current state with detector outputs
         current_state_.blink_rate = gaze_detector_->get_blink_rate();
+        current_state_.blink_count_total = gaze_detector_->get_blink_count_total();  // Total blink counter
         current_state_.perclos = gaze_detector_->get_perclos();
         current_state_.current_ear = gaze_detector_->get_current_ear();  // Expose EAR for calibration
+        current_state_.current_mar = yawn_detector_->get_current_mar();  // Expose MAR for calibration
         current_state_.yawn_count_5min = yawn_detector_->get_yawn_count_5min();
         current_state_.gaze_stability = gaze_detector_->get_gaze_stability();
         current_state_.neck_crack_count_1min = neck_crack_detector_->get_crack_count_1min();
@@ -137,6 +139,9 @@ void FatigueEngine::process_face_landmarks(const cv::Mat& frame) {
         current_state_.face_bbox_height = face_bbox_.height;
         
         // Store key landmarks for visualization (68-point model indices)
+        // Scale factor to convert from downscaled to original frame
+        double scale = current_state_.scale_factor;
+        
         // Left eye: 36-41
         current_state_.left_eye_points.clear();
         for (int i = 36; i <= 41; ++i) {
@@ -155,7 +160,7 @@ void FatigueEngine::process_face_landmarks(const cv::Mat& frame) {
             }
         }
         
-        // Mouth: 48-67 (outer mouth)
+        // Mouth: 48-67 (outer mouth) - ALL 20 points
         current_state_.mouth_points.clear();
         for (int i = 48; i <= 67; ++i) {
             if (i < static_cast<int>(landmarks_.size())) {
@@ -170,6 +175,22 @@ void FatigueEngine::process_face_landmarks(const cv::Mat& frame) {
             current_state_.nose_tip.push_back(landmarks_[30].x);
             current_state_.nose_tip.push_back(landmarks_[30].y);
         }
+        
+        // Store SCALED coordinates for visualization (original frame size)
+        // Face bounding box scaled
+        current_state_.face_bbox_scaled.clear();
+        current_state_.face_bbox_scaled.push_back(face_bbox_.x * scale);
+        current_state_.face_bbox_scaled.push_back(face_bbox_.y * scale);
+        current_state_.face_bbox_scaled.push_back(face_bbox_.width * scale);
+        current_state_.face_bbox_scaled.push_back(face_bbox_.height * scale);
+        
+        // All 68 landmarks scaled (x,y pairs)
+        current_state_.landmarks_scaled.clear();
+        for (size_t i = 0; i < landmarks_.size() && i < 68; ++i) {
+            current_state_.landmarks_scaled.push_back(landmarks_[i].x * scale);
+            current_state_.landmarks_scaled.push_back(landmarks_[i].y * scale);
+        }
+        
     } else {
         // No face detected - reset metrics
         current_state_.blink_rate = 0.0;
@@ -207,4 +228,30 @@ bool FatigueEngine::load_profile(const std::string& profile_path) {
 void FatigueEngine::update_profile(const StateVector& session_stats, double user_rating) {
     if (!profile_manager_) return;
     profile_manager_->update_baseline(session_stats, user_rating);
+}
+
+void FatigueEngine::set_ear_threshold(double threshold) {
+    if (gaze_detector_) {
+        gaze_detector_->set_ear_threshold(threshold);
+    }
+}
+
+void FatigueEngine::set_mar_threshold(double threshold) {
+    if (yawn_detector_) {
+        yawn_detector_->set_mar_threshold(threshold);
+    }
+}
+
+double FatigueEngine::get_ear_threshold() const {
+    if (gaze_detector_) {
+        return gaze_detector_->get_ear_threshold();
+    }
+    return 0.20;  // Default
+}
+
+double FatigueEngine::get_mar_threshold() const {
+    if (yawn_detector_) {
+        return yawn_detector_->get_mar_threshold();
+    }
+    return 0.35;  // Default
 }

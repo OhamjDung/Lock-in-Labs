@@ -185,9 +185,9 @@ export default function DecisionCard({ decision, onCitationClick }) {
                             <span className="font-bold text-stone-600">
                               {factor.verified_date || factor.citation_date}
                             </span>
-                            {dateCorrected && factor.original_citation_date && (
+                            {dateCorrected && (factor.original_citation_date || factor.citation_date) && (
                               <span className="text-stone-400 line-through text-[9px]">
-                                (was {factor.original_citation_date})
+                                (was {factor.original_citation_date || factor.citation_date})
                               </span>
                             )}
                           </span>
@@ -219,9 +219,9 @@ export default function DecisionCard({ decision, onCitationClick }) {
                       <span className="font-bold">
                         {factor.verified_date || factor.citation_date}
                       </span>
-                      {dateCorrected && factor.original_citation_date && (
+                      {dateCorrected && (factor.original_citation_date || factor.citation_date) && (
                         <span className="text-stone-400 line-through">
-                          (was {factor.original_citation_date})
+                          (was {factor.original_citation_date || factor.citation_date})
                         </span>
                       )}
                       {verificationScore > 0 && (
@@ -242,9 +242,9 @@ export default function DecisionCard({ decision, onCitationClick }) {
           <div>
             VERIFIED: {contributing_factors.filter(f => f.is_verified !== false).length} / {contributing_factors.length}
           </div>
-          {decision.date_corrected_count > 0 && (
+          {contributing_factors.filter(f => f.date_corrected === true).length > 0 && (
             <div className="text-yellow-700">
-              {decision.date_corrected_count} DATE(S) CORRECTED
+              {contributing_factors.filter(f => f.date_corrected === true).length} DATE(S) CORRECTED
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Dict, Optional, Any
 import json
+import re
 
 from src.llm import LLMClient
 from src.models import (
@@ -11,6 +12,7 @@ from src.models import (
     DailyReport,
     DailyTaskReport,
     ReportingState,
+    ReportingPhase,
     DailyTaskStatus,
     StatsDelta,
     SkillNode,
@@ -19,9 +21,14 @@ from src.models import (
     Pillar,
     Decision,
     ContributingFactor,
+    NodeStatus,
+    HabitProgress,
 )
 from .prompts import REPORTING_CONVERSATION_PROMPT, REPORTING_JSON_PROMPT_TEMPLATE, DECISION_GENERATION_PROMPT_TEMPLATE, DECISION_LOGIC_RULES
 from .utils import verify_citations
+from .progression import check_progression
+from .scheduler_agent import SchedulerAgent
+from datetime import datetime, timedelta
 
 
 class ReportingAgent:
@@ -40,6 +47,7 @@ class ReportingAgent:
         # Lazy initialization of memory components (only when needed)
         self._memory = None
         self._significance_scorer = None
+        self.scheduler_agent = SchedulerAgent(self.llm_client)
     
     def _get_memory(self, user_id: str):
         """Lazy initialization of semantic memory."""
@@ -139,19 +147,221 @@ class ReportingAgent:
         sheet: CharacterSheet,
         tree: SkillTree,
         user_message: str,
-    ) -> str:
-        """Conversational reply that reacts to what the user said.
+    ) -> Dict[str, Any]:
+        """Conversational reply that manages the reporting flow through state machine phases.
 
-        Still heuristic (no LLM call), but it:
-        - Tries to recognize which of today's tasks the user is talking about.
-        - Acknowledges wins vs. friction.
-        - Asks a small clarifying question when something sounds hard or confusing.
+        Returns a dict with:
+        - text: The reply message
+        - decisions: Optional list of Decision objects (for PROGRESSION phase)
+        - schedule_preview: Optional list of DailyScheduleItem (for SCHEDULING phase)
+        - phase: Current phase after this turn
         """
+        # Normalize phase to ReportingPhase enum if it's a string
+        if isinstance(state.phase, str):
+            try:
+                state.phase = ReportingPhase(state.phase)
+            except ValueError:
+                # Default to REVIEW if phase string doesn't match
+                state.phase = ReportingPhase.REVIEW
+        
         lowered = user_message.strip().lower()
 
-        # If the user indicates they're done, don't dig further.
-        if "confirm" in lowered or "done" in lowered:
-            return "Okay, I'll prepare your daily report next."
+        # --- PHASE 1: REVIEW ---
+        if state.phase == ReportingPhase.REVIEW:
+            # Check exit condition
+            if self._is_user_done(user_message):
+                # TRANSITION -> PROGRESSION
+                state.phase = ReportingPhase.PROGRESSION
+                decisions = check_progression(sheet, tree)
+                
+                if decisions:
+                    state.pending_decisions = decisions
+                    return {
+                        "text": "Great work today! You've mastered some skills! Review these upgrades:",
+                        "decisions": [d.model_dump() for d in decisions],
+                        "schedule_preview": None,
+                        "phase": state.phase.value,
+                    }
+                else:
+                    # Skip Progression if nothing to upgrade
+                    state.phase = ReportingPhase.SCHEDULING
+                    return {
+                        "text": "Logged. Now, what does your availability look like tomorrow?",
+                        "decisions": None,
+                        "schedule_preview": None,
+                        "phase": state.phase.value,
+                    }
+            
+            # Regular review conversation
+            reply_text = self._generate_review_response(state, sheet, tree, user_message)
+            return {
+                "text": reply_text,
+                "decisions": None,
+                "schedule_preview": None,
+                "phase": state.phase.value,
+            }
+
+        # --- PHASE 2: PROGRESSION ---
+        elif state.phase == ReportingPhase.PROGRESSION:
+            # User should have accepted/reviewed decisions
+            # Parse user input for decision acceptance/rejection
+            
+            # Check for rejection/skip keywords
+            if any(keyword in lowered for keyword in ["skip", "reject", "not now", "later", "no thanks"]):
+                # User wants to skip all decisions
+                state.pending_decisions = []
+                state.phase = ReportingPhase.SCHEDULING
+                return {
+                    "text": "Got it, skipping upgrades for now. What does your availability look like for tomorrow?",
+                    "decisions": None,
+                    "schedule_preview": None,
+                    "phase": state.phase.value,
+                }
+            
+            # Check for acceptance keywords
+            if any(keyword in lowered for keyword in ["accept", "accepted", "yes", "ok", "apply", "done"]):
+                # Parse which decisions to accept
+                accepted_decisions = self._parse_decision_acceptance(
+                    user_message, 
+                    state.pending_decisions
+                )
+                
+                if accepted_decisions:
+                    # Apply only accepted decisions
+                    self._apply_progression_decisions(sheet, tree, accepted_decisions)
+                    
+                    # Remove accepted decisions from pending
+                    accepted_ids = {d.id for d in accepted_decisions}
+                    state.pending_decisions = [
+                        d for d in state.pending_decisions 
+                        if d.id not in accepted_ids
+                    ]
+                    
+                    # TRANSITION -> SCHEDULING
+                    state.phase = ReportingPhase.SCHEDULING
+                    state.pending_decisions = []
+                    
+                    accepted_count = len(accepted_decisions)
+                    return {
+                        "text": f"Upgrades applied! ({accepted_count} upgrade{'s' if accepted_count != 1 else ''} accepted) Now, what does your availability look like for tomorrow?",
+                        "decisions": None,
+                        "schedule_preview": None,
+                        "phase": state.phase.value,
+                    }
+                else:
+                    # User said "accept" but we couldn't parse which ones - accept all
+                    self._apply_progression_decisions(sheet, tree, state.pending_decisions)
+                    state.phase = ReportingPhase.SCHEDULING
+                    state.pending_decisions = []
+                    return {
+                        "text": "All upgrades applied! Now, what does your availability look like for tomorrow?",
+                        "decisions": None,
+                        "schedule_preview": None,
+                        "phase": state.phase.value,
+                    }
+            else:
+                # Still in progression, waiting for acceptance
+                # Show decisions again with clearer instructions
+                decision_list = "\n".join([
+                    f"  • {d.target} → {d.new_value}"
+                    for d in state.pending_decisions
+                ])
+                return {
+                    "text": f"I've found {len(state.pending_decisions)} upgrade{'s' if len(state.pending_decisions) != 1 else ''} available:\n\n{decision_list}\n\nType 'accept' to apply all, 'accept 1,2' to accept specific ones, or 'skip' to skip for now.",
+                    "decisions": [d.model_dump() for d in state.pending_decisions],
+                    "schedule_preview": None,
+                    "phase": state.phase.value,
+                }
+
+        # --- PHASE 3: SCHEDULING ---
+        elif state.phase == ReportingPhase.SCHEDULING:
+            # User input is availability: "Busy 9-5, free evening"
+            
+            # 1. Get Active Tasks (Freshly updated from Phase 2)
+            active_nodes = self._get_active_nodes(sheet, tree)
+            
+            if not active_nodes:
+                # No active tasks to schedule
+                state.phase = ReportingPhase.COMPLETED
+                return {
+                    "text": "No active tasks to schedule. Reporting session complete!",
+                    "decisions": None,
+                    "schedule_preview": None,
+                    "phase": state.phase.value,
+                }
+            
+            # 2. Run Scheduler (use current_date from state for timezone safety)
+            tomorrow_date = self._get_tomorrow_date_str(state.current_date)
+            schedule, is_fallback = self.scheduler_agent.generate_schedule(
+                user_constraints=user_message,
+                tasks=active_nodes,
+                priorities=sheet.pillar_rankings if sheet.pillar_rankings else [Pillar.PHYSICAL, Pillar.CAREER, Pillar.MENTAL, Pillar.SOCIAL],
+                date_str=tomorrow_date
+            )
+            
+            state.tomorrow_schedule = schedule
+            state.phase = ReportingPhase.COMPLETED
+            
+            # Format schedule preview message
+            schedule_text = "\n".join([
+                f"  {item.time} - {item.label}"
+                for item in schedule[:5]  # Show first 5 items
+            ])
+            if len(schedule) > 5:
+                schedule_text += f"\n  ... and {len(schedule) - 5} more"
+            
+            # Add warning if fallback was used
+            warning_msg = ""
+            if is_fallback:
+                warning_msg = "\n\n⚠️ Note: I couldn't generate a smart schedule based on your constraints, so I've created a basic template. You may want to adjust the times based on your availability."
+            
+            return {
+                "text": f"I've drafted your schedule for tomorrow:\n\n{schedule_text}{warning_msg}\n\nType 'confirm' to save this schedule.",
+                "decisions": None,
+                "schedule_preview": [item.model_dump() for item in schedule],
+                "phase": state.phase.value,
+            }
+
+        # --- PHASE 4: COMPLETED ---
+        elif state.phase == ReportingPhase.COMPLETED:
+            # Finalize and save
+            if "confirm" in lowered or "yes" in lowered or "done" in lowered:
+                return {
+                    "text": "Schedule saved! Reporting session complete.",
+                    "decisions": None,
+                    "schedule_preview": [item.model_dump() for item in state.tomorrow_schedule] if state.tomorrow_schedule else None,
+                    "phase": state.phase.value,
+                }
+            else:
+                return {
+                    "text": "Type 'confirm' to save the schedule, or let me know if you'd like to adjust it.",
+                    "decisions": None,
+                    "schedule_preview": [item.model_dump() for item in state.tomorrow_schedule] if state.tomorrow_schedule else None,
+                    "phase": state.phase.value,
+                }
+        
+        # Fallback
+        return {
+            "text": "I'm not sure what phase we're in. Let's start over.",
+            "decisions": None,
+            "schedule_preview": None,
+            "phase": ReportingPhase.REVIEW.value,
+        }
+    
+    def _is_user_done(self, user_message: str) -> bool:
+        """Check if user indicates they're done reporting."""
+        lowered = user_message.strip().lower()
+        return any(keyword in lowered for keyword in ["done", "confirm", "finished", "that's all", "that's it"])
+
+    def _generate_review_response(
+        self,
+        state: ReportingState,
+        sheet: CharacterSheet,
+        tree: SkillTree,
+        user_message: str,
+    ) -> str:
+        """Generate a conversational reply during the REVIEW phase."""
+        lowered = user_message.strip().lower()
 
         # First reply after the initial prompt.
         if not state.conversation_history:
@@ -268,6 +478,138 @@ class ReportingAgent:
 
         response += " When you're ready for me to summarize the day, type 'confirm'."
         return response
+    
+    def _apply_progression_decisions(
+        self,
+        sheet: CharacterSheet,
+        tree: SkillTree,
+        decisions: List[Decision],
+    ) -> None:
+        """Apply progression decisions by unlocking next nodes and marking current ones as mastered."""
+        from src.reporting.scheduler import mark_newly_unlocked_nodes
+        
+        for decision in decisions:
+            # Mark the current node as mastered
+            if decision.target_habit_id and decision.target_habit_id in sheet.habit_progress:
+                sheet.habit_progress[decision.target_habit_id].status = NodeStatus.MASTERED
+            
+            # The next node will be unlocked via mark_newly_unlocked_nodes
+        
+        # Unlock any nodes that now have all prerequisites mastered
+        mark_newly_unlocked_nodes(sheet, tree)
+    
+    def _get_active_nodes(self, sheet: CharacterSheet, tree: SkillTree) -> List[SkillNode]:
+        """Get all active SkillNodes from the tree."""
+        active_nodes = []
+        
+        for node in tree.nodes:
+            if node.type != NodeType.HABIT:
+                continue
+            
+            # Ensure progress entry exists
+            if node.id not in sheet.habit_progress:
+                sheet.habit_progress[node.id] = HabitProgress(node_id=node.id)
+            
+            progress = sheet.habit_progress[node.id]
+            
+            # Only include ACTIVE nodes (not LOCKED or MASTERED)
+            if progress.status == NodeStatus.ACTIVE:
+                active_nodes.append(node)
+        
+        return active_nodes
+    
+    def _get_tomorrow_date_str(self, current_date: Optional[str] = None) -> str:
+        """Get tomorrow's date as ISO string.
+        
+        Args:
+            current_date: ISO date string (YYYY-MM-DD). If None, uses datetime.now()
+        """
+        if current_date:
+            # Parse current_date and add 1 day
+            try:
+                date_obj = datetime.strptime(current_date, "%Y-%m-%d").date()
+                tomorrow = date_obj + timedelta(days=1)
+                return tomorrow.isoformat()
+            except ValueError:
+                # Fallback to datetime.now() if parsing fails
+                pass
+        
+        # Fallback: use datetime.now() (should be avoided in production)
+        tomorrow = datetime.now() + timedelta(days=1)
+        return tomorrow.date().isoformat()
+    
+    def _parse_decision_acceptance(
+        self,
+        user_message: str,
+        pending_decisions: List[Decision],
+    ) -> List[Decision]:
+        """
+        Parse user message to determine which decisions to accept.
+        
+        Supports:
+        - "accept all" or "accept" → all decisions
+        - "accept 1,2,3" → decisions by index (1-indexed)
+        - "accept first" → first decision
+        - JSON format: {"accepted_ids": ["id1", "id2"]} → by decision ID
+        
+        Args:
+            user_message: User's input message
+            pending_decisions: List of pending Decision objects
+            
+        Returns:
+            List of Decision objects to accept (empty if none)
+        """
+        if not pending_decisions:
+            return []
+        
+        lowered = user_message.lower().strip()
+        
+        # Try to parse JSON format first (for future frontend integration)
+        try:
+            import json
+            # Look for JSON in the message
+            if "{" in user_message and "}" in user_message:
+                json_start = user_message.find("{")
+                json_end = user_message.rfind("}") + 1
+                json_str = user_message[json_start:json_end]
+                parsed = json.loads(json_str)
+                
+                if "accepted_ids" in parsed:
+                    accepted_ids = set(parsed["accepted_ids"])
+                    return [d for d in pending_decisions if d.id in accepted_ids]
+        except (json.JSONDecodeError, ValueError):
+            pass
+        
+        # Check for "accept all" or just "accept" (accept all)
+        if "accept all" in lowered or (lowered == "accept" or lowered.startswith("accept")):
+            # Check if specific indices are mentioned
+            # Look for patterns like "accept 1,2,3" or "accept 1 2 3"
+            number_pattern = r'accept\s+(\d+(?:\s*[,\s]\s*\d+)*)'
+            match = re.search(number_pattern, lowered)
+            
+            if match:
+                # Parse indices (1-indexed)
+                indices_str = match.group(1)
+                indices = [
+                    int(x.strip()) - 1  # Convert to 0-indexed
+                    for x in re.split(r'[,\s]+', indices_str)
+                    if x.strip().isdigit()
+                ]
+                # Filter valid indices
+                valid_indices = [i for i in indices if 0 <= i < len(pending_decisions)]
+                if valid_indices:
+                    return [pending_decisions[i] for i in valid_indices]
+            
+            # Check for "first", "last", etc.
+            if "first" in lowered:
+                return [pending_decisions[0]] if pending_decisions else []
+            if "last" in lowered:
+                return [pending_decisions[-1]] if pending_decisions else []
+            
+            # Default: accept all
+            return pending_decisions
+        
+        return []
 
     def _propose_skill_tree_modifications(
         self,

@@ -25,6 +25,32 @@ class NodeStatus(str, Enum):
     MASTERED = "MASTERED"
 
 
+class ReportingPhase(str, Enum):
+    """Tracks where the user is in the daily reporting flow."""
+    
+    REVIEW = "REVIEW"             # Standard log entry processing
+    PROGRESSION = "PROGRESSION"   # Presenting/handling level-ups
+    SCHEDULING = "SCHEDULING"     # Asking for/generating tomorrow's schedule
+    COMPLETED = "COMPLETED"       # Session finished
+
+
+class DecisionType(str, Enum):
+    """Type of decision for habit/skill progression."""
+    
+    INCREASE_INTENSITY = "INCREASE_INTENSITY"
+    DECREASE_INTENSITY = "DECREASE_INTENSITY"
+    MAINTAIN = "MAINTAIN"
+    CHANGE_STRATEGY = "CHANGE_STRATEGY"
+
+
+class FactorType(str, Enum):
+    """Type of contributing factor for decision explainability."""
+    
+    DATA = "data"           # Hard metric or pattern
+    SUBJECTIVE = "subjective"  # User sentiment or self-report
+    PATTERN = "pattern"     # Behavioral trend across time
+
+
 class DailyTaskStatus(str, Enum):
     """Per-day status for a scheduled task/habit instance."""
 
@@ -318,7 +344,7 @@ class ReportingState(BaseModel):
 
     user_id: str
     current_date: str
-    phase: str = Field(default="collecting")
+    phase: Union[ReportingPhase, str] = Field(default=ReportingPhase.REVIEW)
     conversation_history: List[Dict[str, str]] = Field(default_factory=list)
     todays_tasks: List[DailyTask] = Field(default_factory=list)
     finalized: bool = Field(default=False)
@@ -333,6 +359,15 @@ class ReportingState(BaseModel):
     proposed_skill_modifications: List["SkillNode"] = Field(
         default_factory=list,
         description="Skill tree modifications proposed during the conversation.",
+    )
+    # New fields for Active Coach workflow
+    pending_decisions: List["Decision"] = Field(
+        default_factory=list,
+        description="Decisions generated but not yet accepted by the user."
+    )
+    tomorrow_schedule: Optional[List[DailyScheduleItem]] = Field(
+        default=None,
+        description="Draft schedule for tomorrow generated during SCHEDULING phase."
     )
 
 
@@ -360,7 +395,7 @@ class ContributingFactor(BaseModel):
     date_corrected: bool = Field(default=False, description="True if date was wrong and got corrected by grounding")
     
     # Additional metadata
-    factor_type: Optional[str] = Field(None, description="Type of factor: 'data' (hard metric), 'subjective' (user sentiment), 'pattern' (behavioral trend)")
+    factor_type: Optional[Union[FactorType, str]] = Field(None, description="Type of factor: 'data' (hard metric), 'subjective' (user sentiment), 'pattern' (behavioral trend)")
 
 
 class Decision(BaseModel):
@@ -369,13 +404,14 @@ class Decision(BaseModel):
     This transforms the Reporting Agent from a "black box" into a trusted coach
     that can explain every decision with verifiable citations.
     """
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), description="Unique identifier for this decision")
     target: str = Field(..., description="What is being adjusted (e.g., 'running_distance', 'workout_frequency', 'pushups_reps')")
     target_habit_id: Optional[str] = Field(None, description="ID of the specific habit/skill node being adjusted (if applicable)")
     
     old_value: Union[int, str, float] = Field(..., description="Current value before adjustment")
     new_value: Union[int, str, float] = Field(..., description="Recommended value after adjustment")
     
-    decision_type: str = Field(..., description="Type of adjustment: 'INCREASE_INTENSITY', 'DECREASE_INTENSITY', 'MAINTAIN', 'CHANGE_STRATEGY'")
+    decision_type: Union[DecisionType, str] = Field(..., description="Type of adjustment: 'INCREASE_INTENSITY', 'DECREASE_INTENSITY', 'MAINTAIN', 'CHANGE_STRATEGY'")
     
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Confidence in this decision (0.0-1.0)")
     

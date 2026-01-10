@@ -9,15 +9,25 @@ double GazeDetector::calculate_ear(const std::vector<cv::Point2f>& landmarks, bo
         return 0.5;  // Default value
     }
     
+    // 68-point model eye landmarks:
+    // Left eye:  36 (outer), 37 (top), 38 (top), 39 (inner), 40 (bottom), 41 (bottom)
+    // Right eye: 42 (inner), 43 (top), 44 (top), 45 (outer), 46 (bottom), 47 (bottom)
+    
     int start_idx = left_eye ? LEFT_EYE_START : RIGHT_EYE_START;
-    int end_idx = left_eye ? LEFT_EYE_END : RIGHT_EYE_END;
     
-    // Calculate vertical distances
-    double vertical1 = cv::norm(landmarks[start_idx] - landmarks[start_idx + 3]);
-    double vertical2 = cv::norm(landmarks[start_idx + 1] - landmarks[start_idx + 5]);
-    double vertical3 = cv::norm(landmarks[start_idx + 2] - landmarks[start_idx + 4]);
+    // Calculate vertical distances (top to bottom at different points)
+    // Vertical1: top point to bottom point (e.g., 37 to 41 for left eye)
+    double vertical1 = cv::norm(landmarks[start_idx + 1] - landmarks[start_idx + 5]);
+    // Vertical2: top middle to bottom middle (e.g., 38 to 40 for left eye)
+    double vertical2 = cv::norm(landmarks[start_idx + 2] - landmarks[start_idx + 4]);
+    // Vertical3: outer corner to inner corner (diagonal, but gives vertical component)
+    // Actually, let's use a third vertical measurement: average of top points to average of bottom points
+    cv::Point2f top_avg = (landmarks[start_idx + 1] + landmarks[start_idx + 2]) * 0.5f;
+    cv::Point2f bottom_avg = (landmarks[start_idx + 4] + landmarks[start_idx + 5]) * 0.5f;
+    double vertical3 = cv::norm(top_avg - bottom_avg);
     
-    // Calculate horizontal distance
+    // Calculate horizontal distance (outer corner to inner corner)
+    // For left eye: 36 to 39, for right eye: 42 to 45
     double horizontal = cv::norm(landmarks[start_idx] - landmarks[start_idx + 3]);
     
     if (horizontal < 1e-6) {
@@ -73,27 +83,34 @@ void GazeDetector::update(const std::vector<cv::Point2f>& landmarks, const cv::M
 }
 
 void GazeDetector::detect_blink(int64_t current_time) {
-    if (current_ear_ < EAR_THRESHOLD) {
-        // Eyes closed
+    // Improved blink detection: detect transition from open -> closed -> open
+    // This ensures we only count complete blinks, not just eye closure
+    if (current_ear_ < ear_threshold_) {
+        // Eyes closed (or closing)
         if (!eyes_closed_) {
-            // Start of blink
+            // Transition: eyes were open, now closing
             eyes_closed_ = true;
+            // Don't count blink yet - wait for eyes to open again
+        }
+    } else {
+        // Eyes open (or opening)
+        if (eyes_closed_) {
+            // Transition: eyes were closed, now opening - this is a complete blink!
+            eyes_closed_ = false;
+            // Only count if enough time has passed since last blink (debounce)
             if (last_blink_time_ < 0 || (current_time - last_blink_time_) > 200) {
-                // New blink (debounce: at least 200ms between blinks)
+                // Valid blink detected
                 blink_timestamps_.push_back(current_time);
                 last_blink_time_ = current_time;
             }
         }
-    } else {
-        // Eyes open
-        eyes_closed_ = false;
     }
     
     // Calculate PERCLOS (percentage of time eyes are closed)
     if (!ear_history_.empty()) {
         int closed_count = 0;
         for (const auto& entry : ear_history_) {
-            if (entry.second < EAR_THRESHOLD) {
+            if (entry.second < ear_threshold_) {
                 closed_count++;
             }
         }

@@ -4,33 +4,41 @@
 
 NeckCrackDetector::NeckCrackDetector() = default;
 
-double NeckCrackDetector::calculate_head_rotation(const std::vector<cv::Point2f>& landmarks, const cv::Rect& face_bbox) {
+void NeckCrackDetector::calculate_head_pose(const std::vector<cv::Point2f>& landmarks, const cv::Rect& face_bbox,
+                                            double& pitch, double& yaw, double& roll) {
     if (landmarks.size() < 68 || face_bbox.width == 0) {
-        return 0.0;
+        pitch = yaw = roll = 0.0;
+        return;
     }
     
-    // Simple rotation estimation using nose tip and eye centers
-    // More sophisticated would use solvePnP, but this is a simpler approximation
-    
-    // Eye centers
+    // Eye centers (more stable than single points)
     cv::Point2f left_eye_center = (landmarks[36] + landmarks[39]) * 0.5f;
     cv::Point2f right_eye_center = (landmarks[42] + landmarks[45]) * 0.5f;
+    cv::Point2f eye_center = (left_eye_center + right_eye_center) * 0.5f;
     
     // Nose tip
     cv::Point2f nose_tip = landmarks[30];
     
-    // Calculate angles
-    cv::Point2f eye_center = (left_eye_center + right_eye_center) * 0.5f;
-    cv::Point2f vec = nose_tip - eye_center;
+    // Mouth corners (for roll calculation)
+    cv::Point2f mouth_left = landmarks[48];   // Left mouth corner
+    cv::Point2f mouth_right = landmarks[54];  // Right mouth corner
     
-    // Yaw rotation (left-right)
-    double yaw = std::atan2(vec.x, vec.y) * 180.0 / CV_PI;
+    // Calculate rotation angles per axis
     
-    // Pitch rotation (up-down)
-    double pitch = std::atan2(vec.y, std::abs(vec.x)) * 180.0 / CV_PI;
+    // Yaw (left-right rotation): Use eye line
+    cv::Point2f eye_line = right_eye_center - left_eye_center;
+    yaw = std::atan2(eye_line.y, eye_line.x) * 180.0 / CV_PI;
     
-    // Combine into single rotation metric (weighted)
-    return yaw * 0.7 + pitch * 0.3;
+    // Pitch (up-down rotation): Vertical position of nose relative to eye center
+    cv::Point2f nose_vec = nose_tip - eye_center;
+    pitch = std::atan2(nose_vec.y, std::abs(nose_vec.x)) * 180.0 / CV_PI;
+    
+    // Roll (tilt/rotation): Angle of eye line from horizontal
+    // Also check mouth line for consistency
+    cv::Point2f mouth_line = mouth_right - mouth_left;
+    double eye_angle = std::atan2(eye_line.y, eye_line.x) * 180.0 / CV_PI;
+    double mouth_angle = std::atan2(mouth_line.y, mouth_line.x) * 180.0 / CV_PI;
+    roll = std::abs(eye_angle - mouth_angle);  // Difference indicates tilt
 }
 
 void NeckCrackDetector::update(const std::vector<cv::Point2f>& landmarks, const cv::Rect& face_bbox) {
@@ -38,47 +46,52 @@ void NeckCrackDetector::update(const std::vector<cv::Point2f>& landmarks, const 
         return;
     }
     
-    double current_rotation = calculate_head_rotation(landmarks, face_bbox);
+    // Calculate head pose per axis
+    double current_pitch, current_yaw, current_roll;
+    calculate_head_pose(landmarks, face_bbox, current_pitch, current_yaw, current_roll);
+    
     int64_t current_time = cv::getTickCount() * 1000 / cv::getTickFrequency();
     
-    // Add to history
-    rotation_history_.push_back({current_time, current_rotation});
-    
-    // Keep only recent history (last 2 seconds)
-    int64_t history_window = 2000;
-    while (!rotation_history_.empty() && 
-           (current_time - rotation_history_.front().first) > history_window) {
-        rotation_history_.pop_front();
-    }
-    
-    // Detect crack if we have previous rotation
+    // Detect crack if we have previous rotation data
     if (last_update_time_ > 0) {
-        detect_crack(current_time, current_rotation);
+        detect_crack(current_time, current_pitch, current_yaw, current_roll);
     }
     
-    last_rotation_ = current_rotation;
+    // Update state
+    last_pitch_ = current_pitch;
+    last_yaw_ = current_yaw;
+    last_roll_ = current_roll;
     last_update_time_ = current_time;
+    frames_since_last_crack_++;
     
     // Update crack count
     update_crack_count(current_time);
 }
 
-void NeckCrackDetector::detect_crack(int64_t current_time, double current_rotation) {
-    double time_delta = (current_time - last_update_time_) / 1000.0;  // Convert to seconds
+void NeckCrackDetector::detect_crack(int64_t current_time, double /*current_pitch*/, double current_yaw, double current_roll) {
+    // Fixed neck crack detection: Monitor specific axes (Roll and Yaw)
+    // Most neck cracks are Roll (ear to shoulder) or Yaw (looking left/right)
+    // Pitch (nodding) is rarely a crack, so we ignore it
     
-    if (time_delta < 1e-6) {
-        return;  // Avoid division by zero
-    }
+    // Calculate delta (velocity) per axis (degrees per frame)
+    // At 30fps, 1 frame = ~33ms, so we're measuring degrees per frame
+    double d_roll = std::abs(current_roll - last_roll_);
+    double d_yaw = std::abs(current_yaw - last_yaw_);
+    // Ignore pitch for crack detection (nodding is normal movement)
     
-    // Calculate rotation velocity (degrees per second)
-    double rotation_delta = std::abs(current_rotation - last_rotation_);
-    double velocity = rotation_delta / time_delta;
+    // Check if EITHER Roll OR Yaw exceeds the speed threshold
+    // Normal head movement: ~0.5 to 2.0 degrees per frame
+    // Neck crack whip-motion: usually > 8.0 degrees per frame
+    bool roll_crack = d_roll > CRACK_VELOCITY_THRESHOLD;
+    bool yaw_crack = d_yaw > CRACK_VELOCITY_THRESHOLD;
     
-    // Detect sudden high-velocity rotation (neck crack)
-    if (velocity > ROTATION_VELOCITY_THRESHOLD) {
-        // Potential neck crack detected
-        // Additional check: should return to center quickly
-        crack_timestamps_.push_back(current_time);
+    if (roll_crack || yaw_crack) {
+        // Debounce: Only count 1 crack every 2 seconds (60 frames at 30fps)
+        if (frames_since_last_crack_ > CRACK_DEBOUNCE_FRAMES) {
+            crack_timestamps_.push_back(current_time);
+            last_crack_time_ = current_time;
+            frames_since_last_crack_ = 0;  // Reset counter
+        }
     }
 }
 

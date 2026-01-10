@@ -8,7 +8,18 @@
 - **Fatigue indicator**: 
   - Too low (<10/min) = Zoning out or very tired
   - Too high (>30/min) = Eye strain or dry eyes
-- **How it works**: Uses Eye Aspect Ratio (EAR) - measures vertical vs horizontal eye opening
+- **How it works**: 
+  - Uses **Eye Aspect Ratio (EAR)** - measures vertical vs horizontal eye opening
+  - EAR = (average vertical distance) / (horizontal distance) between eye landmarks
+  - When eyes are open: EAR is higher (typically 0.25-0.40)
+  - When eyes are closed: EAR drops below threshold (0.25)
+  - Detects a blink when EAR drops below threshold for a brief moment
+  - Counts blinks in the last 60 seconds to calculate rate
+
+### 1b. **Blink Count Total** (count)
+- **What it measures**: Total number of blinks detected in the current session
+- **Purpose**: Shows progress and helps verify blink detection is working
+- **How it works**: Increments every time a blink is detected (with 200ms debounce between blinks)
 
 ### 2. **PERCLOS** (Percentage of Eyelid Closure)
 - **What it measures**: What percentage of time your eyes are closed (0.0 = always open, 1.0 = always closed)
@@ -24,7 +35,13 @@
 - **Fatigue indicator**:
   - High (>0.95) + Low blink rate = "Zoning out" (staring blankly)
   - Low (<0.5) = Eyes moving erratically (tired, unfocused)
-- **How it works**: Calculates variance of eye center position over time
+- **How it works**: 
+  - Calculates the center point between your two eyes for each frame
+  - Tracks these eye center points over the last 5 seconds (~150 points at 30 FPS)
+  - Calculates the variance (how much the eye center moves around)
+  - Converts variance to a stability score using exponential decay: `stability = exp(-variance / 100)`
+  - High variance (eyes jumping around) → Low stability score
+  - Low variance (eyes staying in place) → High stability score
 
 ### 4. **Fidget Score** (0.0-1.0)
 - **What it measures**: How much you're moving your torso/shoulders
@@ -47,7 +64,11 @@
 - **Normal range**: 0-1/min
 - **Fatigue indicator**:
   - Frequent cracking = Physical discomfort (ergonomics issue or stress)
-- **How it works**: Detects sudden high-velocity head rotations
+- **How it works**: 
+  - Detects sudden high-velocity head rotations (>45 degrees/second)
+  - Calculates head rotation angle using nose tip and eye centers
+  - Measures rotation velocity between frames
+  - **Cooldown**: 5 seconds between detections (prevents false positives from continuous movement)
 
 ### 7. **Fatigue Score** (0.0-1.0) ⭐ MAIN METRIC
 - **What it measures**: Overall fatigue level (0.0 = alert, 1.0 = very tired)
@@ -76,6 +97,23 @@ These are used internally to calculate fatigue score:
 - **z_score_fidget**: Deviation in fidgeting
 
 All Z-scores are clamped with sigmoid (tanh) to prevent extreme outliers.
+
+## EAR (Eye Aspect Ratio) - Technical Details
+
+**EAR** is the primary metric used for blink detection.
+
+- **Formula**: `EAR = (average vertical distances) / (horizontal distance)`
+  - Vertical distances: measured between upper and lower eyelid at 3 points
+  - Horizontal distance: width of the eye at its widest point
+- **Range**: Typically 0.15-0.40
+  - **Open eyes**: EAR > 0.25 (depends on person)
+  - **Closed eyes**: EAR < 0.25
+- **Why it works**: 
+  - When eyes are open, the horizontal distance is large relative to vertical → Higher EAR
+  - When eyes close, the vertical distance becomes similar to horizontal → Lower EAR
+- **Calibration**: Some people have naturally higher or lower EAR values, so calibration helps find your personal threshold
+
+**EAR (Open)** refers to the current EAR value when your eyes are open - useful for calibration to determine your personal threshold.
 
 ## Why Calibration Matters
 

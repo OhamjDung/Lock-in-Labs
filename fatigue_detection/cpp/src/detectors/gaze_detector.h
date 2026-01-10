@@ -15,13 +15,18 @@ public:
     
     // Get metrics
     double get_blink_rate() const { return blink_rate_; }  // Blinks per minute
+    int get_blink_count_total() const { return static_cast<int>(blink_timestamps_.size()); }  // Total blinks detected
     double get_perclos() const { return perclos_; }  // Percentage of eyelid closure (0-1)
     double get_gaze_stability() const { return gaze_stability_; }  // Stability score (0-1)
     double get_current_ear() const { return current_ear_; }  // Current Eye Aspect Ratio (for calibration)
     
+    // Allow threshold adjustment for calibration
+    void set_ear_threshold(double threshold) { ear_threshold_ = threshold; }
+    double get_ear_threshold() const { return ear_threshold_; }
+    
 private:
     // Configuration
-    static constexpr double EAR_THRESHOLD = 0.25;  // Eye Aspect Ratio threshold for blink
+    double ear_threshold_ = 0.20;  // Eye Aspect Ratio threshold for blink (configurable, default 0.20)
     static constexpr double ZONING_OUT_STATIC_TIME_MS = 30000.0;  // 30 seconds
     static constexpr double ZONING_OUT_BLINK_RATE_THRESHOLD = 2.0;  // Blinks per minute
     static constexpr int64_t BLINK_WINDOW_MS = 60000;  // 1 minute

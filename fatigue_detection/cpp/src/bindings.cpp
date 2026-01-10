@@ -70,8 +70,10 @@ cv::Mat numpy_to_mat(py::array_t<uint8_t> input) {
 py::dict state_vector_to_dict(const StateVector& state) {
     py::dict result;
     result["blink_rate"] = state.blink_rate;
+    result["blink_count_total"] = state.blink_count_total;  // Total blink counter
     result["perclos"] = state.perclos;
     result["current_ear"] = state.current_ear;  // Expose EAR for calibration
+    result["current_mar"] = state.current_mar;  // Expose MAR for calibration
     result["yawn_count_5min"] = state.yawn_count_5min;
     result["gaze_stability"] = state.gaze_stability;
     result["fidgeting_score"] = state.fidgeting_score;
@@ -88,6 +90,11 @@ py::dict state_vector_to_dict(const StateVector& state) {
     result["right_eye_points"] = state.right_eye_points;
     result["mouth_points"] = state.mouth_points;
     result["nose_tip"] = state.nose_tip;
+    result["scale_factor"] = state.scale_factor;  // For scaling landmarks to original frame
+    
+    // Scaled coordinates (already scaled to original frame size)
+    result["face_bbox_scaled"] = state.face_bbox_scaled;  // [x, y, width, height]
+    result["landmarks_scaled"] = state.landmarks_scaled;  // All 68 landmarks (x,y pairs)
     result["z_score_blink"] = state.z_score_blink;
     result["z_score_gaze"] = state.z_score_gaze;
     result["z_score_posture"] = state.z_score_posture;
@@ -176,7 +183,21 @@ PYBIND11_MODULE(lockin_core, m) {
         
         .def("set_downscale_height", &FatigueEngine::set_downscale_height,
              py::arg("height"),
-             "Set downscale height for face detection (default: 480)");
+             "Set downscale height for face detection (default: 480)")
+        
+        .def("set_ear_threshold", &FatigueEngine::set_ear_threshold,
+             py::arg("threshold"),
+             "Set Eye Aspect Ratio threshold for blink detection (calibration)")
+        
+        .def("set_mar_threshold", &FatigueEngine::set_mar_threshold,
+             py::arg("threshold"),
+             "Set Mouth Aspect Ratio threshold for yawn detection (calibration)")
+        
+        .def("get_ear_threshold", &FatigueEngine::get_ear_threshold,
+             "Get current EAR threshold")
+        
+        .def("get_mar_threshold", &FatigueEngine::get_mar_threshold,
+             "Get current MAR threshold");
     
     // Version info
     m.attr("__version__") = "1.0.0";

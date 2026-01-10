@@ -53,22 +53,34 @@ void YawnDetector::update(const std::vector<cv::Point2f>& landmarks, const cv::M
 }
 
 void YawnDetector::detect_yawn(int64_t current_time) {
-    if (current_mar_ < MAR_THRESHOLD) {
-        // Mouth closed - reset yawn start time
-        if (yawn_start_time_ > 0) {
-            // Was yawning, now closed - check if duration was sufficient
-            double duration = current_time - yawn_start_time_;
-            if (duration >= YAWN_DURATION_MS) {
-                // Valid yawn detected
-                yawn_timestamps_.push_back(yawn_start_time_);
+    // Fixed yawn detection: Differentiate talking (rapid open/close) vs yawning (sustained open)
+    // Talking: Mouth opens/closes rapidly (high frequency, resets counter)
+    // Yawning: Mouth stays open continuously for >1.5 seconds (low frequency)
+    
+    // Check 1: Is mouth wide open?
+    if (current_mar_ >= mar_threshold_ && current_mar_ >= YAWN_PEAK_MAR_THRESHOLD) {
+        // Mouth is wide open - increment consecutive frame counter
+        consecutive_frames_open_++;
+        
+        // Check 2: Has it been open long enough to be a yawn (not just talking)?
+        if (consecutive_frames_open_ >= MIN_YAWN_FRAMES) {
+            // Valid yawn detected (mouth open continuously for >1.5 seconds)
+            if (!is_yawning_) {
+                // New yawn - record it
+                yawn_timestamps_.push_back(current_time);
+                is_yawning_ = true;  // Lock state to prevent double-counting
+                
+                // Reset counter to allow detection of long yawns (optional)
+                // consecutive_frames_open_ = 0;  // Commented: allow counting long yawns
             }
-            yawn_start_time_ = -1;
         }
     } else {
-        // Mouth open
-        if (yawn_start_time_ < 0) {
-            // Start of potential yawn
-            yawn_start_time_ = current_time;
+        // Mouth closed or not wide enough - reset immediately
+        // This catches talking (which has micro-pauses that reset the counter)
+        if (consecutive_frames_open_ > 0) {
+            // Was counting, but mouth closed - this was talking, not yawning
+            consecutive_frames_open_ = 0;
+            is_yawning_ = false;
         }
     }
 }

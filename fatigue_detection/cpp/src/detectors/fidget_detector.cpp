@@ -9,29 +9,52 @@ cv::Rect FidgetDetector::calculate_torso_roi(const cv::Rect& face_bbox, const cv
         return cv::Rect();
     }
     
-    // Torso ROI is relative to face position
     int face_center_x = face_bbox.x + face_bbox.width / 2;
     int face_center_y = face_bbox.y + face_bbox.height / 2;
     
-    // Torso extends below face: 1.5x face width, 2x face height down
+    // Try Standard Torso (Below Face) - preferred method
     int torso_width = static_cast<int>(face_bbox.width * 1.5);
     int torso_height = static_cast<int>(face_bbox.height * 2.0);
-    
     int torso_x = face_center_x - torso_width / 2;
-    int torso_y = face_center_y + face_bbox.height / 2;  // Start below face
+    int torso_y = face_bbox.y + face_bbox.height;  // Start at chin
     
-    // Clamp to image bounds (prevent segfault)
-    torso_x = std::max(0, std::min(torso_x, image_size.width - torso_width));
-    torso_y = std::max(0, std::min(torso_y, image_size.height - torso_height));
-    torso_width = std::min(torso_width, image_size.width - torso_x);
-    torso_height = std::min(torso_height, image_size.height - torso_y);
-    
-    // Ensure valid ROI
-    if (torso_width <= 0 || torso_height <= 0) {
-        return cv::Rect();
+    // Check if we have enough space below face (at least 50 pixels)
+    // If face is too low in frame, torso ROI would be off-screen
+    if ((image_size.height - torso_y) > 50) {
+        // STANDARD MODE: Track Chest/Torso below face
+        // Clamp to image bounds
+        torso_x = std::max(0, std::min(torso_x, image_size.width - torso_width));
+        torso_y = std::max(0, std::min(torso_y, image_size.height - torso_height));
+        torso_width = std::min(torso_width, image_size.width - torso_x);
+        torso_height = std::min(torso_height, image_size.height - torso_y);
+        
+        // Ensure valid ROI
+        if (torso_width > 0 && torso_height > 0) {
+            return cv::Rect(torso_x, torso_y, torso_width, torso_height);
+        }
     }
     
-    return cv::Rect(torso_x, torso_y, torso_width, torso_height);
+    // FALLBACK MODE: Track Shoulders (Left/Right of face)
+    // This is useful when user is close to camera or camera is tilted up
+    // Shoulders are usually at face level or slightly below
+    int shoulder_width = static_cast<int>(face_bbox.width * 3.0);  // Wider to capture both shoulders
+    int shoulder_height = static_cast<int>(face_bbox.height * 1.0);  // Same height as face
+    int shoulder_x = face_center_x - shoulder_width / 2;
+    int shoulder_y = face_center_y;  // Center on face level (shoulders are usually at this level)
+    
+    // Clamp to image bounds
+    shoulder_x = std::max(0, std::min(shoulder_x, image_size.width - shoulder_width));
+    shoulder_y = std::max(0, std::min(shoulder_y, image_size.height - shoulder_height));
+    shoulder_width = std::min(shoulder_width, image_size.width - shoulder_x);
+    shoulder_height = std::min(shoulder_height, image_size.height - shoulder_y);
+    
+    // Ensure valid ROI
+    if (shoulder_width > 0 && shoulder_height > 0) {
+        return cv::Rect(shoulder_x, shoulder_y, shoulder_width, shoulder_height);
+    }
+    
+    // If all else fails, return empty ROI
+    return cv::Rect();
 }
 
 double FidgetDetector::calculate_motion_energy(const cv::Mat& curr_frame, 
