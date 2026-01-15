@@ -7,6 +7,10 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
   const [lockdownDuration, setLockdownDuration] = useState(60 * 60); // Default 1 hour in seconds
   const [lockdownTimeLeft, setLockdownTimeLeft] = useState(60 * 60);
   const [lockdownRunning, setLockdownRunning] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [sessionRating, setSessionRating] = useState(null);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [distractionEvents, setDistractionEvents] = useState([]);
   
   const videoRef = useRef(null);
   const overlayRef = useRef(null);
@@ -227,14 +231,17 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
       interval = setInterval(() => setLockdownTimeLeft(t => {
         if (t <= 1) {
           setLockdownRunning(false);
-          // Could add an alert or notification here when lockdown ends
+          // Show rating modal when timer reaches 0
+          if (sessionStartTime) {
+            setShowRatingModal(true);
+          }
           return 0;
         }
         return t - 1;
       }), 1000);
     }
     return () => clearInterval(interval);
-  }, [lockdownRunning, lockdownTimeLeft]);
+  }, [lockdownRunning, lockdownTimeLeft, sessionStartTime]);
 
   const formatLockdownTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
@@ -255,6 +262,67 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
     setLockdownTimeLeft(lockdownDuration);
     setLockdownRunning(true);
     setShowSetup(false);
+    setSessionStartTime(new Date().toISOString());
+    setDistractionEvents([]);
+    setSessionRating(null);
+  };
+
+  const handleStopLockdown = () => {
+    setLockdownRunning(false);
+    if (sessionStartTime) {
+      setShowRatingModal(true);
+    }
+  };
+
+  const handleSubmitRating = async () => {
+    if (!sessionRating || !sessionStartTime) return;
+
+    const endTime = new Date().toISOString();
+    const durationSeconds = Math.floor((new Date(endTime) - new Date(sessionStartTime)) / 1000);
+    
+    // Count distractions from fatigue metrics or detection state
+    const distractionsDetected = distractionEvents.length;
+    
+    // Get user_id from localStorage or context (adjust as needed)
+    const user_id = localStorage.getItem('user_id') || 'default_user';
+    
+    const backend = (window && window.location && window.location.hostname === 'localhost') ? 'http://127.0.0.1:8000' : '';
+    
+    try {
+      const response = await fetch(`${backend}/api/lockin/save-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id,
+          start_time: sessionStartTime,
+          end_time: endTime,
+          duration_seconds: durationSeconds,
+          distractions_detected: distractionsDetected,
+          distraction_events: distractionEvents,
+          user_rating: sessionRating
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save session');
+      }
+
+      const data = await response.json();
+      console.log('Session saved:', data);
+      
+      // Reset session state
+      setShowRatingModal(false);
+      setSessionRating(null);
+      setSessionStartTime(null);
+      setDistractionEvents([]);
+      setShowSetup(true);
+      setLockdownTimeLeft(lockdownDuration);
+    } catch (error) {
+      console.error('Error saving session:', error);
+      alert('Failed to save session. Please try again.');
+    }
   };
 
   const formatTime = (seconds) => {
@@ -476,6 +544,12 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
                       }`}>
                         {formatLockdownTime(lockdownTimeLeft)}
                       </div>
+                      <button
+                        onClick={handleStopLockdown}
+                        className="mt-2 w-full px-3 py-1 bg-red-900/50 border border-red-500/50 rounded text-red-400 text-xs font-mono uppercase hover:bg-red-900/70 hover:border-red-500 transition-all"
+                      >
+                        STOP SESSION
+                      </button>
                     </div>
                     
                     <div className={`w-full h-full grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-0 transition-opacity duration-500 ${powerOn ? 'opacity-100' : 'opacity-0'}`}>
@@ -713,6 +787,60 @@ export default function LockInView({ availableQuests = [], sendFile, selectedAlg
           </div>
        </div>
     </div>
+
+    {/* Rating Modal */}
+    {showRatingModal && (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="bg-[#001100] border-2 border-[#39ff14]/50 rounded-lg p-8 max-w-md w-full mx-4 shadow-[0_0_30px_rgba(57,255,20,0.5)]">
+          <h2 className="text-2xl font-bold text-[#39ff14] font-mono uppercase mb-4 text-center">
+            Rate Your Focus Session
+          </h2>
+          <p className="text-[#00cc00] text-sm mb-6 text-center">
+            How locked in were you during this session?
+          </p>
+          
+          {/* Rating Scale 1-10 */}
+          <div className="grid grid-cols-5 gap-2 mb-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
+              <button
+                key={rating}
+                onClick={() => setSessionRating(rating)}
+                className={`px-4 py-3 border-2 rounded font-mono font-bold transition-all ${
+                  sessionRating === rating
+                    ? 'bg-[#39ff14] text-black border-[#39ff14]'
+                    : 'bg-[#002200] text-[#39ff14] border-[#39ff14]/30 hover:border-[#39ff14]/60 hover:bg-[#003300]'
+                }`}
+              >
+                {rating}
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={handleSubmitRating}
+              disabled={!sessionRating}
+              className="flex-1 px-6 py-3 bg-[#39ff14] text-black font-bold font-mono uppercase tracking-wider rounded hover:bg-[#4aff2a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Submit Rating
+            </button>
+            <button
+              onClick={() => {
+                setShowRatingModal(false);
+                setSessionRating(null);
+                setSessionStartTime(null);
+                setDistractionEvents([]);
+                setShowSetup(true);
+                setLockdownTimeLeft(lockdownDuration);
+              }}
+              className="px-6 py-3 bg-[#002200] border border-[#39ff14]/30 text-[#39ff14] font-mono uppercase tracking-wider rounded hover:bg-[#003300] transition-all"
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

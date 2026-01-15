@@ -61,16 +61,53 @@ void GazeDetector::update(const std::vector<cv::Point2f>& landmarks, const cv::M
         ear_history_.pop_front();
     }
     
-    // Calculate gaze point (center of both eyes)
+    // Calculate normalized gaze point (scale-invariant: relative to face size)
+    // This fixes the Z-axis problem: moving closer/farther won't affect stability
+    
+    // 1. Get eye centers
     cv::Point2f left_eye_center = (landmarks[LEFT_EYE_START] + landmarks[LEFT_EYE_START + 3]) * 0.5f;
     cv::Point2f right_eye_center = (landmarks[RIGHT_EYE_START] + landmarks[RIGHT_EYE_START + 3]) * 0.5f;
-    cv::Point2f gaze_point = (left_eye_center + right_eye_center) * 0.5f;
+    cv::Point2f eye_center = (left_eye_center + right_eye_center) * 0.5f;
     
-    gaze_points_.push_back(gaze_point);
+    // 2. Get face reference point (nose tip) and scale (face width)
+    cv::Point2f nose_tip = landmarks[30];  // Nose tip landmark
+    float face_width = cv::norm(landmarks[0] - landmarks[16]);  // Distance between jaw edges (points 0 and 16)
+    
+    // Protect against division by zero
+    if (face_width < 1.0f) {
+        face_width = 1.0f;
+    }
+    
+    // 3. Calculate NORMALIZED gaze vector (relative position to nose, as percentage of face width)
+    // If you move forward, both (eye_center - nose_tip) and face_width grow proportionally,
+    // so this ratio stays constant (scale-invariant)
+    cv::Point2f relative_gaze = (eye_center - nose_tip) / face_width;
+    
+    normalized_gaze_history_.push_back(relative_gaze);
     
     // Keep only recent gaze points (last 5 seconds at 30 FPS = 150 points)
-    if (gaze_points_.size() > 150) {
-        gaze_points_.pop_front();
+    if (normalized_gaze_history_.size() > 150) {
+        normalized_gaze_history_.pop_front();
+    }
+    
+    // Track head position for head movement detection
+    head_position_history_.push_back({current_time, nose_tip});
+    
+    // Keep only recent head positions (last 1 second for velocity calculation)
+    int64_t head_history_window = 1000;
+    while (!head_position_history_.empty() && (current_time - head_position_history_.front().first) > head_history_window) {
+        head_position_history_.pop_front();
+    }
+    
+    // Calculate head movement velocity (pixels per second)
+    if (head_position_history_.size() >= 2) {
+        cv::Point2f head_displacement = head_position_history_.back().second - head_position_history_.front().second;
+        int64_t time_diff = head_position_history_.back().first - head_position_history_.front().first;
+        if (time_diff > 0) {
+            head_movement_velocity_ = (cv::norm(head_displacement) / time_diff) * 1000.0;  // Convert to pixels/second
+        }
+    } else {
+        head_movement_velocity_ = 0.0;
     }
     
     // Detect blinks
@@ -137,31 +174,104 @@ void GazeDetector::update_blink_rate(int64_t current_time) {
 }
 
 void GazeDetector::calculate_gaze_stability() {
-    if (gaze_points_.size() < 10) {
+    if (normalized_gaze_history_.size() < 10) {
         gaze_stability_ = 1.0;  // Not enough data
         return;
     }
     
-    // Calculate variance of gaze points
-    cv::Point2f mean(0, 0);
-    for (const auto& pt : gaze_points_) {
-        mean += pt;
-    }
-    mean *= (1.0f / gaze_points_.size());
+    // Calculate "jitter" (micro-movements) instead of total variance
+    // Large movements (intentional saccades/scanning) are filtered out
+    // Only small, high-frequency jitter is measured (unintentional movement)
     
-    double variance = 0.0;
-    for (const auto& pt : gaze_points_) {
-        double dist = cv::norm(pt - mean);
-        variance += dist * dist;
+    // Filter: Calculate variance of FRAME-TO-FRAME differences (jitter)
+    // This ignores large intentional movements and only tracks micro-movements
+    if (normalized_gaze_history_.size() < 2) {
+        gaze_stability_ = 1.0;
+        return;
     }
-    variance /= gaze_points_.size();
     
-    // Convert variance to stability score (0-1, higher = more stable)
-    // Normalize: stability decreases with variance
-    // Using exponential decay: stability = exp(-variance / scale)
-    double scale = 100.0;  // Adjust based on expected variance
-    gaze_stability_ = std::exp(-variance / scale);
-    gaze_stability_ = std::max(0.0, std::min(1.0, gaze_stability_));  // Clamp to [0, 1]
+    std::deque<double> frame_diff_magnitudes;
+    auto it = normalized_gaze_history_.begin();
+    cv::Point2f prev_pt = *it;
+    ++it;
+    
+    const double LARGE_MOVEMENT_THRESHOLD = 0.05;  // Filter out large movements (normalized, so this is ~5% of face width)
+    
+    for (; it != normalized_gaze_history_.end(); ++it) {
+        cv::Point2f diff = *it - prev_pt;
+        double magnitude = cv::norm(diff);
+        
+        // Only count small movements (jitter), ignore large movements (intentional saccades)
+        if (magnitude < LARGE_MOVEMENT_THRESHOLD) {
+            frame_diff_magnitudes.push_back(magnitude);
+        }
+        // Large movements are ignored (they're intentional scanning, not instability)
+        
+        prev_pt = *it;
+    }
+    
+    if (frame_diff_magnitudes.empty()) {
+        // No jitter detected (all movements were large/intentional)
+        // Check for head movement
+        
+        double new_stability = 1.0;  // Default: high stability
+        
+        if (head_movement_velocity_ > 130.0) {  // > 130 pixels/second = violent shaking
+            new_stability = 0.50;  // Moderate-low stability
+        } else if (head_movement_velocity_ > 40.0) {  // > 40 = noticeable movement
+            new_stability = 0.80;  // Slightly lower stability
+        }
+        
+        // Apply smoothing
+        double alpha = (new_stability < gaze_stability_) ? 0.22 : 0.14;
+        gaze_stability_ = (1.0 - alpha) * gaze_stability_ + alpha * new_stability;
+        return;
+    }
+    
+    // Calculate variance of jitter magnitudes
+    double mean_jitter = 0.0;
+    for (double jit : frame_diff_magnitudes) {
+        mean_jitter += jit;
+    }
+    mean_jitter /= frame_diff_magnitudes.size();
+    
+    double jitter_variance = 0.0;
+    for (double jit : frame_diff_magnitudes) {
+        double diff = jit - mean_jitter;
+        jitter_variance += diff * diff;
+    }
+    jitter_variance /= frame_diff_magnitudes.size();
+    
+    // Convert jitter variance to stability score (0-1, higher = more stable)
+    // Using exponential decay: stability = exp(-jitter_variance / scale)
+    // Scale adjusted for normalized vectors (smaller values since they're ratios)
+    double scale = 0.0001;  // Adjusted for jitter variance in normalized coordinates
+    double gaze_jitter_stability = std::exp(-jitter_variance / scale);
+    gaze_jitter_stability = std::max(0.0, std::min(1.0, gaze_jitter_stability));  // Clamp to [0, 1]
+    
+    // ===== NEW: Factor in head movement velocity =====
+    // Head movement should reduce stability score  
+    // Tuned for good balance: responsive to shake, doesn't artificially tank
+    const double NORMAL_HEAD_VELOCITY = 40.0;     // pixels/second (threshold for penalty)
+    const double VIOLENT_THRESHOLD = 130.0;       // pixels/second (full penalty at this speed)
+    
+    double head_movement_penalty = 0.0;
+    if (head_movement_velocity_ > NORMAL_HEAD_VELOCITY) {
+        // Linear penalty (simpler, more predictable)
+        double excess_velocity = head_movement_velocity_ - NORMAL_HEAD_VELOCITY;
+        double max_excess = VIOLENT_THRESHOLD - NORMAL_HEAD_VELOCITY;
+        head_movement_penalty = std::min(1.0, excess_velocity / max_excess);
+    }
+    
+    // Combine gaze jitter stability with head movement penalty
+    // Head movement has 30% weight
+    double new_stability = (gaze_jitter_stability * 0.75) - (head_movement_penalty * 0.25);
+    new_stability = std::max(0.0, std::min(1.0, new_stability));  // Clamp to [0, 1]
+    
+    // Apply exponential smoothing: fast drop (0.22), moderate recovery (0.14)
+    // This balances responsiveness with stability
+    double alpha = (new_stability < gaze_stability_) ? 0.22 : 0.14;
+    gaze_stability_ = (1.0 - alpha) * gaze_stability_ + alpha * new_stability;
 }
 
 void GazeDetector::detect_zoning_out() {

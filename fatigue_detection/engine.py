@@ -61,6 +61,16 @@ class FatigueEngine:
             raise RuntimeError(f"Failed to initialize FatigueEngine: {e}") from e
         
         self.profile_path = profile_path
+        
+        # Expose C++ methods directly (for methods that don't need Python-side processing)
+        # This allows direct access to methods like set_landmark_offset
+        # Check if these methods exist (they may not be in all builds)
+        if hasattr(self._engine, 'set_landmark_offset'):
+            self.set_landmark_offset = self._engine.set_landmark_offset
+        if hasattr(self._engine, 'set_eye_offset'):
+            self.set_eye_offset = self._engine.set_eye_offset
+        if hasattr(self._engine, 'set_mouth_offset'):
+            self.set_mouth_offset = self._engine.set_mouth_offset
     
     def process_frame(self, frame: np.ndarray, timestamp_ms: Optional[int] = None) -> Dict[str, Any]:
         """
@@ -144,6 +154,32 @@ class FatigueEngine:
         except Exception as e:
             raise RuntimeError(f"Failed to process frame: {e}") from e
     
+    def update_metrics(self, ear: float, mar: float, gaze_x: float, gaze_y: float,
+                       timestamp_ms: Optional[int] = None, face_detected: bool = False,
+                       head_pitch: float = 0.0, head_yaw: float = 0.0, head_roll: float = 0.0) -> Dict[str, Any]:
+        """
+        Update fatigue metrics directly from an external vision system (e.g., MediaPipe).
+        
+        Args:
+            ear: Eye Aspect Ratio
+            mar: Mouth Aspect Ratio
+            gaze_x: Normalized horizontal gaze (yaw)
+            gaze_y: Normalized vertical gaze (pitch)
+            timestamp_ms: Optional timestamp in milliseconds. If None, uses current time.
+            face_detected: Boolean indicating if a face was detected.
+            head_pitch: Head pitch angle in degrees (for neck crack detection)
+            head_yaw: Head yaw angle in degrees (for neck crack detection)
+            head_roll: Head roll angle in degrees (for neck crack detection)
+        
+        Returns:
+            Dictionary with fatigue metrics.
+        """
+        if timestamp_ms is None:
+            timestamp_ms = int(time.time() * 1000)
+        
+        return self._engine.update_metrics(ear, mar, gaze_x, gaze_y, timestamp_ms, face_detected,
+                                          head_pitch, head_yaw, head_roll)
+    
     def load_profile(self, profile_path: Optional[str] = None) -> bool:
         """Load user profile from JSON file."""
         path = profile_path or self.profile_path
@@ -171,3 +207,93 @@ class FatigueEngine:
             self._engine.update_profile(session_stats, user_rating)
         except Exception as e:
             raise RuntimeError(f"Failed to update profile: {e}") from e
+    
+    def start_calibration_session(self, session_type: str):
+        """
+        Start a calibration session (work or break).
+        
+        Args:
+            session_type: "work" or "break"
+        """
+        if session_type not in ["work", "break"]:
+            raise ValueError(f"session_type must be 'work' or 'break', got: {session_type}")
+        
+        try:
+            self._engine.start_calibration_session(session_type)
+        except Exception as e:
+            raise RuntimeError(f"Failed to start calibration session: {e}") from e
+    
+    def end_calibration_session(self, session_stats: Dict[str, float], user_rating: float):
+        """
+        End calibration session and save baseline (only if rating >= 8).
+        
+        Args:
+            session_stats: Dictionary with session statistics
+            user_rating: User rating (1-10) - only ratings >= 8 are accepted
+        """
+        if user_rating < 1.0 or user_rating > 10.0:
+            raise ValueError(f"user_rating must be between 1.0 and 10.0, got: {user_rating}")
+        
+        try:
+            self._engine.end_calibration_session(session_stats, user_rating)
+        except Exception as e:
+            raise RuntimeError(f"Failed to end calibration session: {e}") from e
+    
+    def is_calibrated(self) -> bool:
+        """Check if user profile is calibrated."""
+        try:
+            return self._engine.is_calibrated()
+        except Exception as e:
+            raise RuntimeError(f"Failed to check calibration status: {e}") from e
+    
+    def set_ear_threshold(self, threshold: float):
+        """Set Eye Aspect Ratio threshold for blink detection (calibration)."""
+        try:
+            self._engine.set_ear_threshold(threshold)
+        except Exception as e:
+            raise RuntimeError(f"Failed to set EAR threshold: {e}") from e
+    
+    def set_mar_threshold(self, threshold: float):
+        """Set Mouth Aspect Ratio threshold for yawn detection (calibration)."""
+        try:
+            self._engine.set_mar_threshold(threshold)
+        except Exception as e:
+            raise RuntimeError(f"Failed to set MAR threshold: {e}") from e
+    
+    def get_ear_threshold(self) -> float:
+        """Get current EAR threshold."""
+        try:
+            return self._engine.get_ear_threshold()
+        except Exception as e:
+            raise RuntimeError(f"Failed to get EAR threshold: {e}") from e
+    
+    def get_mar_threshold(self) -> float:
+        """Get current MAR threshold."""
+        try:
+            return self._engine.get_mar_threshold()
+        except Exception as e:
+            raise RuntimeError(f"Failed to get MAR threshold: {e}") from e
+    
+    def adjust_neck_crack_thresholds(self, velocity_multiplier: float = 1.15, acceleration_multiplier: float = 1.15) -> Dict[str, float]:
+        """
+        Adjust neck crack detection thresholds (for false positive feedback).
+        
+        Args:
+            velocity_multiplier: Multiply current velocity threshold by this value (default 1.15 = +15%)
+            acceleration_multiplier: Multiply current acceleration threshold by this value (default 1.15 = +15%)
+        
+        Returns:
+            Dictionary with new thresholds: {"velocity": float, "acceleration": float}
+        """
+        try:
+            self._engine.adjust_neck_crack_thresholds(velocity_multiplier, acceleration_multiplier)
+            return self.get_neck_crack_thresholds()
+        except Exception as e:
+            raise RuntimeError(f"Failed to adjust neck crack thresholds: {e}") from e
+    
+    def get_neck_crack_thresholds(self) -> Dict[str, float]:
+        """Get current neck crack detection thresholds."""
+        try:
+            return self._engine.get_neck_crack_thresholds()
+        except Exception as e:
+            raise RuntimeError(f"Failed to get neck crack thresholds: {e}") from e

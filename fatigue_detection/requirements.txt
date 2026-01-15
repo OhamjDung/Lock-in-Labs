@@ -3,3 +3,6 @@ uvicorn[standard]>=0.24.0
 websockets>=12.0
 numpy>=1.24.0
 opencv-python>=4.8.0
+pynput>=1.7.6
+win10toast>=0.9
+screeninfo>=0.8.1

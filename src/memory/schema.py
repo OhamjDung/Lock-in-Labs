@@ -31,6 +31,9 @@ class ChunkType(str, Enum):
     DAILY_SUMMARY = "daily_summary"  # Parent summary for a day
     WEEKLY_SUMMARY = "weekly_summary"  # Parent summary for a week
     PATTERN_INSIGHT = "pattern_insight"  # Procedural memory (e.g., "User fails on Tuesdays")
+    
+    # Focus sessions
+    LOCKIN_SESSION = "lockin_session"  # Lock-in/focus session with rating
 
 
 class MemoryLevel(str, Enum):

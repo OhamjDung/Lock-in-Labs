@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Union, Literal
+from typing import List, Dict, Optional, Union, Literal, Any
 from enum import Enum
 import uuid
 from pydantic import BaseModel, Field
@@ -165,6 +165,7 @@ class LockInSession(BaseModel):
     duration_seconds: int
     distractions_detected: int = 0 # Number of times phone/people were detected
     distraction_events: List[Dict[str, str]] = Field(default_factory=list) # Timestamps of distractions
+    user_rating: Optional[int] = Field(None, ge=1, le=10, description="User's self-rated focus level (1=not focused, 10=extremely focused)")
 
 class CharacterSheet(BaseModel):
     user_id: str
@@ -228,6 +229,11 @@ class CharacterSheet(BaseModel):
     last_report_date: Optional[str] = Field(
         default=None,
         description="ISO date of the last completed reporting session.",
+    )
+    
+    reminder_preferences: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Email reminder time preferences. Structure: {'morning': {'monday': '08:00', ...}, 'evening': {'monday': '20:00', ...}}"
     )
 
     def get_goal_list(self) -> List[Goal]:
@@ -426,6 +432,7 @@ class Decision(BaseModel):
     generated_at: Optional[str] = Field(None, description="ISO datetime when decision was generated")
     goal_id: Optional[str] = Field(None, description="ID of the goal this decision relates to")
     pillar: Optional[Pillar] = Field(None, description="Life pillar this decision affects")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional data for visualization (task_stats, trend_data, etc.)")
     
     def get_verified_factors(self) -> List[ContributingFactor]:
         """Get only factors with verified citations."""

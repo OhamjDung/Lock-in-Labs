@@ -4,11 +4,11 @@ from typing import List, Optional, Dict
 from datetime import datetime, timedelta
 
 from .vector_store import SemanticMemory
-from .schema import MemoryChunk, MemoryMetadata
+from .schema import MemoryChunk, MemoryMetadata, ChunkType, MemoryLevel
 from .consolidation import ConsolidationAgent
 from .significance import SignificanceScorer, DEFAULT_SIGNIFICANCE_THRESHOLD
 from .pattern_file import PatternFile
-from src.models import CharacterSheet, DailyReport
+from src.models import CharacterSheet, DailyReport, LockInSession
 
 
 def sync_daily_report_to_memory(
@@ -97,6 +97,100 @@ def sync_daily_report_to_memory(
         }
         for chunk in chunks
     ]
+    
+    return {
+        "vector_db_chunks": vector_db_chunk_ids,
+        "audit_trail_chunks": audit_trail_chunks,
+    }
+
+
+def sync_lockin_sessions_to_memory(
+    memory: SemanticMemory,
+    sessions: List[LockInSession],
+    user_id: str,
+    report_date: str,
+) -> Dict[str, any]:
+    """Sync lock-in sessions to memory with significance scoring.
+    
+    Only high-significance sessions (rating >= 7 AND duration >= 30 min) go to Vector DB.
+    Low-significance sessions are returned for audit trail storage.
+    
+    Significance calculation:
+    - Base score: user_rating (1-10)
+    - Duration bonus: +1 if duration >= 60 min, +2 if >= 120 min
+    - Distraction penalty: -1 per distraction (min 1)
+    - Final score: min(10, max(1, base + duration_bonus - distraction_penalty))
+    
+    Args:
+        memory: SemanticMemory instance
+        sessions: List of LockInSession objects from the same day
+        user_id: User ID
+        report_date: Date string (YYYY-MM-DD)
+        
+    Returns:
+        Dict with:
+            - vector_db_chunks: List of chunk IDs added to Vector DB
+            - audit_trail_chunks: List of all chunks
+    """
+    chunks = []
+    vector_db_chunk_ids = []
+    audit_trail_chunks = []
+    
+    for session in sessions:
+        # Calculate significance score
+        base_score = session.user_rating if session.user_rating else 5  # Default to 5 if no rating
+        duration_minutes = session.duration_seconds / 60
+        
+        # Duration bonus
+        duration_bonus = 0
+        if duration_minutes >= 120:
+            duration_bonus = 2
+        elif duration_minutes >= 60:
+            duration_bonus = 1
+        
+        # Distraction penalty
+        distraction_penalty = min(session.distractions_detected, 3)  # Cap at -3
+        
+        # Final score
+        significance_score = min(10, max(1, base_score + duration_bonus - distraction_penalty))
+        
+        # Create memory chunk
+        text = (
+            f"Lock-in session: {int(duration_minutes)} minutes, "
+            f"rating {session.user_rating}/10" if session.user_rating else f"rating N/A, "
+            f"{session.distractions_detected} distraction(s)"
+        )
+        
+        metadata = MemoryMetadata.from_date(
+            report_date,
+            user_id,
+            ChunkType.LOCKIN_SESSION,
+            significance_score=int(significance_score),
+            session_id=session.id,
+            sentiment="positive" if (session.user_rating and session.user_rating >= 7) else "neutral",
+        )
+        
+        chunk = MemoryChunk(
+            id=f"lockin_{session.id}",
+            text=text,
+            metadata=metadata,
+        )
+        
+        chunks.append(chunk)
+        
+        # Only add to Vector DB if significance >= 7
+        if significance_score >= 7:
+            added_ids = memory.add_chunks([chunk], skip_significance_check=True)
+            vector_db_chunk_ids.extend(added_ids)
+        
+        # All chunks go to audit trail
+        audit_trail_chunks.append({
+            "id": chunk.id,
+            "text": chunk.text,
+            "date": chunk.metadata.date,
+            "significance_score": chunk.metadata.significance_score,
+            "metadata": chunk.metadata.model_dump(),
+        })
     
     return {
         "vector_db_chunks": vector_db_chunk_ids,

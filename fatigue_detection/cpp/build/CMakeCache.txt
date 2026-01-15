@@ -448,39 +448,37 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding OpenCV
 FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[C:/msys64/ucrt64][v4.12.0()]
-//Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[C:/Users/ohamj/AppData/Local/Programs/Python/Python313/python.exe][C:/Users/ohamj/AppData/Local/Programs/Python/Python313/libs/python313.lib][C:/Users/ohamj/AppData/Local/Programs/Python/Python313/Include][found components: Interpreter Development Development.Module Development.Embed ][v3.13.7()]
 //Python executable during the last CMake run
-PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python313/python.exe
+PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python312/python.exe
 //Python debug status
 PYTHON_IS_DEBUG:INTERNAL=0
 PYTHON_MODULE_DEBUG_POSTFIX:INTERNAL=
-PYTHON_MODULE_EXTENSION:INTERNAL=.cp313-win_amd64.pyd
+PYTHON_MODULE_EXTENSION:INTERNAL=.cp312-win_amd64.pyd
 _PYBIND11_CROSSCOMPILING:INTERNAL=OFF
 _Python:INTERNAL=Python
 //Compiler reason failure
 _Python_Compiler_REASON_FAILURE:INTERNAL=
-_Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=2d6548f89910e8fd83dca0b5090024ad
-_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=2d6548f89910e8fd83dca0b5090024ad
+_Python_DEVELOPMENT_EMBED_SIGNATURE:INTERNAL=6c9455ab5cbddc4fc7d6032a2dc128b9
+_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=6c9455ab5cbddc4fc7d6032a2dc128b9
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
 //Path to a program.
-_Python_EXECUTABLE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python313/python.exe
+_Python_EXECUTABLE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python312/python.exe
 //Path to a program.
 _Python_EXECUTABLE_DEBUG:INTERNAL=_Python_EXECUTABLE_DEBUG-NOTFOUND
 //Path to a file.
-_Python_INCLUDE_DIR:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python313/Include
+_Python_INCLUDE_DIR:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python312/Include
 //Python Properties
-_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;13;7;64;<none>;cp313-win_amd64;;C:\Users\ohamj\AppData\Local\Programs\Python\Python313\Lib;C:\Users\ohamj\AppData\Local\Programs\Python\Python313\Lib;C:\Users\ohamj\AppData\Local\Programs\Python\Python313\Lib\site-packages;C:\Users\ohamj\AppData\Local\Programs\Python\Python313\Lib\site-packages
-_Python_INTERPRETER_SIGNATURE:INTERNAL=9c4a0695d5d1bd3176871eac2e472b6d
+_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;0;64;<none>;cp312-win_amd64;;C:\Users\ohamj\AppData\Local\Programs\Python\Python312\Lib;C:\Users\ohamj\AppData\Local\Programs\Python\Python312\Lib;C:\Users\ohamj\AppData\Local\Programs\Python\Python312\Lib\site-packages;C:\Users\ohamj\AppData\Local\Programs\Python\Python312\Lib\site-packages
+_Python_INTERPRETER_SIGNATURE:INTERNAL=afccb496a6e4e5377914a253e7503ae2
 //Path to a library.
 _Python_LIBRARY_DEBUG:INTERNAL=_Python_LIBRARY_DEBUG-NOTFOUND
 //Path to a library.
-_Python_LIBRARY_RELEASE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python313/libs/python313.lib
+_Python_LIBRARY_RELEASE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python312/libs/python312.lib
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=
 //Path to a library.
-_Python_RUNTIME_LIBRARY_RELEASE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python313/python313.dll
+_Python_RUNTIME_LIBRARY_RELEASE:INTERNAL=C:/Users/ohamj/AppData/Local/Programs/Python/Python312/python312.dll
 //Directories where pybind11 and possibly Python headers are located
-pybind11_INCLUDE_DIRS:INTERNAL=C:/msys64/ucrt64/include;C:/Users/ohamj/AppData/Local/Programs/Python/Python313/Include
+pybind11_INCLUDE_DIRS:INTERNAL=C:/msys64/ucrt64/include;C:/Users/ohamj/AppData/Local/Programs/Python/Python312/Include
 

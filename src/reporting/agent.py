@@ -909,6 +909,42 @@ class ReportingAgent:
             _slot("Afternoon", afternoon)
             _slot("Evening", evening)
 
+        # Lock-in session metrics for today
+        if sheet.lockin_history:
+            todays_sessions = [
+                s for s in sheet.lockin_history
+                if s.start_time.split("T")[0] == state.current_date
+            ]
+            
+            if todays_sessions:
+                total_duration_minutes = sum(s.duration_seconds for s in todays_sessions) // 60
+                total_distractions = sum(s.distractions_detected for s in todays_sessions)
+                sessions_with_rating = [s for s in todays_sessions if s.user_rating is not None]
+                
+                if sessions_with_rating:
+                    avg_rating = sum(s.user_rating for s in sessions_with_rating) / len(sessions_with_rating)
+                    summary_lines.append("")
+                    summary_lines.append(
+                        f"Focus sessions: {len(todays_sessions)} session(s), "
+                        f"{total_duration_minutes} minutes total, "
+                        f"avg rating {avg_rating:.1f}/10, "
+                        f"{total_distractions} distraction(s)"
+                    )
+                    
+                    # Add to wins if high rating
+                    for session in sessions_with_rating:
+                        if session.user_rating and session.user_rating >= 8:
+                            wins.append(
+                                f"Maintained high focus (rating {session.user_rating}/10) during lock-in session"
+                            )
+                else:
+                    summary_lines.append("")
+                    summary_lines.append(
+                        f"Focus sessions: {len(todays_sessions)} session(s), "
+                        f"{total_duration_minutes} minutes total, "
+                        f"{total_distractions} distraction(s)"
+                    )
+
         # Decisions and newly added tasks.
         if decisions:
             summary_lines.append("")
@@ -953,6 +989,8 @@ class ReportingAgent:
         CRITICAL: Only high-significance memories (score >= 7) go to Vector DB.
         Low-significance entries are returned for audit trail storage (JSON).
         
+        Also syncs lock-in sessions from the same day.
+        
         Args:
             report: DailyReport to sync
             sheet: CharacterSheet for context
@@ -962,12 +1000,13 @@ class ReportingAgent:
                 - vector_db_chunks: List of chunk IDs added to Vector DB
                 - audit_trail_chunks: List of all chunks (for audit trail storage)
         """
-        from src.memory.integration import sync_daily_report_to_memory
+        from src.memory.integration import sync_daily_report_to_memory, sync_lockin_sessions_to_memory
         from src.memory.significance import SignificanceScorer
         
         scorer = self._get_significance_scorer()
         memory = self._get_memory(sheet.user_id)
         
+        # Sync daily report
         result = sync_daily_report_to_memory(
             memory=memory,
             report=report,
@@ -975,6 +1014,25 @@ class ReportingAgent:
             significance_scorer=scorer,
             skip_significance_check=False,
         )
+        
+        # Also sync lock-in sessions from the same day
+        if sheet.lockin_history:
+            todays_sessions = [
+                s for s in sheet.lockin_history
+                if s.start_time.split("T")[0] == report.date
+            ]
+            
+            if todays_sessions:
+                lockin_result = sync_lockin_sessions_to_memory(
+                    memory=memory,
+                    sessions=todays_sessions,
+                    user_id=sheet.user_id,
+                    report_date=report.date,
+                )
+                
+                # Merge results
+                result["vector_db_chunks"].extend(lockin_result["vector_db_chunks"])
+                result["audit_trail_chunks"].extend(lockin_result["audit_trail_chunks"])
         
         return result
     
@@ -1090,6 +1148,71 @@ class ReportingAgent:
                 hard_data_lines.append(f"- {name}: {stats['completed']}/{stats['total']} days ({pct}%)")
         else:
             hard_data_lines.append("No specific habit data recorded this week (0 logs found).")
+        
+        # Calculate trend data for visualization
+        trend_data = []
+        for rep in recent_reports:
+            total_tasks = len(rep.tasks)
+            completed_tasks = sum(
+                1 for t in rep.tasks 
+                if t.status in [DailyTaskStatus.DONE, DailyTaskStatus.PARTIAL]
+            )
+            completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
+            
+            trend_data.append({
+                "date": rep.date,
+                "completion_rate": round(completion_rate, 1),
+                "total_tasks": total_tasks,
+                "completed_tasks": completed_tasks
+            })
+        
+        # Add lock-in session metrics for the past 7 days
+        if sheet.lockin_history:
+            # Get sessions from the past 7 days
+            from datetime import datetime, timedelta
+            # Use the most recent report date or today
+            if recent_reports:
+                today = datetime.strptime(recent_reports[-1].date, "%Y-%m-%d")
+            else:
+                today = datetime.now()
+            week_start = today - timedelta(days=7)
+            
+            week_sessions = [
+                s for s in sheet.lockin_history
+                if datetime.fromisoformat(s.start_time.replace("Z", "+00:00")) >= week_start
+            ]
+            
+            if week_sessions:
+                total_duration_hours = sum(s.duration_seconds for s in week_sessions) / 3600
+                total_distractions = sum(s.distractions_detected for s in week_sessions)
+                sessions_with_rating = [s for s in week_sessions if s.user_rating is not None]
+                
+                hard_data_lines.append("")
+                hard_data_lines.append(f"- Lock-in sessions: {len(week_sessions)} sessions, {total_duration_hours:.1f} hours total")
+                
+                if sessions_with_rating:
+                    avg_rating = sum(s.user_rating for s in sessions_with_rating) / len(sessions_with_rating)
+                    # Calculate trend if we have previous week data
+                    prev_week_sessions = [
+                        s for s in sheet.lockin_history
+                        if week_start - timedelta(days=7) <= datetime.fromisoformat(s.start_time.replace("Z", "+00:00")) < week_start
+                    ]
+                    trend_str = ""
+                    if prev_week_sessions:
+                        prev_ratings = [s.user_rating for s in prev_week_sessions if s.user_rating is not None]
+                        if prev_ratings:
+                            prev_avg = sum(prev_ratings) / len(prev_ratings)
+                            if avg_rating > prev_avg + 0.2:
+                                trend_str = f" (up from {prev_avg:.1f} last week)"
+                            elif avg_rating < prev_avg - 0.2:
+                                trend_str = f" (down from {prev_avg:.1f} last week)"
+                            else:
+                                trend_str = f" (stable from {prev_avg:.1f} last week)"
+                    
+                    hard_data_lines.append(f"- Average focus rating: {avg_rating:.1f}/10{trend_str}")
+                
+                distraction_rate = total_distractions / len(week_sessions) if week_sessions else 0
+                hard_data_lines.append(f"- Distractions: {total_distractions} total ({distraction_rate:.2f} per session)")
         
         hard_data_str = "\n".join(hard_data_lines)
 
@@ -1243,5 +1366,14 @@ class ReportingAgent:
             if factor.verified_date:
                 # Use verified date (grounded/corrected)
                 factor.citation_date = factor.verified_date
+        
+        # Attach metadata for visualization
+        decision.metadata = {
+            "task_stats": task_stats,
+            "trend_data": trend_data,
+            "recent_reports_count": len(recent_reports),
+            "goal_name": goal.name,
+            "analysis_period_days": 7
+        }
         
         return decision

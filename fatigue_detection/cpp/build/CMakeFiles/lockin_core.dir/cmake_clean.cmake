@@ -15,8 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/lockin_core.dir/src/face_engine.cpp.obj.d"
   "CMakeFiles/lockin_core.dir/src/profile_manager.cpp.obj"
   "CMakeFiles/lockin_core.dir/src/profile_manager.cpp.obj.d"
-  "D:/Noobcept/Lock In Labs/lockin_core.cp313-win_amd64.pyd"
-  "D:/Noobcept/Lock In Labs/lockin_core.cp313-win_amd64.pyd.manifest"
+  "D:/Noobcept/Lock In Labs/lockin_core.cp312-win_amd64.pyd"
+  "D:/Noobcept/Lock In Labs/lockin_core.cp312-win_amd64.pyd.manifest"
   "D:/Noobcept/Lock In Labs/lockin_core.pdb"
   "liblockin_core.dll.a"
 )

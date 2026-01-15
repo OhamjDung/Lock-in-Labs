@@ -182,6 +182,9 @@ ELEVENLABS_MODEL_ID = os.getenv("ELEVENLABS_MODEL_ID", "eleven_turbo_v2_5")
 
 app = FastAPI()
 
+# Global reminder scheduler (initialized on startup)
+reminder_scheduler = None
+
 # Allow the Vite dev server to talk to this API during development
 # Also allow file:// protocol (null origin) for local HTML file testing
 app.add_middleware(
@@ -2278,14 +2281,191 @@ def reporting_chat(payload: ReportingChatRequest):
                     "skill_tree": tree.model_dump(),
                 }, payload.user_id)
     
+    # Ensure decisions are properly serialized (Pydantic models to dicts)
+    serialized_decisions = None
+    if decisions:
+        if isinstance(decisions, list):
+            serialized_decisions = [d.model_dump() if hasattr(d, 'model_dump') else d for d in decisions]
+        elif hasattr(decisions, 'model_dump'):
+            serialized_decisions = decisions.model_dump()
+        else:
+            serialized_decisions = decisions
+    
     return {
         "reply": reply_text,
         "conversation_history": state.conversation_history,
         "phase": state.phase.value if isinstance(state.phase, ReportingPhase) else str(state.phase),
-        "decisions": decisions,
+        "decisions": serialized_decisions,
         "schedule_preview": schedule_preview,
         "is_complete": state.phase == ReportingPhase.COMPLETED
     }
+
+
+@app.get("/api/profile/{user_id}/reminder-preferences")
+def get_reminder_preferences(user_id: str):
+    """Get user's reminder preferences.
+    
+    Returns:
+        Dictionary with 'morning' and 'evening' keys, each containing day-of-week preferences.
+        Returns default times if user has no preferences set.
+    """
+    from src.models import CharacterSheet
+    from src.storage import load_profile
+    
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    
+    sheet_data = data.get("character_sheet", {})
+    if not sheet_data:
+        # Return defaults
+        default_morning = {day: "08:00" for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]}
+        default_evening = {day: "20:00" for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]}
+        return {
+            "morning": default_morning,
+            "evening": default_evening
+        }
+    
+    sheet = CharacterSheet(**sheet_data)
+    
+    if not sheet.reminder_preferences:
+        # Return defaults
+        default_morning = {day: "08:00" for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]}
+        default_evening = {day: "20:00" for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]}
+        return {
+            "morning": default_morning,
+            "evening": default_evening
+        }
+    
+    # Ensure all days are present (fill missing with defaults)
+    prefs = sheet.reminder_preferences
+    morning = prefs.get("morning", {})
+    evening = prefs.get("evening", {})
+    
+    days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    for day in days:
+        if day not in morning:
+            morning[day] = "08:00"
+        if day not in evening:
+            evening[day] = "20:00"
+    
+    return {
+        "morning": morning,
+        "evening": evening
+    }
+
+
+@app.put("/api/profile/{user_id}/reminder-preferences")
+def update_reminder_preferences(user_id: str, payload: dict):
+    """Update user's reminder preferences.
+    
+    Expects payload with:
+        {
+            "morning": {"monday": "08:00", "tuesday": "08:00", ...},
+            "evening": {"monday": "20:00", "tuesday": "20:00", ...}
+        }
+    
+    Time format: HH:MM (24-hour format)
+    Day names: lowercase (monday, tuesday, etc.)
+    """
+    from src.models import CharacterSheet, SkillTree
+    from src.storage import load_profile, save_profile
+    import re
+    
+    # Validate payload structure
+    if "morning" not in payload or "evening" not in payload:
+        raise HTTPException(status_code=400, detail="Payload must contain 'morning' and 'evening' keys")
+    
+    # Validate time format and day names
+    valid_days = {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+    time_pattern = re.compile(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$')
+    
+    for reminder_type in ["morning", "evening"]:
+        if not isinstance(payload[reminder_type], dict):
+            raise HTTPException(status_code=400, detail=f"'{reminder_type}' must be a dictionary")
+        
+        for day, time_str in payload[reminder_type].items():
+            if day.lower() not in valid_days:
+                raise HTTPException(status_code=400, detail=f"Invalid day name: {day}. Must be one of: {', '.join(sorted(valid_days))}")
+            
+            if not isinstance(time_str, str) or not time_pattern.match(time_str):
+                raise HTTPException(status_code=400, detail=f"Invalid time format: {time_str}. Must be HH:MM (24-hour format)")
+    
+    # Load profile
+    data = load_profile(user_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    
+    sheet_data = data.get("character_sheet", {})
+    tree_data = data.get("skill_tree", {})
+    
+    if not sheet_data:
+        sheet = CharacterSheet(user_id=user_id)
+    else:
+        sheet = CharacterSheet(**sheet_data)
+    
+    if not tree_data:
+        tree = SkillTree(nodes=[])
+    else:
+        tree = SkillTree(**tree_data)
+    
+    # Update reminder preferences (normalize day names to lowercase)
+    normalized_prefs = {
+        "morning": {day.lower(): time for day, time in payload["morning"].items()},
+        "evening": {day.lower(): time for day, time in payload["evening"].items()}
+    }
+    
+    sheet.reminder_preferences = normalized_prefs
+    
+    # Save profile
+    profile_data = {
+        "character_sheet": sheet.model_dump(),
+        "skill_tree": tree.model_dump()
+    }
+    save_profile(profile_data, user_id)
+    
+    return {
+        "success": True,
+        "message": "Reminder preferences updated",
+        "preferences": normalized_prefs
+    }
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize reminder scheduler on app startup."""
+    global reminder_scheduler
+    try:
+        from src.reminder_service import ReminderService
+        from src.reminder_scheduler import ReminderScheduler
+        
+        # Only start scheduler if SMTP credentials are configured
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_password = os.getenv("SMTP_PASSWORD")
+        
+        if smtp_user and smtp_password:
+            reminder_service = ReminderService()
+            reminder_scheduler = ReminderScheduler(reminder_service)
+            reminder_scheduler.start()
+            print("[Startup] Reminder scheduler started")
+        else:
+            print("[Startup] Reminder scheduler skipped (SMTP credentials not configured)")
+    except Exception as e:
+        print(f"[Startup] Failed to start reminder scheduler: {e}")
+        import traceback
+        traceback.print_exc()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Shutdown reminder scheduler on app shutdown."""
+    global reminder_scheduler
+    if reminder_scheduler:
+        try:
+            reminder_scheduler.shutdown()
+            print("[Shutdown] Reminder scheduler stopped")
+        except Exception as e:
+            print(f"[Shutdown] Error stopping reminder scheduler: {e}")
 
 
 @app.post("/api/profile/{user_id}/quest/add")
@@ -2376,6 +2556,68 @@ def gemini_chat(payload: dict):
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/lockin/save-session")
+def save_lockin_session(payload: dict):
+    """Save a lock-in session with user rating to the user's profile."""
+    from src.storage import load_profile, save_profile
+    from src.models import LockInSession, CharacterSheet
+    import uuid
+    
+    user_id = payload.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+    
+    # Extract session data
+    start_time = payload.get("start_time")
+    end_time = payload.get("end_time")
+    duration_seconds = payload.get("duration_seconds", 0)
+    distractions_detected = payload.get("distractions_detected", 0)
+    distraction_events = payload.get("distraction_events", [])
+    user_rating = payload.get("user_rating")
+    
+    if not start_time or not end_time:
+        raise HTTPException(status_code=400, detail="start_time and end_time are required")
+    
+    # Load user profile
+    data = load_profile(user_id) or {}
+    cs_dict = data.get("character_sheet", {})
+    
+    if not cs_dict:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Create CharacterSheet object
+    sheet = CharacterSheet(**cs_dict)
+    
+    # Create LockInSession object
+    session = LockInSession(
+        id=str(uuid.uuid4()),
+        start_time=start_time,
+        end_time=end_time,
+        duration_seconds=duration_seconds,
+        distractions_detected=distractions_detected,
+        distraction_events=distraction_events,
+        user_rating=user_rating
+    )
+    
+    # Append to lockin_history
+    if not sheet.lockin_history:
+        sheet.lockin_history = []
+    sheet.lockin_history.append(session)
+    
+    # Update aggregate
+    sheet.lockin_total_time_seconds = (sheet.lockin_total_time_seconds or 0) + duration_seconds
+    
+    # Save profile
+    data["character_sheet"] = sheet.model_dump()
+    save_profile(data, user_id)
+    
+    return {
+        "ok": True,
+        "session_id": session.id,
+        "message": f"Lock-in session saved (rating: {user_rating}/10)" if user_rating else "Lock-in session saved"
+    }
 
 
 @app.post("/api/gemini-map/generate")

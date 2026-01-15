@@ -43,12 +43,14 @@ private:
     // State
     std::deque<std::pair<int64_t, double>> ear_history_;  // (timestamp, EAR)
     std::deque<int64_t> blink_timestamps_;  // Timestamps of detected blinks
-    std::deque<cv::Point2f> gaze_points_;  // Recent gaze points (eye center)
+    std::deque<cv::Point2f> normalized_gaze_history_;  // Normalized gaze vectors (relative to face size)
+    std::deque<std::pair<int64_t, cv::Point2f>> head_position_history_;  // (timestamp, nose_tip_position)
     
     double current_ear_ = 0.5;
     double blink_rate_ = 0.0;
     double perclos_ = 0.0;
     double gaze_stability_ = 1.0;
+    double head_movement_velocity_ = 0.0;  // Pixels per frame
     
     int64_t last_blink_time_ = -1;
     bool eyes_closed_ = false;

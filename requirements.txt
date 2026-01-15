@@ -6,7 +6,8 @@ fastapi
 uvicorn[standard]
 websockets
 ultralytics>=8.0.0
-opencv-python>=4.8.0
+opencv-python
+mediapipe>=0.10.0
 numpy>=1.24.0
 scikit-learn>=1.0.0
 ffpyplayer>=4.5.3
@@ -17,3 +18,10 @@ Pillow>=9.0.0
 chromadb>=0.4.0
 sentence-transformers>=2.2.0  # Optional: Use OpenAI embeddings instead (set OPENAI_API_KEY)
 # openai>=1.0.0  # Uncomment if using OpenAI embeddings instead of local models
+
+# Email reminders
+apscheduler>=3.10.0
+
+# Three-Gate System Dependencies
+pywin32>=306  # Windows API for active window detection (Gate 1)
+screeninfo>=0.8  # Multi-monitor screen boundary detection (Gate 2)

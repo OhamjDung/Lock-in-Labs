@@ -45,6 +45,28 @@ A Life RPG that transforms personal goals into structured, gamified journeys. Bu
 - **Firebase SDK**: Authentication and real-time sync
 - **Web Speech API**: Voice input support
 
+## Quick Start - Running Both Servers
+
+The project requires two servers to run simultaneously:
+
+**Option 1: Use the startup script (Recommended)**
+```powershell
+# Windows PowerShell
+.\start_servers.ps1
+
+# Windows CMD
+start_servers.bat
+
+# Linux/Mac
+chmod +x start_servers.sh && ./start_servers.sh
+```
+
+**Option 2: Manual start in separate terminals**
+- Terminal 1: `uvicorn backend.api:app --reload --port 8000`
+- Terminal 2: `$env:FATIGUE_PORT=8001; python fatigue_detection/app.py`
+
+See [SERVER_SETUP.md](SERVER_SETUP.md) for detailed setup instructions.
+
 ## Setup
 
 ### Prerequisites

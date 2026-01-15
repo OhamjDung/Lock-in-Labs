@@ -371,4 +371,32 @@ CMakeFiles/lockin_core.dir/src/profile_manager.cpp.obj: \
  C:/msys64/ucrt64/include/c++/15.2.0/fstream \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/basic_file.h \
  C:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32/bits/c++io.h \
- C:/msys64/ucrt64/include/c++/15.2.0/bits/fstream.tcc
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/fstream.tcc \
+ D:/Noobcept/Lock\ In\ Labs/fatigue_detection/cpp/build/_deps/json-include/nlohmann/json.hpp \
+ C:/msys64/ucrt64/include/c++/15.2.0/iterator \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stream_iterator.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/numeric \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/stl_numeric.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/pstl/glue_numeric_defs.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/forward_list \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/forward_list.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/forward_list.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/valarray \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/valarray_array.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/valarray_array.tcc \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/valarray_before.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/slice_array.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/valarray_after.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/gslice.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/gslice_array.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/mask_array.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/indirect_array.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/version \
+ C:/msys64/ucrt64/include/c++/15.2.0/cassert \
+ C:/msys64/ucrt64/include/c++/15.2.0/filesystem \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/fs_fwd.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/fs_path.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/codecvt \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/fs_dir.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/bits/fs_ops.h \
+ C:/msys64/ucrt64/include/c++/15.2.0/any

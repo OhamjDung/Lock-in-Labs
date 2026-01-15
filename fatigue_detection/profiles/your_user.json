@@ -1,0 +1,21 @@
+{
+  "baseline_stats": {
+    "avg_blink_rate": 12.835476557770107,
+    "avg_posture_height": 450.0,
+    "blink_rate_std": 2.1662600889779666,
+    "break_session_calibrated": false,
+    "gaze_stability_baseline": 0.1650624823166254,
+    "gaze_stability_std": 0.05482030439511999,
+    "head_movement_std": 1.8,
+    "head_movement_variance": 5.2,
+    "mar_baseline": 0.08,
+    "mar_std": 0.02,
+    "motion_energy_baseline": 95.4297253704481,
+    "motion_energy_std": 16.56779079478872,
+    "perclos_baseline": 0.09426647597578935,
+    "perclos_std": 0.050544531844429884,
+    "posture_height_std": 15.2,
+    "work_session_calibrated": true
+  },
+  "user_id": "default"
+}

@@ -5,7 +5,7 @@ Active detector that measures reaction time when fatigue is detected.
 
 import random
 import time
-from typing import Optional, Callable, Dict
+from typing import Optional, Callable, Dict, Any
 
 
 class PVTChallenge:
@@ -39,7 +39,7 @@ class PVTChallenge:
         self.reaction_time_ms = None
     
     def on_challenge_appear(self):
-        """Called when the challenge shape appears."""
+        """Called when the challenge shape appears (frontend handles this)."""
         if not self.is_active:
             return
         
@@ -48,22 +48,32 @@ class PVTChallenge:
         if self.callback:
             self.callback()
     
-    def record_response(self) -> Optional[int]:
+    def record_response(self, reaction_time_ms: Optional[int] = None) -> Optional[int]:
         """
-        Record user response (e.g., spacebar press).
+        Record user response (reaction time from frontend).
+        
+        Args:
+            reaction_time_ms: Reaction time in milliseconds (from frontend).
+                            If None, calculates from start_time (not recommended).
         
         Returns:
             Reaction time in milliseconds, or None if challenge not active.
         """
-        if not self.is_active or self.start_time is None:
+        if not self.is_active:
             return None
         
-        response_time = time.time() * 1000  # milliseconds
-        self.reaction_time_ms = int(response_time - (self.appear_time if hasattr(self, 'appear_time') else self.start_time))
+        if reaction_time_ms is not None:
+            self.reaction_time_ms = reaction_time_ms
+        elif self.start_time is not None:
+            # Fallback: calculate from start (but frontend should send the time)
+            response_time = time.time() * 1000
+            self.reaction_time_ms = int(response_time - self.start_time)
+        else:
+            return None
         
         return self.reaction_time_ms
     
-    def interpret_response(self) -> Dict[str, any]:
+    def interpret_response(self) -> Dict[str, Any]:
         """
         Interpret the reaction time.
         

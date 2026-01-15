@@ -100,8 +100,20 @@ py::dict state_vector_to_dict(const StateVector& state) {
     result["z_score_posture"] = state.z_score_posture;
     result["z_score_fidget"] = state.z_score_fidget;
     result["fatigue_score"] = state.fatigue_score;
+    result["energy_state"] = state.energy_state;
     result["fatigue_level"] = state.fatigue_level;
+    result["energy_type"] = state.energy_type;
     result["recommendation"] = state.recommendation;
+    
+    // THREE-GATE SYSTEM fields
+    result["active_window"] = state.active_window;
+    result["context_multiplier"] = state.context_multiplier;
+    result["looking_at_screen"] = state.looking_at_screen;
+    result["phone_detected"] = state.phone_detected;
+    result["focus_multiplier"] = state.focus_multiplier;
+    result["fatigue_multiplier"] = state.fatigue_multiplier;
+    result["lock_in_score"] = state.lock_in_score;
+    
     result["events"] = state.events;
     // Note: EAR is not stored in StateVector, it's internal to GazeDetector
     // We'd need to expose it separately if needed for calibration
@@ -124,6 +136,14 @@ PYBIND11_MODULE(lockin_core, m) {
         .def_readwrite("fatigue_level", &StateVector::fatigue_level)
         .def_readwrite("recommendation", &StateVector::recommendation)
         .def_readwrite("events", &StateVector::events)
+        // THREE-GATE SYSTEM fields
+        .def_readwrite("active_window", &StateVector::active_window)
+        .def_readwrite("context_multiplier", &StateVector::context_multiplier)
+        .def_readwrite("looking_at_screen", &StateVector::looking_at_screen)
+        .def_readwrite("phone_detected", &StateVector::phone_detected)
+        .def_readwrite("focus_multiplier", &StateVector::focus_multiplier)
+        .def_readwrite("fatigue_multiplier", &StateVector::fatigue_multiplier)
+        .def_readwrite("lock_in_score", &StateVector::lock_in_score)
         .def("to_dict", &state_vector_to_dict)
         .def("__repr__", [](const StateVector& s) {
             return "StateVector(fatigue_score=" + std::to_string(s.fatigue_score) + 
@@ -153,6 +173,21 @@ PYBIND11_MODULE(lockin_core, m) {
              "Process a frame and return fatigue metrics as dict. "
              "Frame must be numpy array (H, W, 3) uint8. "
              "Zero-copy if frame is contiguous.")
+        
+        .def("update_metrics",
+             [](FatigueEngine& self, double ear, double mar, double gaze_x, double gaze_y, 
+                int64_t timestamp_ms, bool face_detected, double head_pitch, double head_yaw, double head_roll) -> py::dict {
+                 // Update metrics directly (for MediaPipe integration)
+                 StateVector state = self.update_metrics(ear, mar, gaze_x, gaze_y, timestamp_ms, face_detected, 
+                                                        head_pitch, head_yaw, head_roll);
+                 
+                 // Convert StateVector to Python dict
+                 return state_vector_to_dict(state);
+             },
+             py::arg("ear"), py::arg("mar"), py::arg("gaze_x"), py::arg("gaze_y"), 
+             py::arg("timestamp_ms"), py::arg("face_detected") = true,
+             py::arg("head_pitch") = 0.0, py::arg("head_yaw") = 0.0, py::arg("head_roll") = 0.0,
+             "Update metrics directly from MediaPipe (bypasses face detection)")
         
         .def("load_profile",
              &FatigueEngine::load_profile,
@@ -197,7 +232,65 @@ PYBIND11_MODULE(lockin_core, m) {
              "Get current EAR threshold")
         
         .def("get_mar_threshold", &FatigueEngine::get_mar_threshold,
-             "Get current MAR threshold");
+             "Get current MAR threshold")
+        
+        .def("adjust_neck_crack_thresholds",
+             &FatigueEngine::adjust_neck_crack_thresholds,
+             py::arg("velocity_multiplier"), py::arg("acceleration_multiplier"),
+             "Adjust neck crack detection thresholds by multiplying current values (for false positive feedback)")
+        
+        .def("get_neck_crack_thresholds",
+             [](const FatigueEngine& self) -> py::dict {
+                 double vel, acc;
+                 self.get_neck_crack_thresholds(vel, acc);
+                 py::dict result;
+                 result["velocity"] = vel;
+                 result["acceleration"] = acc;
+                 return result;
+             },
+             "Get current neck crack detection thresholds")
+        
+        .def("start_calibration_session",
+             &FatigueEngine::start_calibration_session,
+             py::arg("session_type"),
+             "Start a calibration session ('work' or 'break')")
+        
+        .def("end_calibration_session",
+             [](FatigueEngine& self, py::dict session_stats_dict, double user_rating) {
+                 // Convert dict to StateVector
+                 StateVector session_stats;
+                 if (session_stats_dict.contains("blink_rate")) {
+                     session_stats.blink_rate = py::cast<double>(session_stats_dict["blink_rate"]);
+                 }
+                 if (session_stats_dict.contains("gaze_stability")) {
+                     session_stats.gaze_stability = py::cast<double>(session_stats_dict["gaze_stability"]);
+                 }
+                 if (session_stats_dict.contains("perclos")) {
+                     session_stats.perclos = py::cast<double>(session_stats_dict["perclos"]);
+                 }
+                 if (session_stats_dict.contains("fidgeting_score")) {
+                     session_stats.fidgeting_score = py::cast<double>(session_stats_dict["fidgeting_score"]);
+                 }
+                 // Add more fields as needed
+                 
+                 self.end_calibration_session(session_stats, user_rating);
+             },
+             py::arg("session_stats"),
+             py::arg("user_rating"),
+             "End calibration session and save baseline (only if rating >= 8)")
+        
+        .def("is_calibrated",
+             &FatigueEngine::is_calibrated,
+             "Check if user profile is calibrated")
+        .def("set_landmark_offset", &FatigueEngine::set_landmark_offset,
+             py::arg("x"), py::arg("y"),
+             "Set manual offset for all landmarks (legacy - applies to both eyes and mouth)")
+        .def("set_eye_offset", &FatigueEngine::set_eye_offset,
+             py::arg("x"), py::arg("y"),
+             "Set manual offset for eye landmarks only (36-47)")
+        .def("set_mouth_offset", &FatigueEngine::set_mouth_offset,
+             py::arg("x"), py::arg("y"),
+             "Set manual offset for mouth landmarks only (48-67)");
     
     // Version info
     m.attr("__version__") = "1.0.0";

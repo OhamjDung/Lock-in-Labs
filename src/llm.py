@@ -1,7 +1,7 @@
 import os
 import time
 from dotenv import load_dotenv
-from google import genai
+import google.genai as genai
 from google.genai import types
 from collections import defaultdict
 

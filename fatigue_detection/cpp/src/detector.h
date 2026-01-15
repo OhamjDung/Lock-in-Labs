@@ -52,8 +52,26 @@ struct StateVector {
     
     // Final outputs
     double fatigue_score = 0.0;           // Overall fatigue score (0-1)
+    double energy_state = 0.0;            // Energy state: 0.0 = Sleepy (Low Energy), 1.0 = Restless (High Anxiety)
     std::string fatigue_level;            // "focused", "moderate", "high"
-    std::string recommendation;           // "continue", "take_short_break", "take_long_break"
+    std::string energy_type;              // "sleepy", "restless", "focused", "anxious"
+    std::string recommendation;           // "continue", "take_short_break", "take_long_break", "take_walk"
+    
+    // THREE-GATE SYSTEM
+    // Gate 1: Context Gate (set from Python - active window tracking)
+    std::string active_window;            // Current window title (e.g., "VSCode", "Chrome", "Netflix")
+    double context_multiplier = 1.0;      // 0.0 (blocked), 0.5 (hybrid), 1.0 (work)
+    
+    // Gate 2: Focus Gate (set from Python - screen boundary + phone detection)
+    bool looking_at_screen = true;        // true if gaze within screen bounds
+    bool phone_detected = false;          // true if phone detected in frame
+    double focus_multiplier = 1.0;        // 0.0-1.0 based on attention
+    
+    // Gate 3: Fatigue Gate (calculated from fatigue_score)
+    double fatigue_multiplier = 1.0;      // (1.0 - fatigue_score), inverted for multiplication
+    
+    // Combined Lock-In Score (context * focus * fatigue_multiplier)
+    double lock_in_score = 0.0;           // Final productivity score (0.0-1.0)
     
     // Events
     std::vector<std::string> events;      // Recent events (e.g., "yawn_detected", "zoning_out")
@@ -70,9 +88,20 @@ public:
     // Process a frame and return state vector
     StateVector process_frame(const cv::Mat& frame, int64_t timestamp_ms);
     
+    // Update metrics directly (for MediaPipe integration - bypasses face detection)
+    // This method accepts pre-calculated metrics from MediaPipe and updates the engine state
+    StateVector update_metrics(double ear, double mar, double gaze_x, double gaze_y, 
+                              int64_t timestamp_ms, bool face_detected = true,
+                              double head_pitch = 0.0, double head_yaw = 0.0, double head_roll = 0.0);
+    
     // Profile management
     bool load_profile(const std::string& profile_path);
     void update_profile(const StateVector& session_stats, double user_rating);
+    bool is_calibrated() const;
+    
+    // Calibration session management
+    void start_calibration_session(const std::string& session_type);
+    void end_calibration_session(const StateVector& session_stats, double user_rating);
     
     // Configuration
     void set_downscale_width(int width) { downscale_width_ = width; }
@@ -83,6 +112,15 @@ public:
     void set_mar_threshold(double threshold);
     double get_ear_threshold() const;
     double get_mar_threshold() const;
+    
+    // Manual landmark offset (for fine-tuning alignment)
+    void set_landmark_offset(float x, float y);  // Legacy: Combined offset
+    void set_eye_offset(float x, float y);       // Separate eye offset
+    void set_mouth_offset(float x, float y);     // Separate mouth offset
+    
+    // Neck crack detection threshold adjustment (for false positive feedback)
+    void adjust_neck_crack_thresholds(double velocity_multiplier, double acceleration_multiplier);
+    void get_neck_crack_thresholds(double& velocity, double& acceleration) const;
     
 private:
     // Frame processing hierarchy
@@ -107,6 +145,10 @@ private:
     std::vector<cv::Point2f> landmarks_;  // Current face landmarks
     cv::Rect face_bbox_;                  // Current face bounding box
     StateVector current_state_;           // Current state vector
+    
+    // Neck crack detection thresholds (adjustable for false positive feedback)
+    double crack_velocity_threshold_ = 6.08;      // Default: 6.08 deg/frame (tuned from user feedback)
+    double crack_acceleration_threshold_ = 3.80;  // Default: 3.80 deg/frame (tuned from user feedback)
     
     // Internal processing methods
     void process_face_landmarks(const cv::Mat& frame);

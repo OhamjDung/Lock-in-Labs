@@ -19,6 +19,9 @@ public:
     // Mouth Aspect Ratio (MAR) calculation
     static double calculate_mar(const std::vector<cv::Point2f>& landmarks);
     
+    // Eye Aspect Ratio (EAR) calculation (for squint yawn detection)
+    static double calculate_ear(const std::vector<cv::Point2f>& landmarks);
+    
     // Allow threshold adjustment for calibration
     void set_mar_threshold(double threshold) { mar_threshold_ = threshold; }
     double get_mar_threshold() const { return mar_threshold_; }
@@ -26,10 +29,13 @@ public:
     
 private:
     // Configuration
-    double mar_threshold_ = 0.35;  // Threshold for "mouth open" (configurable, default 0.35)
-    static constexpr double YAWN_DURATION_MS = 1500.0;  // 1.5 seconds (reduced from 2s)
-    static constexpr double YAWN_PEAK_MAR_THRESHOLD = 0.50;  // Peak MAR for yawn detection (must exceed this)
-    static constexpr int64_t YAWN_WINDOW_MS = 300000;  // 5 minutes
+    double mar_threshold_ = 0.8;  // Threshold for "mouth open" (configurable, default 0.8)
+    static constexpr double MAR_THRESHOLD_HUGE = 0.60;  // Wide open yawn (monster yawn)
+    static constexpr double MAR_THRESHOLD_MODERATE = 0.45;  // Moderate yawn (can be squint yawn)
+    static constexpr double EAR_CLOSED_THRESHOLD = 0.20;  // Eyes closed threshold (for squint yawn)
+    static constexpr int64_t YAWN_WINDOW_MS = 300000;  // 5 minutes (for counting yawns)
+    static constexpr int64_t YAWN_DETECTION_WINDOW_MS = 1000;  // 1 second sliding window
+    static constexpr double YAWN_THRESHOLD_RATIO = 0.80;  // 80% of frames must be open
     
     // State
     std::deque<std::pair<int64_t, double>> mar_history_;  // (timestamp, MAR)
@@ -37,11 +43,11 @@ private:
     double current_mar_ = 0.0;
     int64_t yawn_start_time_ = -1;
     int yawn_count_5min_ = 0;
+    std::vector<cv::Point2f> landmarks_;  // Store landmarks for EAR calculation in detect_yawn
     
-    // Consecutive frame counter for talking vs yawning differentiation
-    int consecutive_frames_open_ = 0;  // Frames with mouth continuously open
+    // Sliding window for robust yawn detection (handles jittery face detection)
+    std::deque<std::pair<int64_t, bool>> yawn_frame_history_;  // (timestamp, is_yawn_frame)
     bool is_yawning_ = false;  // Lock state to prevent double-counting
-    static constexpr int MIN_YAWN_FRAMES = 45;  // 1.5 seconds at 30fps (must be open continuously)
     
     // Detection logic
     void detect_yawn(int64_t current_time);

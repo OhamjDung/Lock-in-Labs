@@ -1,0 +1,24 @@
+{
+  "user_id": "default_user",
+  "timestamp": 1768435989.442736,
+  "zoning_out": {
+    "gaze_stability_avg": 0.7026996863942564,
+    "gaze_stability_std": 0.020016170659150453,
+    "blink_rate_avg": 41.488811692582715,
+    "blink_rate_std": 14.06084120222127
+  },
+  "locking_in": {
+    "gaze_stability_avg": 0.3973097518366988,
+    "gaze_stability_std": 0.11349501949693967,
+    "blink_rate_avg": 33.98941219779661,
+    "blink_rate_std": 7.227351660847554
+  },
+  "thresholds": {
+    "zoning_out_gaze_min": 0.8,
+    "zoning_out_blink_max": 10.0,
+    "locking_in_gaze_min": 0.6,
+    "locking_in_gaze_max": 0.5108047713336384,
+    "locking_in_blink_min": 23.148384706525277,
+    "locking_in_blink_max": 20.0
+  }
+}

@@ -1,0 +1,100 @@
+FATIGUE DETECTION PARAMETER ANALYSIS
+============================================================
+
+NECK CRACK STATISTICS:
+{
+  "yaw": {
+    "mean": 1.5846786768188994,
+    "std": 3.103216893739215,
+    "min": 0.0022015196864382247,
+    "max": 38.617615940749445,
+    "median": 0.6418030958321852,
+    "p75": 1.900914584756407,
+    "p90": 3.498215636116291,
+    "p95": 5.469375307363846
+  },
+  "roll": {
+    "mean": 2.2380856235305617,
+    "std": 8.120268440399515,
+    "min": 0.0022015196864382247,
+    "max": 89.57047612619748,
+    "median": 0.6424975013992678,
+    "p75": 1.9013092178825381,
+    "p90": 3.5982351234750616,
+    "p95": 6.144543467239103
+  },
+  "yaw_acceleration": {
+    "mean": 1.457288891125487,
+    "std": 3.4236592349602337,
+    "min": 0.00032587164579700456,
+    "max": 34.492085464907646,
+    "median": 0.4984518265467428,
+    "p75": 1.3557664215654641,
+    "p90": 3.0668711284381773
+  },
+  "roll_acceleration": {
+    "mean": 2.4372280541997986,
+    "std": 9.596060118385052,
+    "min": 0.00032587164579700456,
+    "max": 89.32079929363002,
+    "median": 0.5014208756592744,
+    "p75": 1.3987740270974842,
+    "p90": 3.223034039567769
+  },
+  "pitch": {
+    "mean": 3.776682687234081,
+    "std": 7.6711562766522166,
+    "min": 0.0020353977322997707,
+    "max": 76.16599689902446
+  }
+}
+
+YAWN STATISTICS:
+{
+  "mar": {
+    "mean": 0.7117341298724132,
+    "std": 0.15827063862728527,
+    "min": 0.3436238378415111,
+    "max": 0.9666510944013459,
+    "median": 0.7638134324263316,
+    "p25": 0.5824920932904563,
+    "p75": 0.8367859744347567
+  },
+  "duration": {
+    "mean": 0.7476190476190476,
+    "min": 0.2,
+    "max": 2.1666666666666665
+  },
+  "variation": {
+    "mean": 0.12650012073367917,
+    "max": 0.14857467989946777
+  },
+  "ear_decrease": {
+    "mean": 0.08324220326059371,
+    "min": 0.0,
+    "max": 0.20415078339733173,
+    "median": 0.06501308672842766
+  }
+}
+
+CODE UPDATES:
+
+// Neck Crack Detection Threshold (from example analysis)
+// Velocity threshold: Recommended 1.90 degrees/frame (75th percentile), Current 3.20
+constexpr double CRACK_VELOCITY_THRESHOLD = 1.90;
+// Acceleration threshold: Recommended 1.36 degrees/frame (75th percentile), Current 2.0
+constexpr double CRACK_ACCELERATION_THRESHOLD = 1.36;
+
+
+// Yawn Detection Parameters (from example analysis)
+// MAR threshold: Recommended 0.582 (25th percentile), Current 0.336
+static double mar_threshold = 0.582;
+
+// Variation threshold: Recommended 0.190, Current 0.292
+constexpr double MAX_VARIATION = 0.190;
+
+// Min duration: Recommended 0.20s, Current 0.5s
+constexpr int64_t MIN_YAWN_DURATION_MS = 200;
+
+// EAR decrease threshold: Recommended 0.000, Current 0.05
+constexpr double MIN_EAR_DECREASE = 0.000;

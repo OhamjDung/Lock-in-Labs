@@ -73,7 +73,11 @@ message(STATUS "Found Dlib: ${DLIB_LIBRARY}")
 message(STATUS "Dlib include: ${DLIB_INCLUDE_DIR}")
 
 # Find Python first (required by pybind11)
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
+# Try to find Python 3.12 first, fallback to any Python 3.x
+find_package(Python 3.12 EXACT COMPONENTS Interpreter Development QUIET)
+if(NOT Python_FOUND)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
+endif()
 message(STATUS "Found Python: ${Python_EXECUTABLE}")
 message(STATUS "Python version: ${Python_VERSION}")
 message(STATUS "Python include dir: ${Python_INCLUDE_DIRS}")

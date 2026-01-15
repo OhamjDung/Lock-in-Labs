@@ -22,13 +22,21 @@ struct BaselineStats {
     double gaze_stability_baseline = 0.15;
     double gaze_stability_std = 0.05;
     
-    // Motion metrics
+    // Motion metrics (fidgeting/body movement)
     double motion_energy_baseline = 85.0;
     double motion_energy_std = 12.3;
     
     // MAR (mouth aspect ratio) baseline
     double mar_baseline = 0.08;
     double mar_std = 0.02;
+    
+    // PERCLOS baseline (eye closure)
+    double perclos_baseline = 0.10;
+    double perclos_std = 0.05;
+    
+    // Calibration flags
+    bool work_session_calibrated = false;  // Has completed work session calibration
+    bool break_session_calibrated = false; // Has completed break session calibration
 };
 
 class ProfileManager {
@@ -47,6 +55,13 @@ public:
     // Update baseline stats with weighted moving average
     void update_baseline(const StateVector& session_stats, double user_rating);
     
+    // Calibration session management
+    void start_calibration_session(const std::string& session_type);
+    void end_calibration_session(const StateVector& session_stats, double user_rating);
+    
+    // Check if profile is calibrated
+    bool is_calibrated() const;
+    
     // Get baseline stats
     const BaselineStats& get_baseline() const { return baseline_stats_; }
     
@@ -61,6 +76,7 @@ private:
     BaselineStats baseline_stats_;
     bool profile_loaded_ = false;
     std::string profile_path_;
+    std::string current_session_type_;  // Track current calibration session type
     
     // Helper for JSON parsing (simplified)
     bool parse_json_file(const std::string& path);

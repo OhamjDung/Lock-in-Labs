@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Card Preview - Graphs & Explanations</title>
+    <script src="https://cdn.jsdelivr.net/npm/recharts@2.15.4/dist/Recharts.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc5 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .decision-card {
+            background: #e8dcc5;
+            border: 2px solid #d4c5a9;
+            border-radius: 4px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            transform: rotate(-1deg);
+            transition: transform 0.3s;
+        }
+
+        .decision-card:hover {
+            transform: rotate(0deg);
+        }
+
+        .texture-overlay {
+            position: absolute;
+            inset: 0;
+            opacity: 0.06;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            mix-blend-mode: multiply;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 10;
+            padding: 24px;
+        }
+
+        .header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #d4c5a9;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .decision-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .icon-increase {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .icon-decrease {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        .icon-maintain {
+            background: #f5f5f4;
+            border-color: #d4d4d4;
+            color: #525252;
+        }
+
+        .title-section h3 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #1c1917;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+
+        .decision-type {
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+            margin-top: 2px;
+        }
+
+        .confidence-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .confidence-label {
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+        }
+
+        .confidence-value {
+            padding: 4px 8px;
+            background: #1c1917;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .value-diff {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .value-box {
+            padding: 8px 16px;
+            border: 2px solid;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .value-old {
+            background: #f5f5f4;
+            border-color: #d4d4d4;
+            color: #1c1917;
+        }
+
+        .value-new {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        .arrow {
+            color: #991b1b;
+            font-size: 20px;
+        }
+
+        .explanation-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f4e9d5;
+            border: 1px solid #d4c5a9;
+            border-radius: 4px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .explanation-text {
+            font-size: 14px;
+            color: #1c1917;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .causal-chain {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #d4d4d4;
+        }
+
+        .causal-chain-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .chain-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+
+        .chain-positive {
+            background: #16a34a;
+        }
+
+        .chain-negative {
+            background: #dc2626;
+        }
+
+        .chain-neutral {
+            background: #525252;
+        }
+
+        .chain-content {
+            flex: 1;
+        }
+
+        .chain-factor {
+            font-weight: 600;
+            color: #1c1917;
+        }
+
+        .chain-description {
+            color: #525252;
+            font-style: italic;
+            margin-top: 2px;
+        }
+
+        .chain-arrow {
+            text-align: center;
+            color: #a3a3a3;
+            margin: 4px 0;
+        }
+
+        .chain-result {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #d4d4d4;
+            font-size: 12px;
+        }
+
+        .chain-result-label {
+            font-weight: bold;
+            color: #1c1917;
+            text-transform: uppercase;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            padding: 12px;
+            background: #f4e9d5;
+            border: 1px solid #d4c5a9;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1c1917;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .trend-up {
+            color: #16a34a;
+        }
+
+        .trend-down {
+            color: #dc2626;
+        }
+
+        .trend-stable {
+            color: #525252;
+        }
+
+        .graphs-toggle {
+            margin-bottom: 16px;
+        }
+
+        .toggle-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #1c1917;
+            color: white;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-button:hover {
+            background: #404040;
+        }
+
+        .graphs-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f4e9d5;
+            border: 1px solid #d4c5a9;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .graphs-section.show {
+            display: block;
+        }
+
+        .graph-container {
+            margin-bottom: 32px;
+        }
+
+        .graph-container:last-child {
+            margin-bottom: 0;
+        }
+
+        .graph-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1c1917;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .graph-chart {
+            height: 200px;
+            background: white;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .graph-note {
+            font-size: 10px;
+            color: #78716c;
+            font-family: 'Courier New', monospace;
+            margin-top: 4px;
+        }
+
+        .confidence-visual {
+            margin-top: 8px;
+        }
+
+        .confidence-bar {
+            height: 32px;
+            background: #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(to right, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            transition: width 0.3s;
+        }
+
+        .confidence-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+        }
+
+        .contributing-factors {
+            margin-top: 16px;
+        }
+
+        .factor-item {
+            padding: 16px;
+            border: 2px solid;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .factor-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .factor-positive {
+            background: #dcfce7;
+            border-color: #86efac;
+        }
+
+        .factor-negative {
+            background: #fee2e2;
+            border-color: #fca5a5;
+        }
+
+        .factor-neutral {
+            background: #f5f5f4;
+            border-color: #d4d4d4;
+        }
+
+        .factor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .factor-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .factor-icon {
+            flex-shrink: 0;
+        }
+
+        .factor-content h4 {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1c1917;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .factor-type-badge {
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #525252;
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-weight: normal;
+        }
+
+        .factor-description {
+            font-size: 12px;
+            color: #525252;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .factor-verified {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #15803d;
+        }
+
+        .factor-evidence {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #d4d4d4;
+        }
+
+        .evidence-header {
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .evidence-date {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: bold;
+            color: #525252;
+        }
+
+        .evidence-text {
+            font-size: 12px;
+            color: #1c1917;
+            font-style: italic;
+            line-height: 1.5;
+            background: #f5f5f4;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .footer-stats {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #d4c5a9;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            font-family: 'Courier New', monospace;
+            color: #78716c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="decision-card">
+            <div class="texture-overlay"></div>
+            <div class="card-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="header-top">
+                        <div class="header-left">
+                            <div class="decision-icon icon-decrease">↓</div>
+                            <div class="title-section">
+                                <h3>Running Distance</h3>
+                                <div class="decision-type">DECISION #DECREASE_INTENSITY</div>
+                            </div>
+                        </div>
+                        <div class="confidence-badge">
+                            <div class="confidence-label">CONFIDENCE</div>
+                            <div class="confidence-value">85%</div>
+                        </div>
+                    </div>
+                    <div class="value-diff">
+                        <div class="value-box value-old">5km</div>
+                        <div class="arrow">↓</div>
+                        <div class="value-box value-new">3km</div>
+                    </div>
+                </div>
+
+                <!-- Explanation with Causal Chain -->
+                <div class="explanation-section">
+                    <div class="section-label">RATIONALE</div>
+                    <p class="explanation-text">
+                        Because there are no recorded diary entries this week, and the user has not reported any pain or injury, we are decreasing intensity. Lack of historical data prevents a more nuanced assessment. The current plan involves increasing distances, but without any feedback, it's prudent to maintain a lower volume to mitigate potential risk.
+                    </p>
+                    
+                    <div class="causal-chain">
+                        <div class="section-label">CAUSAL CHAIN</div>
+                        <div class="causal-chain-item">
+                            <div class="chain-number chain-negative">1</div>
+                            <div class="chain-content">
+                                <div class="chain-factor">Lack of Historical Data</div>
+                                <div class="chain-description">Absence of user diary entries limits the ability to assess the user's subjective experience and identify potential issues.</div>
+                            </div>
+                        </div>
+                        <div class="chain-arrow">↓</div>
+                        <div class="causal-chain-item">
+                            <div class="chain-number chain-negative">2</div>
+                            <div class="chain-content">
+                                <div class="chain-factor">Consistency</div>
+                                <div class="chain-description">The absence of a consistent training log makes it difficult to assess the user's adherence to the plan and potential challenges they may be facing.</div>
+                            </div>
+                        </div>
+                        <div class="chain-arrow">↓</div>
+                        <div class="chain-result">
+                            <div class="chain-result-label">→</div>
+                            <div>
+                                <div style="font-weight: bold; color: #1c1917; text-transform: uppercase;">DECREASE INTENSITY</div>
+                                <div style="color: #525252;">5km → 3km</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Statistics -->
+                <div class="summary-stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Avg Completion</div>
+                        <div class="stat-value">42%</div>
+                        <div class="stat-trend trend-down">
+                            <span>↓</span>
+                            <span>Declining</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Data Points</div>
+                        <div class="stat-value">7</div>
+                        <div class="stat-trend trend-stable">
+                            <span>Last 7 days</span>
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Analysis Period</div>
+                        <div class="stat-value">2024-10-20</div>
+                        <div class="stat-trend trend-stable">
+                            <span>to 2024-10-26</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphs Toggle -->
+                <div class="graphs-toggle">
+                    <button class="toggle-button" onclick="toggleGraphs()">
+                        <span>📊</span>
+                        <span id="toggle-text">SHOW ANALYTICS</span>
+                    </button>
+                </div>
+
+                <!-- Graphs Section -->
+                <div class="graphs-section" id="graphs-section">
+                    <div class="section-label">DATA VISUALIZATION</div>
+
+                    <!-- Graph 1: Completion Rate Trend -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <span>📈</span>
+                            <span>Completion Rate Trend (Last 7 Days)</span>
+                        </div>
+                        <div class="graph-chart" id="trend-chart">
+                            <!-- This would be a Recharts LineChart in React -->
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #78716c; font-size: 12px;">
+                                Line Chart: Completion % over time<br/>
+                                (Solid: Completion Rate | Dashed: Total Tasks)
+                            </div>
+                        </div>
+                        <div class="graph-note">Solid line: Completion % | Dashed: Total tasks scheduled</div>
+                    </div>
+
+                    <!-- Graph 2: Task Completion Comparison -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <span>📊</span>
+                            <span>Task Completion Rates</span>
+                        </div>
+                        <div class="graph-chart" id="task-chart">
+                            <!-- This would be a Recharts BarChart in React -->
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #78716c; font-size: 12px;">
+                                Bar Chart: Completion % per task<br/>
+                                (Running: 42% | Stretching: 71% | Meditation: 28%)
+                            </div>
+                        </div>
+                        <div class="graph-note">Shows completion percentage for each task/habit</div>
+                    </div>
+
+                    <!-- Graph 3: Factor Weight Distribution -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <span>📄</span>
+                            <span>Contributing Factors Impact</span>
+                        </div>
+                        <div class="graph-chart" id="factor-chart">
+                            <!-- This would be a Recharts horizontal BarChart in React -->
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #78716c; font-size: 12px;">
+                                Horizontal Bar Chart: Factor weights<br/>
+                                (Negative: Lack of Data, Consistency | Positive: None)
+                            </div>
+                        </div>
+                        <div class="graph-note">Positive = Supports decision | Negative = Opposes decision</div>
+                    </div>
+
+                    <!-- Graph 4: Confidence Score -->
+                    <div class="graph-container">
+                        <div class="graph-title">
+                            <span>✓</span>
+                            <span>Decision Confidence Breakdown</span>
+                        </div>
+                        <div class="confidence-visual">
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 85%;">85%</div>
+                            </div>
+                            <div class="confidence-info">
+                                <span>0 / 2 verified</span>
+                                <span>Based on 2 contributing factors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contributing Factors -->
+                <div class="contributing-factors">
+                    <div class="section-label" style="margin-bottom: 12px;">
+                        <span>📄</span>
+                        <span>CONTRIBUTING FACTORS (2)</span>
+                    </div>
+
+                    <div class="factor-item factor-negative">
+                        <div class="factor-header">
+                            <div class="factor-left">
+                                <div class="factor-icon">⚠️</div>
+                                <div class="factor-content">
+                                    <h4>
+                                        Lack of Historical Data
+                                        <span class="factor-type-badge">data</span>
+                                    </h4>
+                                    <div class="factor-description">
+                                        Absence of user diary entries limits the ability to assess the user's subjective experience and identify potential issues.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="factor-verified">
+                                <span>⚠️</span>
+                                <span>UNVERIFIED</span>
+                            </div>
+                        </div>
+                        <div class="factor-evidence">
+                            <div class="evidence-header">
+                                <span>📄</span>
+                                <span>EVIDENCE</span>
+                                <div class="evidence-date">
+                                    <span>📅</span>
+                                    <span>2024-10-26</span>
+                                </div>
+                            </div>
+                            <div class="evidence-text">
+                                "[NO ENTRIES]"
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="factor-item factor-negative">
+                        <div class="factor-header">
+                            <div class="factor-left">
+                                <div class="factor-icon">⚠️</div>
+                                <div class="factor-content">
+                                    <h4>
+                                        Consistency
+                                        <span class="factor-type-badge">data</span>
+                                    </h4>
+                                    <div class="factor-description">
+                                        The absence of a consistent training log makes it difficult to assess the user's adherence to the plan and potential challenges they may be facing.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="factor-verified">
+                                <span>⚠️</span>
+                                <span>UNVERIFIED</span>
+                            </div>
+                        </div>
+                        <div class="factor-evidence">
+                            <div class="evidence-header">
+                                <span>📄</span>
+                                <span>EVIDENCE</span>
+                                <div class="evidence-date">
+                                    <span>📅</span>
+                                    <span>2024-10-26</span>
+                                </div>
+                            </div>
+                            <div class="evidence-text">
+                                "Weekly Stats: No specific habit data recorded this week."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer-stats">
+                    <div>VERIFIED: 0 / 2</div>
+                    <div style="color: #ca8a04;">0 DATE(S) CORRECTED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleGraphs() {
+            const section = document.getElementById('graphs-section');
+            const text = document.getElementById('toggle-text');
+            
+            if (section.classList.contains('show')) {
+                section.classList.remove('show');
+                text.textContent = 'SHOW ANALYTICS';
+            } else {
+                section.classList.add('show');
+                text.textContent = 'HIDE ANALYTICS';
+            }
+        }
+
+        // Sample data that would be used in React component
+        const sampleMetadata = {
+            task_stats: {
+                "Running 5km": { completed: 3, total: 7 },
+                "Stretching": { completed: 5, total: 7 },
+                "Meditation": { completed: 2, total: 7 }
+            },
+            trend_data: [
+                { date: "2024-10-20", completion_rate: 50, total_tasks: 3, completed_tasks: 1 },
+                { date: "2024-10-21", completion_rate: 67, total_tasks: 3, completed_tasks: 2 },
+                { date: "2024-10-22", completion_rate: 33, total_tasks: 3, completed_tasks: 1 },
+                { date: "2024-10-23", completion_rate: 0, total_tasks: 3, completed_tasks: 0 },
+                { date: "2024-10-24", completion_rate: 33, total_tasks: 3, completed_tasks: 1 },
+                { date: "2024-10-25", completion_rate: 67, total_tasks: 3, completed_tasks: 2 },
+                { date: "2024-10-26", completion_rate: 33, total_tasks: 3, completed_tasks: 1 }
+            ],
+            recent_reports_count: 7,
+            goal_name: "Run 5km, 3x per week",
+            analysis_period_days: 7
+        };
+
+        console.log('Sample metadata structure:', sampleMetadata);
+    </script>
+</body>
+</html>
