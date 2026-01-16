@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-15T18:03:52.529514",
+  "user_id": "custom_profile",
+  "node_id": "habit_study_1_plumbing_diagram",
+  "old_difficulty": null,
+  "new_difficulty": "easier",
+  "request_payload": {
+    "user_id": "custom_profile",
+    "node_id": "habit_study_1_plumbing_diagram",
+    "direction": "easier",
+    "amount": "little",
+    "reason": "Testing from skill tree viewer"
+  }
+}

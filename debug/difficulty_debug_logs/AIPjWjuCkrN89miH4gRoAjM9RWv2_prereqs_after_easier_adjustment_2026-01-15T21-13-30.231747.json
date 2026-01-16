@@ -1,0 +1,974 @@
+{
+  "timestamp": "2026-01-15T21:13:30.231747",
+  "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+  "label": "after_easier_adjustment",
+  "total_nodes": 67,
+  "nodes_with_prerequisites": 36,
+  "prerequisite_chains": [
+    {
+      "node_id": "goal_become_a_youtuber",
+      "node_name": "Become a YouTuber",
+      "node_type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_create_and_publish_first_video"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_youtube_basics",
+      "node_name": "YouTube Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_search_for_3_youtube_tutorials",
+        "habit_watch_1_youtube_video_about_channel_optimization"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_intro_to_video_editing",
+      "node_name": "Intro to Video Editing",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_youtube_basics",
+        "habit_record_a_30_second_video_clip",
+        "habit_import_5_clips_into_a_video_editing_software"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_content_planning___research",
+      "node_name": "Content Planning & Research",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_youtube_basics",
+        "habit_brainstorm_3_video_ideas",
+        "habit_research_1_trending_topic_on_youtube"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_channel_branding___optimization",
+      "node_name": "Channel Branding & Optimization",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_youtube_basics",
+        "habit_create_a_simple_channel_banner",
+        "habit_write_5_keywords_for_your_channel"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_create_and_publish_first_video",
+      "node_name": "Create and Publish First Video",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_intro_to_video_editing",
+        "skill_content_planning___research",
+        "skill_channel_branding___optimization",
+        "habit_film_a_60_second_introductory_video",
+        "habit_upload_1_video_to_youtube"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_run_faster",
+      "node_name": "Run faster",
+      "node_type": "Goal",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_complete_a_30_minute_bodyweight_workout"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_movement_assessment",
+      "node_name": "Movement Assessment",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_stand_up_and_stretch_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_mobility_exercises",
+      "node_name": "Basic Mobility Exercises",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_movement_assessment",
+        "habit_perform_3_arm_circles"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_postural_awareness",
+      "node_name": "Postural Awareness",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_basic_mobility_exercises",
+        "habit_check_your_posture_every_hour"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_core_stability",
+      "node_name": "Core Stability",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_postural_awareness",
+        "habit_hold_a_plank_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_functional_movement_pattern",
+      "node_name": "Functional Movement Pattern",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_core_stability",
+        "habit_walk_around_the_block_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_complete_a_30_minute_bodyweight_workout",
+      "node_name": "Complete a 30-minute bodyweight workout",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_functional_movement_pattern",
+        "habit_perform_3_sets_of_10_squats"
+      ],
+      "difficulty": null,
+      "required_completions": 1
+    },
+    {
+      "node_id": "goal_have_more_clarity_in_life_and_be_more_conscious_of_my_choices",
+      "node_name": "Have more clarity in life and be more conscious of my choices",
+      "node_type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_reflect_on_progress_and_adjust_goals"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_self_awareness_basics",
+      "node_name": "Self-Awareness Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_write_down_3_things_you_re_grateful_for"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_smart_goal_setting_framework",
+      "node_name": "SMART Goal Setting Framework",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_self_awareness_basics",
+        "habit_write_down_1_smart_goal_for_the_week"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_mindfulness_practices",
+      "node_name": "Mindfulness Practices",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_self_awareness_basics",
+        "habit_meditate_for_5_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_reflect_on_progress_and_adjust_goals",
+      "node_name": "Reflect on Progress and Adjust Goals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_smart_goal_setting_framework",
+        "skill_mindfulness_practices",
+        "habit_review_your_goals_for_the_week"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_have_more_friends",
+      "node_name": "Have more friends",
+      "node_type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_have_a_5_minute_conversation_with_a_stranger"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_conversation_starters",
+      "node_name": "Conversation Starters",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_ask_3_people_how_their_day_is_going"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_active_listening",
+      "node_name": "Active Listening",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "habit_repeat_back_the_last_sentence_someone_said"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_nonverbal_communication",
+      "node_name": "Nonverbal Communication",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_active_listening",
+        "habit_observe_5_people_s_body_language"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_empathy",
+      "node_name": "Empathy",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_nonverbal_communication",
+        "habit_imagine_how_someone_else_is_feeling"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_have_a_5_minute_conversation_with_a_stranger",
+      "node_name": "Have a 5-Minute Conversation with a Stranger",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_empathy",
+        "skill_nonverbal_communication",
+        "habit_approach_a_stranger_and_say_hello"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_stand_up_and_stretch_for_10_minutes",
+      "node_name": "Stand up and stretch for 10 minutes",
+      "node_type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_simulated_marathon_pace_training"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "skill_static_stretching_recovery_protocol",
+      "node_name": "Static Stretching & Recovery Protocol",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_hold_each_stretch_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_simulated_marathon_pace_training",
+      "node_name": "Simulated Marathon Pace Training",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_static_stretching_recovery_protocol",
+        "habit_run_3_miles_at_a_conversational_pace"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_hold_a_plank_for_30_seconds",
+      "node_name": "Hold a plank for 30 seconds",
+      "node_type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_hold_plank_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_isometric_holds_progression",
+      "node_name": "Isometric Holds Progression",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_hold_wall_sit_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_hold_plank_for_30_seconds",
+      "node_name": "Hold Plank for 30 Seconds",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_isometric_holds_progression",
+        "habit_hold_plank_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_perform_3_sets_of_10_squats",
+      "node_name": "Perform 3 sets of 10 squats",
+      "node_type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_complete_3_sets_of_10_squats"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_squat_form_foundation",
+      "node_name": "Squat Form Foundation",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_record_your_squat_form"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_bodyweight_squats",
+      "node_name": "Bodyweight Squats",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_squat_form_foundation",
+        "habit_perform_3_sets_of_10_bodyweight_squats"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_squat_volume_progression",
+      "node_name": "Squat Volume Progression",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_bodyweight_squats",
+        "habit_add_2_reps_to_each_set"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_squat_intensity_progression",
+      "node_name": "Squat Intensity Progression",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_squat_volume_progression",
+        "habit_hold_a_squat_for_3_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_complete_3_sets_of_10_squats",
+      "node_name": "Complete 3 Sets of 10 Squats",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_squat_intensity_progression",
+        "habit_repeat_back_the_last_sentence_someone_said_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    }
+  ],
+  "node_summary": [
+    {
+      "id": "goal_become_a_youtuber",
+      "name": "Become a YouTuber",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_youtube_basics",
+      "name": "YouTube Basics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_intro_to_video_editing",
+      "name": "Intro to Video Editing",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_content_planning___research",
+      "name": "Content Planning & Research",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_channel_branding___optimization",
+      "name": "Channel Branding & Optimization",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_create_and_publish_first_video",
+      "name": "Create and Publish First Video",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 5
+    },
+    {
+      "id": "goal_run_faster",
+      "name": "Run faster",
+      "type": "Goal",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_movement_assessment",
+      "name": "Movement Assessment",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_basic_mobility_exercises",
+      "name": "Basic Mobility Exercises",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_postural_awareness",
+      "name": "Postural Awareness",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_core_stability",
+      "name": "Core Stability",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_functional_movement_pattern",
+      "name": "Functional Movement Pattern",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_complete_a_30_minute_bodyweight_workout",
+      "name": "Complete a 30-minute bodyweight workout",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "goal_have_more_clarity_in_life_and_be_more_conscious_of_my_choices",
+      "name": "Have more clarity in life and be more conscious of my choices",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_self_awareness_basics",
+      "name": "Self-Awareness Basics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_smart_goal_setting_framework",
+      "name": "SMART Goal Setting Framework",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_mindfulness_practices",
+      "name": "Mindfulness Practices",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_reflect_on_progress_and_adjust_goals",
+      "name": "Reflect on Progress and Adjust Goals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "goal_have_more_friends",
+      "name": "Have more friends",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_conversation_starters",
+      "name": "Conversation Starters",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_active_listening",
+      "name": "Active Listening",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_nonverbal_communication",
+      "name": "Nonverbal Communication",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_empathy",
+      "name": "Empathy",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+      "name": "Have a 5-Minute Conversation with a Stranger",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_search_for_3_youtube_tutorials",
+      "name": "Search for 3 YouTube tutorials",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_watch_1_youtube_video_about_channel_optimization",
+      "name": "Watch 1 YouTube video about channel optimization",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_record_a_30_second_video_clip",
+      "name": "Record a 30-second video clip",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_import_5_clips_into_a_video_editing_software",
+      "name": "Import 5 clips into a video editing software",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_brainstorm_3_video_ideas",
+      "name": "Brainstorm 3 video ideas",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_1_trending_topic_on_youtube",
+      "name": "Research 1 trending topic on YouTube",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_create_a_simple_channel_banner",
+      "name": "Create a simple channel banner",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_write_5_keywords_for_your_channel",
+      "name": "Write 5 keywords for your channel",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_film_a_60_second_introductory_video",
+      "name": "Film a 60-second introductory video",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_upload_1_video_to_youtube",
+      "name": "Upload 1 video to YouTube",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_stand_up_and_stretch_for_10_minutes",
+      "name": "Stand up and stretch for 10 minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_perform_3_arm_circles",
+      "name": "Perform 3 arm circles",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_check_your_posture_every_hour",
+      "name": "Check your posture every hour",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_hold_a_plank_for_30_seconds",
+      "name": "Hold a plank for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_walk_around_the_block_for_10_minutes",
+      "name": "Walk around the block for 10 minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_perform_3_sets_of_10_squats",
+      "name": "Perform 3 sets of 10 squats",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_write_down_3_things_you_re_grateful_for",
+      "name": "Write down 3 things you're grateful for",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_write_down_1_smart_goal_for_the_week",
+      "name": "Write down 1 SMART goal for the week",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_meditate_for_5_minutes",
+      "name": "Meditate for 5 minutes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_your_goals_for_the_week",
+      "name": "Review your goals for the week",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_ask_3_people_how_their_day_is_going",
+      "name": "Ask 3 people how their day is going",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_repeat_back_the_last_sentence_someone_said",
+      "name": "Repeat back the last sentence someone said",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_observe_5_people_s_body_language",
+      "name": "Observe 5 people's body language",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_imagine_how_someone_else_is_feeling",
+      "name": "Imagine how someone else is feeling",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_stand_up_and_stretch_for_10_minutes",
+      "name": "Stand up and stretch for 10 minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_static_stretching_recovery_protocol",
+      "name": "Static Stretching & Recovery Protocol",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_simulated_marathon_pace_training",
+      "name": "Simulated Marathon Pace Training",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_hold_each_stretch_for_30_seconds",
+      "name": "Hold each stretch for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_hold_a_plank_for_30_seconds",
+      "name": "Hold a plank for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_isometric_holds_progression",
+      "name": "Isometric Holds Progression",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_hold_plank_for_30_seconds",
+      "name": "Hold Plank for 30 Seconds",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_hold_wall_sit_for_30_seconds",
+      "name": "Hold wall sit for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_perform_3_sets_of_10_squats",
+      "name": "Perform 3 sets of 10 squats",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_squat_form_foundation",
+      "name": "Squat Form Foundation",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_bodyweight_squats",
+      "name": "Bodyweight Squats",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_squat_volume_progression",
+      "name": "Squat Volume Progression",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_squat_intensity_progression",
+      "name": "Squat Intensity Progression",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_complete_3_sets_of_10_squats",
+      "name": "Complete 3 Sets of 10 Squats",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_record_your_squat_form",
+      "name": "Record your squat form",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_perform_3_sets_of_10_bodyweight_squats",
+      "name": "Perform 3 sets of 10 bodyweight squats",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_add_2_reps_to_each_set",
+      "name": "Add 2 reps to each set",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_hold_a_squat_for_3_seconds",
+      "name": "Hold a squat for 3 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_repeat_back_the_last_sentence_someone_said_2",
+      "name": "Repeat back the last sentence someone said",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    }
+  ]
+}

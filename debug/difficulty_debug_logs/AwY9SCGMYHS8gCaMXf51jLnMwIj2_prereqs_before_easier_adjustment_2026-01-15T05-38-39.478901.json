@@ -1,0 +1,2380 @@
+{
+  "timestamp": "2026-01-15T05:38:39.478901",
+  "user_id": "AwY9SCGMYHS8gCaMXf51jLnMwIj2",
+  "label": "before_easier_adjustment",
+  "total_nodes": 176,
+  "nodes_with_prerequisites": 75,
+  "prerequisite_chains": [
+    {
+      "node_id": "goal_become_an_accountant",
+      "node_name": "Become an accountant",
+      "node_type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_become_an_accountant",
+        "skill_tax_law_fundamentals"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_excel_fundamentals",
+      "node_name": "Excel Fundamentals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_create_a_new_spreadsheet",
+        "habit_enter_5_data_points",
+        "habit_apply_a_simple_formula"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_statement_analysis",
+      "node_name": "Financial Statement Analysis",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_excel_fundamentals",
+        "habit_read_a_financial_statement_summary",
+        "habit_identify_key_ratios",
+        "habit_analyze_a_company_s_performance"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_accounting_principles",
+      "node_name": "Accounting Principles",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis",
+        "habit_review_a_basic_accounting_equation",
+        "habit_study_a_specific_accounting_principle",
+        "habit_explain_an_accounting_concept"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_become_an_accountant",
+      "node_name": "Become an Accountant",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_accounting_principles",
+        "habit_research_accountant_roles",
+        "habit_update_resume",
+        "habit_network_with_an_accountant"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_data_analysis_basics",
+      "node_name": "Data Analysis Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_explore_a_sample_dataset",
+        "habit_calculate_descriptive_statistics",
+        "habit_create_a_simple_chart"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_tax_law_fundamentals",
+      "node_name": "Tax Law Fundamentals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_data_analysis_basics",
+        "habit_read_a_tax_law_article",
+        "habit_understand_tax_deductions",
+        "habit_review_tax_forms"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_have_more_endurance",
+      "node_name": "Have more endurance",
+      "node_type": "Goal",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_strength_training_basics",
+        "skill_recovery_strategies",
+        "skill_increased_endurance"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_zone_2_cardio",
+      "node_name": "Zone 2 Cardio",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_walk_at_a_conversational_pace",
+        "habit_cycle_at_a_moderate_effort",
+        "habit_increase_zone_2_duration"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_running_form",
+      "node_name": "Running Form",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_zone_2_cardio",
+        "habit_record_running_form",
+        "habit_focus_on_posture",
+        "habit_practice_cadence"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_strength_training_basics",
+      "node_name": "Strength Training Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_do_3_sets_of_8_reps",
+        "habit_learn_proper_form",
+        "habit_increase_weight_gradually"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_recovery_strategies",
+      "node_name": "Recovery Strategies",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_zone_2_cardio",
+        "habit_stretch_for_15_minutes",
+        "habit_drink_16oz_of_water",
+        "habit_take_a_warm_bath"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_endurance_progression",
+      "node_name": "Endurance Progression",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_zone_2_cardio",
+        "skill_running_form",
+        "habit_practice_endurance_progression_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_increased_endurance",
+      "node_name": "Increased Endurance",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_endurance_progression",
+        "habit_practice_increased_endurance_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_be_more_in_tune_with_myself",
+      "node_name": "Be more in tune with myself",
+      "node_type": "Goal",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_be_more_in_tune_with_myself"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_self_awareness",
+      "node_name": "Self-Awareness",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_practice_self_awareness_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_mindfulness_practice",
+      "node_name": "Mindfulness Practice",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_self_awareness",
+        "habit_meditate_for_5_minutes",
+        "habit_focus_on_breath",
+        "habit_mindful_walking"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_emotional_regulation",
+      "node_name": "Emotional Regulation",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_mindfulness_practice",
+        "habit_identify_emotions",
+        "habit_deep_breathing_exercise",
+        "habit_journal_about_feelings"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_cognitive_restructuring",
+      "node_name": "Cognitive Restructuring",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_emotional_regulation",
+        "habit_practice_cognitive_restructuring_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_be_more_in_tune_with_myself",
+      "node_name": "Be More In Tune With Myself",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_cognitive_restructuring",
+        "habit_practice_be_more_in_tune_with_myself_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_be_able_to_talk_to_more_people",
+      "node_name": "Be able to talk to more people",
+      "node_type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_talk_to_more_people"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_active_listening",
+      "node_name": "Active Listening",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_practice_active_listening_for_10_minutes",
+        "skill_conversation_starters"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_empathy",
+      "node_name": "Empathy",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_active_listening",
+        "habit_practice_empathy_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_nonverbal_communication",
+      "node_name": "Nonverbal Communication",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_empathy",
+        "habit_practice_nonverbal_communication_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_rapport_building",
+      "node_name": "Rapport Building",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_nonverbal_communication",
+        "habit_ask_open_ended_questions",
+        "habit_listen_actively",
+        "habit_find_common_ground",
+        "skill_active_listening"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_conversation_starters",
+      "node_name": "Conversation Starters",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_rapport_building",
+        "habit_practice_conversation_starters_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_social_influence",
+      "node_name": "Social Influence",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "habit_practice_social_influence_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_talk_to_more_people",
+      "node_name": "Talk to More People",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_social_influence",
+        "habit_practice_talk_to_more_people_for_10_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_read_a_financial_statement_summary",
+      "node_name": "Read a Financial Statement Summary",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cpa_exam"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "habit_review_a_basic_accounting_equation",
+      "node_name": "Review a Basic Accounting Equation",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cpa_exam_2"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "habit_create_a_simple_chart",
+      "node_name": "Create a Simple Chart",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_active_listening_2",
+        "skill_land_first_job_as_a_bookkeeper"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_understand_tax_deductions",
+      "node_name": "Understand Tax Deductions",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_understand_common_tax_credits"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "habit_review_tax_forms",
+      "node_name": "Review Tax Forms",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_open_irs_form_1040_ez_pdf_find_the_instructions_for_calculating_the_tax_liability_and_read_the_first_three_steps",
+        "skill_using_the_irs_form_1040_ez_pdf_calculate_the_tax_liability_for_a_sample_w_2_income_of_30000_using_the_provided_tax_table_available_on_irsgov"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_research_basic_tax_forms",
+      "node_name": "Research Basic Tax Forms",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis_4",
+        "skill_pass_tax_exams"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "habit_understand_common_tax_credits",
+      "node_name": "Understand Common Tax Credits",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_research_basic_tax_forms"
+      ],
+      "difficulty": null,
+      "required_completions": 12
+    },
+    {
+      "node_id": "skill_open_a_blank_excel_spreadsheet_and_create_a_column_labeled_tax_form_line",
+      "node_name": "Open a blank Excel spreadsheet and create a column labeled 'Tax Form Line'.",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_download_irs_form_1040_ez_pdf_and_print_it",
+        "habit_open_irs_form_1040_ez_pdf_navigate_to_schedule_1_and_highlight_line_12",
+        "habit_find_the_irs_website_irsgov_and_locate_the_section_on_tax_forms_publications"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_in_excel_enter_the_values_1_2_3_4_5_in_the_tax_form_line_column",
+      "node_name": "In Excel, enter the values '1', '2', '3', '4', '5' in the 'Tax Form Line' column.",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_download_irs_form_1040_ez_pdf_and_print_it",
+        "habit_open_irs_form_1040_ez_pdf_navigate_to_schedule_1_and_highlight_line_12",
+        "habit_find_the_irs_website_irsgov_and_locate_the_section_on_tax_forms_publications"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_download_irs_form_1040_ez_pdf_open_it_in_adobe_acrobat_reader_and_manually_copy_the_values_from_line_1_to_line_5_into_the_corresponding_cells_in_your_excel_spreadsheet",
+      "node_name": "Download IRS Form 1040-EZ PDF, open it in Adobe Acrobat Reader, and manually copy the values from line 1 to line 5 into the corresponding cells in your Excel spreadsheet.",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_download_irs_form_1040_ez_pdf_and_print_it",
+        "habit_open_irs_form_1040_ez_pdf_navigate_to_schedule_1_and_highlight_line_12",
+        "habit_find_the_irs_website_irsgov_and_locate_the_section_on_tax_forms_publications"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_using_the_irs_form_1040_ez_pdf_locate_and_copy_the_amount_from_line_12_adjustments_to_income_into_the_excel_spreadsheet_in_the_cell_corresponding_to_line_12",
+      "node_name": "Using the IRS Form 1040-EZ PDF, locate and copy the amount from line 12 (Adjustments to Income) into the Excel spreadsheet in the cell corresponding to line 12.",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_download_irs_form_1040_ez_pdf_and_print_it",
+        "habit_open_irs_form_1040_ez_pdf_navigate_to_schedule_1_and_highlight_line_12",
+        "habit_find_the_irs_website_irsgov_and_locate_the_section_on_tax_forms_publications"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_open_irs_form_1040_ez_pdf_find_the_instructions_for_calculating_the_tax_liability_and_read_the_first_three_steps",
+      "node_name": "Open IRS Form 1040-EZ PDF, find the instructions for calculating the tax liability, and read the first three steps.",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_open_a_blank_excel_spreadsheet_and_create_a_column_labeled_tax_form_line",
+        "skill_in_excel_enter_the_values_1_2_3_4_5_in_the_tax_form_line_column",
+        "skill_download_irs_form_1040_ez_pdf_open_it_in_adobe_acrobat_reader_and_manually_copy_the_values_from_line_1_to_line_5_into_the_corresponding_cells_in_your_excel_spreadsheet",
+        "skill_using_the_irs_form_1040_ez_pdf_locate_and_copy_the_amount_from_line_12_adjustments_to_income_into_the_excel_spreadsheet_in_the_cell_corresponding_to_line_12"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_using_the_irs_form_1040_ez_pdf_calculate_the_tax_liability_for_a_sample_w_2_income_of_30000_using_the_provided_tax_table_available_on_irsgov",
+      "node_name": "Using the IRS Form 1040-EZ PDF, calculate the tax liability for a sample W-2 income of $30,000, using the provided tax table (available on irs.gov).",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_open_a_blank_excel_spreadsheet_and_create_a_column_labeled_tax_form_line",
+        "skill_in_excel_enter_the_values_1_2_3_4_5_in_the_tax_form_line_column",
+        "skill_download_irs_form_1040_ez_pdf_open_it_in_adobe_acrobat_reader_and_manually_copy_the_values_from_line_1_to_line_5_into_the_corresponding_cells_in_your_excel_spreadsheet",
+        "skill_using_the_irs_form_1040_ez_pdf_locate_and_copy_the_amount_from_line_12_adjustments_to_income_into_the_excel_spreadsheet_in_the_cell_corresponding_to_line_12"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_financial_statement_overview",
+      "node_name": "Financial Statement Overview",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_1_balance_sheet",
+        "habit_summarize_3_key_figures_from_an_income_statement"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_accounting_principles_2",
+      "node_name": "Accounting Principles",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_overview",
+        "habit_define_1_accounting_term",
+        "habit_apply_gaap_to_a_simple_transaction"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_statement_analysis_2",
+      "node_name": "Financial Statement Analysis",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_accounting_principles_2",
+        "habit_calculate_1_financial_ratio",
+        "habit_identify_1_trend_in_a_financial_report"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_modeling",
+      "node_name": "Financial Modeling",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis_2",
+        "habit_build_a_simple_revenue_projection",
+        "habit_create_1_cash_flow_statement"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pass_cpa_exam",
+      "node_name": "Pass CPA Exam",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis_2",
+        "skill_financial_modeling",
+        "habit_study_1_cpa_exam_question",
+        "habit_review_5_key_accounting_concepts"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_communication_skills",
+      "node_name": "Basic Communication Skills",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_summarize_the_last_sentence_the_person_said",
+        "habit_ask_1_clarifying_question_in_a_meeting"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_active_listening_2",
+      "node_name": "Active Listening",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_communication_skills",
+        "habit_paraphrase_a_colleague_s_point",
+        "habit_maintain_eye_contact_during_a_conversation"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_accounting_principles",
+      "node_name": "Basic Accounting Principles",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_communication_skills",
+        "habit_balance_a_3_statement_model",
+        "habit_identify_1_asset_on_a_balance_sheet"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_statement_analysis_3",
+      "node_name": "Financial Statement Analysis",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_accounting_principles",
+        "habit_analyze_1_financial_report",
+        "habit_calculate_1_key_financial_ratio"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_tax_compliance_fundamentals",
+      "node_name": "Tax Compliance Fundamentals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_accounting_principles",
+        "habit_research_1_tax_deduction",
+        "habit_identify_1_tax_form"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_land_first_job_as_a_bookkeeper",
+      "node_name": "Land First Job as a Bookkeeper",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_accounting_principles",
+        "skill_financial_statement_analysis_3",
+        "skill_tax_compliance_fundamentals",
+        "habit_update_your_resume_with_bookkeeping_skills",
+        "habit_search_for_1_bookkeeping_job_posting"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_accounting_principles_3",
+      "node_name": "Accounting Principles",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_1_accounting_equation",
+        "habit_analyze_1_journal_entry"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_statement_analysis_4",
+      "node_name": "Financial Statement Analysis",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_accounting_principles_3",
+        "habit_calculate_1_key_ratio",
+        "habit_summarize_1_financial_report"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_tax_law_fundamentals_2",
+      "node_name": "Tax Law Fundamentals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_accounting_principles_3",
+        "habit_define_1_tax_term",
+        "habit_research_1_tax_law_change"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_tax_form_research",
+      "node_name": "Tax Form Research",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_tax_law_fundamentals_2",
+        "habit_identify_1_tax_form_section",
+        "habit_compare_2_tax_form_instructions"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_tax_compliance",
+      "node_name": "Tax Compliance",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_tax_form_research",
+        "habit_verify_1_tax_deduction",
+        "habit_organize_1_tax_document"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_audit_procedure",
+      "node_name": "Audit Procedure",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_tax_compliance",
+        "habit_review_1_audit_checklist_item",
+        "habit_document_1_audit_finding"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pass_tax_exams",
+      "node_name": "Pass Tax Exams",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_tax_law_fundamentals_2",
+        "skill_tax_form_research",
+        "skill_tax_compliance",
+        "skill_audit_procedure",
+        "habit_review_1_tax_law_rule",
+        "habit_answer_1_practice_exam_question"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_financial_statement_analysis_advanced",
+      "node_name": "Financial Statement Analysis - Advanced",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_analyze_1_financial_report_2",
+        "habit_create_1_excel_macro"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pass_cpa_exam_2",
+      "node_name": "Pass CPA Exam",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis_advanced",
+        "habit_study_30_minutes",
+        "habit_review_5_practice_questions"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_walk_at_a_conversational_pace",
+      "node_name": "Walk at a Conversational Pace",
+      "node_type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_recovery_strategies",
+        "skill_strength_training_basics",
+        "skill_increased_endurance"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "habit_stretch_for_15_minutes",
+      "node_name": "Stretch for 15 Minutes",
+      "node_type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_increased_endurance",
+        "skill_marathon_pace_training",
+        "skill_recovery_strategies",
+        "skill_strength_training_basics"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "skill_foam_rolling_techniques",
+      "node_name": "Foam Rolling Techniques",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_roll_calves_for_30_seconds",
+        "habit_roll_hamstrings_for_60_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_marathon_pace_training",
+      "node_name": "Marathon Pace Training",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_foam_rolling_techniques",
+        "habit_run_1_mile_at_marathon_pace",
+        "habit_do_10_hill_repeats"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_practice_empathy_for_10_minutes",
+      "node_name": "Practice Empathy for 10 minutes",
+      "node_type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_host_a_dinner_party",
+        "skill_talk_to_more_people"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_host_a_dinner_party",
+      "node_name": "Host a Dinner Party",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_rapport_building",
+        "habit_plan_the_menu_for_3_courses",
+        "habit_set_the_table_for_one_guest",
+        "habit_serve_one_guest_a_drink"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_practice_self_awareness_for_10_minutes",
+      "node_name": "Practice Self-Awareness for 10 minutes",
+      "node_type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_values_alignment_assessment_and_prioritization",
+        "skill_be_more_in_tune_with_myself"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_focused_attention_meditation_practice",
+      "node_name": "Focused Attention Meditation Practice",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_meditate_for_5_minutes_2",
+        "habit_observe_thoughts_without_judgment"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_values_alignment_assessment_and_prioritization",
+      "node_name": "Values Alignment Assessment and Prioritization",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_focused_attention_meditation_practice",
+        "habit_list_3_core_values",
+        "habit_prioritize_tasks_based_on_values"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_observe_thoughts_without_judgment",
+      "node_name": "Observe thoughts without judgment",
+      "node_type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_values_alignment_assessment_and_prioritization",
+        "skill_structured_self_reflection_protocol",
+        "skill_be_more_in_tune_with_myself"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_structured_self_reflection_protocol",
+      "node_name": "Structured Self-Reflection Protocol",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_focused_attention_meditation_practice",
+        "habit_write_3_key_takeaways_from_today",
+        "habit_identify_1_area_for_improvement",
+        "habit_journal_5_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_meditate_for_5_minutes",
+      "node_name": "Meditate for 5 Minutes",
+      "node_type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_values_alignment_assessment_and_prioritization",
+        "skill_complete_personal_alignment_protocol",
+        "skill_structured_self_reflection_protocol",
+        "skill_be_more_in_tune_with_myself"
+      ],
+      "difficulty": null,
+      "required_completions": 7
+    },
+    {
+      "node_id": "skill_establish_daily_reflection_practice",
+      "node_name": "Establish Daily Reflection Practice",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_write_3_things_you_re_grateful_for",
+        "habit_summarize_your_day_in_1_sentence"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_complete_personal_alignment_protocol",
+      "node_name": "Complete Personal Alignment Protocol",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_establish_daily_reflection_practice",
+        "habit_review_your_values_list",
+        "habit_identify_1_action_to_take_today_that_aligns_with_your_values"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    }
+  ],
+  "node_summary": [
+    {
+      "id": "goal_become_an_accountant",
+      "name": "Become an accountant",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_excel_fundamentals",
+      "name": "Excel Fundamentals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_financial_statement_analysis",
+      "name": "Financial Statement Analysis",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_accounting_principles",
+      "name": "Accounting Principles",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_become_an_accountant",
+      "name": "Become an Accountant",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_data_analysis_basics",
+      "name": "Data Analysis Basics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_tax_law_fundamentals",
+      "name": "Tax Law Fundamentals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "goal_have_more_endurance",
+      "name": "Have more endurance",
+      "type": "Goal",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_zone_2_cardio",
+      "name": "Zone 2 Cardio",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_running_form",
+      "name": "Running Form",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_strength_training_basics",
+      "name": "Strength Training Basics",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_recovery_strategies",
+      "name": "Recovery Strategies",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_endurance_progression",
+      "name": "Endurance Progression",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_increased_endurance",
+      "name": "Increased Endurance",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "goal_be_more_in_tune_with_myself",
+      "name": "Be more in tune with myself",
+      "type": "Goal",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_self_awareness",
+      "name": "Self-Awareness",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_mindfulness_practice",
+      "name": "Mindfulness Practice",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_emotional_regulation",
+      "name": "Emotional Regulation",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_cognitive_restructuring",
+      "name": "Cognitive Restructuring",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_be_more_in_tune_with_myself",
+      "name": "Be More In Tune With Myself",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "goal_be_able_to_talk_to_more_people",
+      "name": "Be able to talk to more people",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_active_listening",
+      "name": "Active Listening",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_empathy",
+      "name": "Empathy",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_nonverbal_communication",
+      "name": "Nonverbal Communication",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_rapport_building",
+      "name": "Rapport Building",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 5
+    },
+    {
+      "id": "skill_conversation_starters",
+      "name": "Conversation Starters",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_social_influence",
+      "name": "Social Influence",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_talk_to_more_people",
+      "name": "Talk to More People",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_create_a_new_spreadsheet",
+      "name": "Create a New Spreadsheet",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_enter_5_data_points",
+      "name": "Record 5 Detailed Observations",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_apply_a_simple_formula",
+      "name": "Apply a Simple Formula",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_read_a_financial_statement_summary",
+      "name": "Read a Financial Statement Summary",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "habit_identify_key_ratios",
+      "name": "Identify Key Ratios",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_analyze_a_company_s_performance",
+      "name": "Analyze a Company's Performance",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_a_basic_accounting_equation",
+      "name": "Review a Basic Accounting Equation",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "habit_study_a_specific_accounting_principle",
+      "name": "Study a Specific Accounting Principle",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_explain_an_accounting_concept",
+      "name": "Explain an Accounting Concept",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_accountant_roles",
+      "name": "Research Accountant Roles",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_update_resume",
+      "name": "Update Resume",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_network_with_an_accountant",
+      "name": "Network with an Accountant",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_explore_a_sample_dataset",
+      "name": "Explore a Sample Dataset",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_calculate_descriptive_statistics",
+      "name": "Analyze Complex Financial Reports",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_create_a_simple_chart",
+      "name": "Create a Simple Chart",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_read_a_tax_law_article",
+      "name": "Read a Tax Law Snippet",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_understand_tax_deductions",
+      "name": "Understand Tax Deductions",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "habit_review_tax_forms",
+      "name": "Review Tax Forms",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_walk_at_a_conversational_pace",
+      "name": "Walk at a Conversational Pace",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_cycle_at_a_moderate_effort",
+      "name": "Cycle at a Moderate Effort",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_increase_zone_2_duration",
+      "name": "Increase Zone 2 Duration",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_record_running_form",
+      "name": "Record Running Form",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_focus_on_posture",
+      "name": "Focus on Posture",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_cadence",
+      "name": "Practice Cadence",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_do_3_sets_of_8_reps",
+      "name": "Do 3 Sets of 8 Reps",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_learn_proper_form",
+      "name": "Master Advanced Plank Form",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_increase_weight_gradually",
+      "name": "Increase Weight Gradually",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_stretch_for_15_minutes",
+      "name": "Stretch for 15 Minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_drink_16oz_of_water",
+      "name": "Drink 16oz of Water",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_take_a_warm_bath",
+      "name": "Take a Warm Bath",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_endurance_progression_for_10_minutes",
+      "name": "Practice Endurance Progression for 10 minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_increased_endurance_for_10_minutes",
+      "name": "Practice Increased Endurance for 10 minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_self_awareness_for_10_minutes",
+      "name": "Practice Self-Awareness for 10 minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_meditate_for_5_minutes",
+      "name": "Meditate for 5 Minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_focus_on_breath",
+      "name": "Focus on Breath",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_mindful_walking",
+      "name": "Mindful Walking",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_emotions",
+      "name": "Identify Emotions",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_deep_breathing_exercise",
+      "name": "Deep Breathing Exercise",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_journal_about_feelings",
+      "name": "Journal About Feelings",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_cognitive_restructuring_for_10_minutes",
+      "name": "Practice Cognitive Restructuring for 10 minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_be_more_in_tune_with_myself_for_10_minutes",
+      "name": "Practice Be More In Tune With Myself for 10 minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_active_listening_for_10_minutes",
+      "name": "Practice Active Listening for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_empathy_for_10_minutes",
+      "name": "Practice Empathy for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_nonverbal_communication_for_10_minutes",
+      "name": "Practice Nonverbal Communication for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_ask_open_ended_questions",
+      "name": "Ask Open-Ended Questions",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_listen_actively",
+      "name": "Listen Actively",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_find_common_ground",
+      "name": "Find Common Ground",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_conversation_starters_for_10_minutes",
+      "name": "Practice Conversation Starters for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_social_influence_for_10_minutes",
+      "name": "Practice Social Influence for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_talk_to_more_people_for_10_minutes",
+      "name": "Practice Talk to More People for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_basic_tax_forms",
+      "name": "Research Basic Tax Forms",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_understand_common_tax_credits",
+      "name": "Understand Common Tax Credits",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "habit_download_irs_form_1040_ez_pdf_and_print_it",
+      "name": "Download IRS Form 1040-EZ PDF and print it.",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_open_irs_form_1040_ez_pdf_navigate_to_schedule_1_and_highlight_line_12",
+      "name": "Open IRS Form 1040-EZ PDF, navigate to Schedule 1, and highlight line 12.",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_find_the_irs_website_irsgov_and_locate_the_section_on_tax_forms_publications",
+      "name": "Find the IRS website (irs.gov) and locate the section on 'Tax Forms & Publications'.",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "skill_open_a_blank_excel_spreadsheet_and_create_a_column_labeled_tax_form_line",
+      "name": "Open a blank Excel spreadsheet and create a column labeled 'Tax Form Line'.",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_in_excel_enter_the_values_1_2_3_4_5_in_the_tax_form_line_column",
+      "name": "In Excel, enter the values '1', '2', '3', '4', '5' in the 'Tax Form Line' column.",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_download_irs_form_1040_ez_pdf_open_it_in_adobe_acrobat_reader_and_manually_copy_the_values_from_line_1_to_line_5_into_the_corresponding_cells_in_your_excel_spreadsheet",
+      "name": "Download IRS Form 1040-EZ PDF, open it in Adobe Acrobat Reader, and manually copy the values from line 1 to line 5 into the corresponding cells in your Excel spreadsheet.",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_using_the_irs_form_1040_ez_pdf_locate_and_copy_the_amount_from_line_12_adjustments_to_income_into_the_excel_spreadsheet_in_the_cell_corresponding_to_line_12",
+      "name": "Using the IRS Form 1040-EZ PDF, locate and copy the amount from line 12 (Adjustments to Income) into the Excel spreadsheet in the cell corresponding to line 12.",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_open_irs_form_1040_ez_pdf_find_the_instructions_for_calculating_the_tax_liability_and_read_the_first_three_steps",
+      "name": "Open IRS Form 1040-EZ PDF, find the instructions for calculating the tax liability, and read the first three steps.",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_using_the_irs_form_1040_ez_pdf_calculate_the_tax_liability_for_a_sample_w_2_income_of_30000_using_the_provided_tax_table_available_on_irsgov",
+      "name": "Using the IRS Form 1040-EZ PDF, calculate the tax liability for a sample W-2 income of $30,000, using the provided tax table (available on irs.gov).",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_financial_statement_overview",
+      "name": "Financial Statement Overview",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_accounting_principles_2",
+      "name": "Accounting Principles",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_financial_statement_analysis_2",
+      "name": "Financial Statement Analysis",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_financial_modeling",
+      "name": "Financial Modeling",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_pass_cpa_exam",
+      "name": "Pass CPA Exam",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "habit_review_1_balance_sheet",
+      "name": "Review 1 balance sheet",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_summarize_3_key_figures_from_an_income_statement",
+      "name": "Summarize 3 key figures from an income statement",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_define_1_accounting_term",
+      "name": "Define 1 accounting term",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_apply_gaap_to_a_simple_transaction",
+      "name": "Apply GAAP to a simple transaction",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_calculate_1_financial_ratio",
+      "name": "Calculate 1 financial ratio",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_trend_in_a_financial_report",
+      "name": "Identify 1 trend in a financial report",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_build_a_simple_revenue_projection",
+      "name": "Build a simple revenue projection",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_create_1_cash_flow_statement",
+      "name": "Create 1 cash flow statement",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_cpa_exam_question",
+      "name": "Study 1 CPA exam question",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_key_accounting_concepts",
+      "name": "Review 5 key accounting concepts",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "skill_basic_communication_skills",
+      "name": "Basic Communication Skills",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_active_listening_2",
+      "name": "Active Listening",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_basic_accounting_principles",
+      "name": "Basic Accounting Principles",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_financial_statement_analysis_3",
+      "name": "Financial Statement Analysis",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_tax_compliance_fundamentals",
+      "name": "Tax Compliance Fundamentals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_land_first_job_as_a_bookkeeper",
+      "name": "Land First Job as a Bookkeeper",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 5
+    },
+    {
+      "id": "habit_summarize_the_last_sentence_the_person_said",
+      "name": "Summarize the last sentence the person said",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_ask_1_clarifying_question_in_a_meeting",
+      "name": "Ask 1 clarifying question in a meeting",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_paraphrase_a_colleague_s_point",
+      "name": "Paraphrase a colleague's point",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_maintain_eye_contact_during_a_conversation",
+      "name": "Maintain eye contact during a conversation",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_balance_a_3_statement_model",
+      "name": "Balance a 3-statement model",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_asset_on_a_balance_sheet",
+      "name": "Identify 1 asset on a balance sheet",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_analyze_1_financial_report",
+      "name": "Analyze 1 financial report",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_calculate_1_key_financial_ratio",
+      "name": "Calculate 1 key financial ratio",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_1_tax_deduction",
+      "name": "Research 1 tax deduction",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_tax_form",
+      "name": "Identify 1 tax form",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_update_your_resume_with_bookkeeping_skills",
+      "name": "Update your resume with bookkeeping skills",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_search_for_1_bookkeeping_job_posting",
+      "name": "Search for 1 bookkeeping job posting",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "skill_accounting_principles_3",
+      "name": "Accounting Principles",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_financial_statement_analysis_4",
+      "name": "Financial Statement Analysis",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_tax_law_fundamentals_2",
+      "name": "Tax Law Fundamentals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_tax_form_research",
+      "name": "Tax Form Research",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_tax_compliance",
+      "name": "Tax Compliance",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_audit_procedure",
+      "name": "Audit Procedure",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_pass_tax_exams",
+      "name": "Pass Tax Exams",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 6
+    },
+    {
+      "id": "habit_review_1_accounting_equation",
+      "name": "Review 1 accounting equation",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_analyze_1_journal_entry",
+      "name": "Analyze 1 journal entry",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_calculate_1_key_ratio",
+      "name": "Calculate 1 key ratio",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_summarize_1_financial_report",
+      "name": "Summarize 1 financial report",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_define_1_tax_term",
+      "name": "Define 1 tax term",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_1_tax_law_change",
+      "name": "Research 1 tax law change",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_tax_form_section",
+      "name": "Identify 1 tax form section",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_compare_2_tax_form_instructions",
+      "name": "Compare 2 tax form instructions",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_verify_1_tax_deduction",
+      "name": "Verify 1 tax deduction",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_organize_1_tax_document",
+      "name": "Organize 1 tax document",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_1_audit_checklist_item",
+      "name": "Review 1 audit checklist item",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_document_1_audit_finding",
+      "name": "Document 1 audit finding",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_1_tax_law_rule",
+      "name": "Review 1 tax law rule",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_answer_1_practice_exam_question",
+      "name": "Answer 1 practice exam question",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "skill_financial_statement_analysis_advanced",
+      "name": "Financial Statement Analysis - Advanced",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_pass_cpa_exam_2",
+      "name": "Pass CPA Exam",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_analyze_1_financial_report_2",
+      "name": "Analyze 1 financial report",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_create_1_excel_macro",
+      "name": "Create 1 Excel Macro",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_30_minutes",
+      "name": "Study 30 minutes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_walk_at_a_conversational_pace",
+      "name": "Walk at a Conversational Pace",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_stretch_for_15_minutes",
+      "name": "Stretch for 15 Minutes",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_foam_rolling_techniques",
+      "name": "Foam Rolling Techniques",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_marathon_pace_training",
+      "name": "Marathon Pace Training",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_roll_calves_for_30_seconds",
+      "name": "Roll calves for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_roll_hamstrings_for_60_seconds",
+      "name": "Roll hamstrings for 60 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_run_1_mile_at_marathon_pace",
+      "name": "Run 1 mile at marathon pace",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_empathy_for_10_minutes",
+      "name": "Practice Empathy for 10 minutes",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_host_a_dinner_party",
+      "name": "Host a Dinner Party",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "habit_plan_the_menu_for_3_courses",
+      "name": "Plan the menu for 3 courses",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_set_the_table_for_one_guest",
+      "name": "Set the table for one guest",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_practice_self_awareness_for_10_minutes",
+      "name": "Practice Self-Awareness for 10 minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_focused_attention_meditation_practice",
+      "name": "Focused Attention Meditation Practice",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_values_alignment_assessment_and_prioritization",
+      "name": "Values Alignment Assessment and Prioritization",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_meditate_for_5_minutes_2",
+      "name": "Meditate for 5 minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_observe_thoughts_without_judgment",
+      "name": "Observe thoughts without judgment",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_list_3_core_values",
+      "name": "List 3 core values",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_observe_thoughts_without_judgment",
+      "name": "Observe thoughts without judgment",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_structured_self_reflection_protocol",
+      "name": "Structured Self-Reflection Protocol",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "habit_write_3_key_takeaways_from_today",
+      "name": "Write 3 key takeaways from today",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_area_for_improvement",
+      "name": "Identify 1 area for improvement",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_meditate_for_5_minutes",
+      "name": "Meditate for 5 Minutes",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_establish_daily_reflection_practice",
+      "name": "Establish Daily Reflection Practice",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_complete_personal_alignment_protocol",
+      "name": "Complete Personal Alignment Protocol",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_write_3_things_you_re_grateful_for",
+      "name": "Write 3 things you're grateful for",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_summarize_your_day_in_1_sentence",
+      "name": "Summarize your day in 1 sentence",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_your_values_list",
+      "name": "Review your values list",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_identify_1_action_to_take_today_that_aligns_with_your_values",
+      "name": "Identify 1 action to take today that aligns with your values",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    }
+  ]
+}

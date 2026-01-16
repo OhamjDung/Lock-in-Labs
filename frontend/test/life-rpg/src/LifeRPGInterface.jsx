@@ -96,6 +96,12 @@ export default function LifeRPGInterface() {
     setDitheredPreviewUrl(null);
   };
 
+  const handleRestartOnboarding = () => {
+    // Restart the onboarding process
+    setShowOnboarding(true);
+    setActiveTab('sheet');
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 800);
     return () => clearTimeout(timer);
@@ -273,7 +279,7 @@ export default function LifeRPGInterface() {
       </div>
 
       {/* HEADER */}
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} isLockIn={isLockIn} onLogout={handleLogout} />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} isLockIn={isLockIn} onLogout={handleLogout} onRestartOnboarding={handleRestartOnboarding} />
 
       {/* MAIN CONTENT AREA */}
       <main className="pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto min-h-screen flex flex-col relative z-10">

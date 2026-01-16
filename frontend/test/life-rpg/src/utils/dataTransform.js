@@ -135,30 +135,36 @@ export const transformCharacterData = (characterSheet, skillTree) => {
     type: "Mental"
   }));
 
-  // Filter Sub-Skills to only show those with habits that have progress or that are unlocked
-  const skills = tree.nodes
+  // Select 1 random Sub-Skill per pillar from lower parts of tree (skills with prerequisites)
+  const skillsByPillar = {};
+  
+  tree.nodes
     .filter(n => n.type === 'Sub-Skill' || n.type === 'SubSkill')
     .filter(skillNode => {
-      // If no prerequisites, show it (can be unlocked immediately)
-      if (!skillNode.prerequisites || skillNode.prerequisites.length === 0) {
-        return true;
-      }
-      
-      // Check if any prerequisite habit has progress (completed_total > 0)
-      const hasProgress = skillNode.prerequisites.some(prereqId => {
-        const prereqProgress = progress[prereqId];
-        return prereqProgress && prereqProgress.completed_total > 0;
-      });
-      
-      // Check if all prerequisites are MASTERED (unlocked)
-      const allMastered = skillNode.prerequisites.every(prereqId => {
-        const prereqProgress = progress[prereqId];
-        return prereqProgress && prereqProgress.status === 'MASTERED';
-      });
-      
-      return hasProgress || allMastered;
+      // Only select skills that have prerequisites (lower parts of tree)
+      return skillNode.prerequisites && skillNode.prerequisites.length > 0;
     })
-    .map(n => ({ name: n.name, level: 1, pillar: n.pillar }));
+    .forEach(skillNode => {
+      const pillar = skillNode.pillar || 'CAREER';
+      if (!skillsByPillar[pillar]) {
+        skillsByPillar[pillar] = [];
+      }
+      skillsByPillar[pillar].push(skillNode);
+    });
+  
+  // Pick 1 random skill per pillar
+  const skills = [];
+  Object.keys(skillsByPillar).forEach(pillar => {
+    const pillarSkills = skillsByPillar[pillar];
+    if (pillarSkills.length > 0) {
+      const randomSkill = pillarSkills[Math.floor(Math.random() * pillarSkills.length)];
+      skills.push({
+        name: randomSkill.name,
+        level: 1,
+        pillar: pillar
+      });
+    }
+  });
 
   const timeline = [
     { time: "08:00", event: "Wake up and meditate", status: "completed" },

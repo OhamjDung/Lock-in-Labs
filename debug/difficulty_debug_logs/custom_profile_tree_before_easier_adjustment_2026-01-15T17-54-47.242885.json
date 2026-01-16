@@ -1,0 +1,1274 @@
+{
+  "timestamp": "2026-01-15T17:54:47.242885",
+  "user_id": "custom_profile",
+  "label": "before_easier_adjustment",
+  "tree_structure": {
+    "nodes": [
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_become_a_plumber",
+        "xp_reward": 100,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_obtain_apprenticeship_or_certification"
+        ],
+        "name": "Become a plumber"
+      },
+      {
+        "description": "Understand the names, uses, and safety procedures for common plumbing tools (e.g., pipe wrenches, pipe cutters, soldering torches).",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_basic_plumbing_tools_knowledge",
+        "xp_reward": 50,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_identify_3_plumbing_tools",
+          "habit_study_1_plumbing_diagram"
+        ],
+        "name": "Basic Plumbing Tools Knowledge"
+      },
+      {
+        "description": "Learn about different types of pipe fittings (e.g., couplings, elbows, tees) and how they connect pipes.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_pipe_fitting_basics",
+        "xp_reward": 75,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_basic_plumbing_tools_knowledge",
+          "habit_watch_5_minutes_of_pipe_fitting_tutorial",
+          "habit_trace_1_pipe_joint_diagram"
+        ],
+        "name": "Pipe Fitting Basics"
+      },
+      {
+        "description": "Gain a foundational understanding of water supply systems, including water pressure, drainage, and common plumbing codes.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_water_system_understanding",
+        "xp_reward": 100,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_pipe_fitting_basics",
+          "habit_read_1_paragraph_on_water_pressure",
+          "habit_draw_1_water_system_diagram"
+        ],
+        "name": "Water System Understanding"
+      },
+      {
+        "description": "Develop the ability to interpret plumbing blueprints and schematics to understand the layout and components of a plumbing system.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_reading_blueprints",
+        "xp_reward": 80,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_water_system_understanding",
+          "habit_analyze_1_blueprint_detail",
+          "habit_trace_3_lines_on_a_blueprint"
+        ],
+        "name": "Reading Blueprints"
+      },
+      {
+        "description": "Complete the application process and secure an apprenticeship or relevant plumbing certification to begin a formal plumbing career.",
+        "type": "Sub-Skill",
+        "required_completions": 1,
+        "id": "skill_obtain_apprenticeship_or_certification",
+        "xp_reward": 150,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_reading_blueprints",
+          "habit_research_1_apprenticeship_program",
+          "habit_contact_1_certification_provider"
+        ],
+        "name": "Obtain Apprenticeship or Certification"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_be_more_calm_when_something_stressful_happens",
+        "xp_reward": 100,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_daily_calm_moment_protocol"
+        ],
+        "name": "Be more calm when something stressful happens"
+      },
+      {
+        "description": "Start with 5-minute guided meditations focusing on breath awareness.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_beginner_mindfulness_meditation",
+        "xp_reward": 50,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_breathe_for_60_seconds",
+          "habit_scan_body_for_tension"
+        ],
+        "name": "Beginner Mindfulness Meditation"
+      },
+      {
+        "description": "Practice a body scan meditation to increase awareness of physical sensations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_body_scan_meditation",
+        "xp_reward": 75,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_beginner_mindfulness_meditation",
+          "habit_focus_on_5_body_parts",
+          "habit_notice_sensations_for_30_seconds"
+        ],
+        "name": "Body Scan Meditation"
+      },
+      {
+        "description": "Learn to identify and label basic emotions (e.g., happy, sad, angry, fearful).",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_basic_emotion_identification",
+        "xp_reward": 60,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_body_scan_meditation",
+          "habit_name_3_emotions",
+          "habit_observe_facial_expressions"
+        ],
+        "name": "Basic Emotion Identification"
+      },
+      {
+        "description": "Practice a 5-5-5 grounding technique (name 5 things you see, 5 things you can touch, 5 things you hear).",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_simple_grounding_technique",
+        "xp_reward": 80,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_basic_emotion_identification",
+          "habit_name_4_objects",
+          "habit_feel_5_sensations"
+        ],
+        "name": "Simple Grounding Technique"
+      },
+      {
+        "description": "Establish a daily 5-minute protocol of mindfulness and grounding to manage stress.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_daily_calm_moment_protocol",
+        "xp_reward": 100,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_simple_grounding_technique",
+          "habit_perform_box_breathing"
+        ],
+        "name": "Daily Calm Moment Protocol"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_be_more_outgoing_and_talk_to_more_people",
+        "xp_reward": 100,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_have_a_5_minute_conversation_with_a_stranger"
+        ],
+        "name": "Be more outgoing and talk to more people"
+      },
+      {
+        "description": "Learn simple, open-ended questions and comments to initiate conversations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_conversation_starters",
+        "xp_reward": 50,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_ask_2_open_ended_questions",
+          "habit_share_1_interesting_fact"
+        ],
+        "name": "Conversation Starters"
+      },
+      {
+        "description": "Develop the ability to fully focus on what others are saying, understanding their message, and responding thoughtfully.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_active_listening",
+        "xp_reward": 75,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_conversation_starters",
+          "habit_send_1_gratitude_message"
+        ],
+        "name": "Active Listening"
+      },
+      {
+        "description": "Recognize and interpret body language, facial expressions, and tone of voice to better understand others' emotions and intentions.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_nonverbal_communication",
+        "xp_reward": 60,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_active_listening",
+          "habit_observe_body_language",
+          "habit_mirror_1_person_s_posture"
+        ],
+        "name": "Nonverbal Communication"
+      },
+      {
+        "description": "Understand and share the feelings of others, demonstrating compassion and understanding.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_empathy",
+        "xp_reward": 80,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_nonverbal_communication",
+          "habit_reflect_1_feeling",
+          "habit_imagine_their_perspective"
+        ],
+        "name": "Empathy"
+      },
+      {
+        "description": "Initiate and maintain a brief, positive conversation with a stranger, demonstrating basic social skills.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+        "xp_reward": 100,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_empathy",
+          "skill_nonverbal_communication",
+          "habit_approach_1_stranger",
+          "habit_ask_2_simple_questions"
+        ],
+        "name": "Have a 5-Minute Conversation with a Stranger"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_be_more_flexible",
+        "xp_reward": 100,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_complete_first_structured_workout"
+        ],
+        "name": "Be more flexible"
+      },
+      {
+        "description": "Learn to identify basic movement dysfunctions and asymmetries through observation.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_movement_assessment_basics",
+        "xp_reward": 50,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_stand_tall_for_30_seconds",
+          "habit_walk_10_steps"
+        ],
+        "name": "Movement Assessment Basics"
+      },
+      {
+        "description": "Introduce fundamental mobility exercises like cat-cow, thoracic rotations, and hip flexor stretches.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_basic_mobility_exercises",
+        "xp_reward": 75,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_movement_assessment_basics",
+          "habit_rotate_shoulders_5_times",
+          "habit_neck_rolls_3_times"
+        ],
+        "name": "Basic Mobility Exercises"
+      },
+      {
+        "description": "Develop awareness of body alignment and learn to correct common postural imbalances.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_postural_awareness_training",
+        "xp_reward": 60,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_basic_mobility_exercises",
+          "habit_check_posture_every_hour",
+          "habit_adjust_sitting_position"
+        ],
+        "name": "Postural Awareness Training"
+      },
+      {
+        "description": "Introduce basic bodyweight exercises that mimic real-life movements (squats, push-ups, lunges).",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_functional_strength_introduction",
+        "xp_reward": 80,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_postural_awareness_training",
+          "habit_do_5_bodyweight_squats",
+          "habit_hold_plank_for_30_seconds"
+        ],
+        "name": "Functional Strength Introduction"
+      },
+      {
+        "description": "Successfully complete a 30-minute workout incorporating mobility, postural correction, and functional strength exercises.",
+        "type": "Sub-Skill",
+        "required_completions": 1,
+        "id": "skill_complete_first_structured_workout",
+        "xp_reward": 100,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_functional_strength_introduction",
+          "habit_complete_a_20_minute_workout"
+        ],
+        "name": "Complete First Structured Workout"
+      },
+      {
+        "description": "Recognize the names and uses of 3 common plumbing tools.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_identify_3_plumbing_tools",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Identify 3 Plumbing Tools"
+      },
+      {
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Observe a video demonstrating basic pipe fitting techniques.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_watch_5_minutes_of_pipe_fitting_tutorial",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Watch 5 Minutes of Pipe Fitting Tutorial"
+      },
+      {
+        "description": "Draw the outline of a simple pipe joint, labeling the key parts.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_trace_1_pipe_joint_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Trace 1 Pipe Joint Diagram"
+      },
+      {
+        "description": "Understand the concept of water pressure in a basic plumbing system.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_read_1_paragraph_on_water_pressure",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Read 1 Paragraph on Water Pressure"
+      },
+      {
+        "description": "Create a simplified diagram of a water supply system.",
+        "type": "Habit",
+        "required_completions": 30,
+        "id": "habit_draw_1_water_system_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Draw 1 Water System Diagram"
+      },
+      {
+        "description": "Examine a blueprint section and identify a specific measurement or symbol.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_analyze_1_blueprint_detail",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Analyze 1 Blueprint Detail"
+      },
+      {
+        "description": "Carefully trace three lines from a blueprint to understand their placement.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_trace_3_lines_on_a_blueprint",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Trace 3 Lines on a Blueprint"
+      },
+      {
+        "description": "Find one plumbing apprenticeship program and review its requirements.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_research_1_apprenticeship_program",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Research 1 Apprenticeship Program"
+      },
+      {
+        "description": "Reach out to a plumbing certification organization to inquire about their offerings.",
+        "type": "Habit",
+        "required_completions": 1,
+        "id": "habit_contact_1_certification_provider",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Contact 1 Certification Provider"
+      },
+      {
+        "description": "Focus on your breath for one minute, noticing the sensation.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_breathe_for_60_seconds",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Breathe for 60 Seconds"
+      },
+      {
+        "description": "Quickly check your body for areas of tension and release them.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_scan_body_for_tension",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Scan Body for Tension"
+      },
+      {
+        "description": "Bring awareness to five different parts of your body.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_focus_on_5_body_parts",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Focus on 5 Body Parts"
+      },
+      {
+        "description": "Spend 30 seconds noticing the sensations in each body part.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_notice_sensations_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Notice Sensations for 30 Seconds"
+      },
+      {
+        "description": "List three basic emotions (happy, sad, angry).",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_name_3_emotions",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Name 3 Emotions"
+      },
+      {
+        "description": "Watch a short video and identify the emotions displayed.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_observe_facial_expressions",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Observe Facial Expressions"
+      },
+      {
+        "description": "Say the names of four objects in your immediate surroundings.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_name_4_objects",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Name 4 Objects"
+      },
+      {
+        "description": "Notice five things you can feel (e.g., the chair, your feet, the air).",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_feel_5_sensations",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Feel 5 Sensations"
+      },
+      {
+        "description": "Follow the 4-4-4-4 breathing technique.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_perform_box_breathing",
+        "xp_reward": 15,
+        "pillar": "MENTAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Perform Box Breathing"
+      },
+      {
+        "description": "Prepare two questions that require more than a 'yes' or 'no' answer.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_ask_2_open_ended_questions",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask 2 Open-Ended Questions"
+      },
+      {
+        "description": "Tell someone one interesting fact about yourself.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_share_1_interesting_fact",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Share 1 Interesting Fact"
+      },
+      {
+        "description": "Text one person telling them something you appreciate about them.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_send_1_gratitude_message",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Send 1 Gratitude Message"
+      },
+      {
+        "description": "Watch a video and identify the body language of the speaker.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_observe_body_language",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Observe Body Language"
+      },
+      {
+        "description": "Subtly mimic the posture of someone you're talking to.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_mirror_1_person_s_posture",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Mirror 1 Person's Posture"
+      },
+      {
+        "description": "Repeat back what you think someone is feeling.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_reflect_1_feeling",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Reflect 1 Feeling"
+      },
+      {
+        "description": "Spend 30 seconds thinking about the situation from the other person's point of view.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_imagine_their_perspective",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Imagine Their Perspective"
+      },
+      {
+        "description": "Find someone and initiate a brief conversation.",
+        "type": "Habit",
+        "required_completions": 30,
+        "id": "habit_approach_1_stranger",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Approach 1 Stranger"
+      },
+      {
+        "description": "Ask two easy questions to start a conversation (e.g., 'How's your day going?', 'Do you live around here?').",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_ask_2_simple_questions",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask 2 Simple Questions"
+      },
+      {
+        "description": "Maintain good posture for 30 seconds.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_stand_tall_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Stand Tall for 30 Seconds"
+      },
+      {
+        "description": "Take 10 deliberate steps, paying attention to your movement.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_walk_10_steps",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Walk 10 Steps"
+      },
+      {
+        "description": "Perform 5 rotations of your shoulders forward and backward.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_rotate_shoulders_5_times",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Rotate Shoulders 5 Times"
+      },
+      {
+        "description": "Gently roll your neck in a circular motion 3 times.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_neck_rolls_3_times",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Neck Rolls 3 Times"
+      },
+      {
+        "description": "Remind yourself to check your posture every hour.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_check_posture_every_hour",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Check Posture Every Hour"
+      },
+      {
+        "description": "Adjust your chair and posture to maintain a comfortable position.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_adjust_sitting_position",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Adjust Sitting Position"
+      },
+      {
+        "description": "Perform 5 bodyweight squats.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_do_5_bodyweight_squats",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Do 5 Bodyweight Squats"
+      },
+      {
+        "description": "Maintain a plank position for 30 seconds.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_plank_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Hold Plank for 30 Seconds"
+      },
+      {
+        "required_completions": 1,
+        "type": "Habit",
+        "description": "Reach out to a plumbing certification organization to inquire about their offerings.",
+        "id": "habit_contact_1_certification_provider",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "prerequisites": [
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification"
+        ],
+        "xp_multiplier": 1.0,
+        "name": "Contact 1 Certification Provider"
+      },
+      {
+        "description": "Master the interpretation and analysis of balance sheets, income statements, and cash flow statements to assess a company's financial health.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_financial_statement_analysis",
+        "xp_reward": 180,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_analyze_1_financial_statement",
+          "skill_financial_modeling"
+        ],
+        "name": "Financial Statement Analysis"
+      },
+      {
+        "description": "Successfully complete and pass the Chartered Financial Analyst (CFA) Level III examination, demonstrating advanced knowledge and skills in investment analysis.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_pass_cfa_level_iii_examination",
+        "xp_reward": 500,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_financial_statement_analysis",
+          "habit_solve_1_leetcode_easy"
+        ],
+        "name": "Pass CFA Level III Examination"
+      },
+      {
+        "description": "Focus on identifying key trends and ratios within a single statement.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_analyze_1_financial_statement",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Analyze 1 financial statement"
+      },
+      {
+        "description": "Reach out to a plumbing certification organization to inquire about their offerings.",
+        "type": "Habit",
+        "required_completions": 1,
+        "id": "habit_contact_1_certification_provider",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification"
+        ],
+        "name": "Contact 1 Certification Provider"
+      },
+      {
+        "description": "Develop proficiency in building and analyzing complex financial models for forecasting and valuation.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_financial_modeling",
+        "xp_reward": 250,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_analyze_3_financial_statements"
+        ],
+        "name": "Financial Modeling"
+      },
+      {
+        "required_completions": 14,
+        "type": "Habit",
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "prerequisites": [
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification",
+          "skill_plumbing_system_inspection"
+        ],
+        "xp_multiplier": 1.0,
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Learn to design and install drainage systems, including venting and traps.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_drainage_systems_design",
+        "xp_reward": 180,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_sketch_3_drainage_pathways",
+          "skill_pipe_fitting_techniques"
+        ],
+        "name": "Drainage Systems Design"
+      },
+      {
+        "description": "Install and maintain water supply systems, including pressure regulation and water heaters.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_water_supply_systems_installation",
+        "xp_reward": 170,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_measure_10_feet_of_pipe",
+          "skill_plumbing_fundamentals",
+          "skill_pipe_fitting_techniques"
+        ],
+        "name": "Water Supply Systems Installation"
+      },
+      {
+        "description": "Understand and adhere to local plumbing codes and regulations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_local_plumbing_codes",
+        "xp_reward": 120,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_review_5_code_sections",
+          "skill_plumbing_fundamentals"
+        ],
+        "name": "Local Plumbing Codes"
+      },
+      {
+        "description": "Successfully pass a plumbing inspection demonstrating competency in system installation and code adherence.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_plumbing_system_inspection",
+        "xp_reward": 300,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_drainage_systems_design",
+          "skill_water_supply_systems_installation",
+          "skill_local_plumbing_codes",
+          "habit_check_3_joints_for_leaks"
+        ],
+        "name": "Plumbing System Inspection"
+      },
+      {
+        "description": "Visualize different drainage solutions for a given scenario.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_sketch_3_drainage_pathways",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Sketch 3 drainage pathways"
+      },
+      {
+        "description": "Accurate measurement is crucial for proper installation.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_measure_10_feet_of_pipe",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Measure 10 feet of pipe"
+      },
+      {
+        "description": "Familiarize yourself with relevant regulations.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_review_5_code_sections",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Review 5 code sections"
+      },
+      {
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification",
+          "skill_plumbing_system_inspection",
+          "skill_local_code_compliance_inspection"
+        ],
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Understand basic plumbing principles, materials, and terminology.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_plumbing_fundamentals",
+        "xp_reward": 150,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_inspect_3_pipe_joints",
+          "habit_measure_10_feet_of_pipe_2"
+        ],
+        "name": "Plumbing Fundamentals"
+      },
+      {
+        "description": "Master various pipe fitting methods, including soldering, brazing, and mechanical joining.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_pipe_fitting_techniques",
+        "xp_reward": 200,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_plumbing_fundamentals",
+          "habit_tighten_5_pipe_fittings",
+          "habit_build_1_small_pipe_connection"
+        ],
+        "name": "Pipe Fitting Techniques"
+      },
+      {
+        "description": "Successfully pass a plumbing inspection demonstrating adherence to local building codes and regulations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_local_code_compliance_inspection",
+        "xp_reward": 250,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_drainage_systems_design",
+          "skill_water_supply_systems_installation",
+          "habit_review_30_minutes_of_building_codes"
+        ],
+        "name": "Local Code Compliance Inspection"
+      },
+      {
+        "description": "Check for leaks and proper connections.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_inspect_3_pipe_joints",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Inspect 3 pipe joints"
+      },
+      {
+        "description": "Gain familiarity with common pipe lengths.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_measure_10_feet_of_pipe_2",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Measure 10 feet of pipe"
+      },
+      {
+        "description": "Practice applying appropriate torque.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_tighten_5_pipe_fittings",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Tighten 5 pipe fittings"
+      },
+      {
+        "description": "Assemble a simple joint using fittings.",
+        "type": "Habit",
+        "required_completions": 30,
+        "id": "habit_build_1_small_pipe_connection",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Build 1 small pipe connection"
+      },
+      {
+        "required_completions": 14,
+        "type": "Habit",
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "prerequisites": [
+          "skill_certified_plumbing_technician",
+          "skill_pass_cfa_level_iii_examination",
+          "skill_local_code_compliance_inspection",
+          "skill_obtain_apprenticeship_or_certification",
+          "skill_plumbing_system_inspection"
+        ],
+        "xp_multiplier": 1.0,
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Diagnose and repair common plumbing issues efficiently.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_plumbing_system_diagnostics",
+        "xp_reward": 220,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_drainage_systems_design",
+          "skill_water_supply_systems_installation",
+          "habit_inspect_3_pipe_joints_2"
+        ],
+        "name": "Plumbing System Diagnostics"
+      },
+      {
+        "description": "Obtain certification as a Plumbing Technician through a recognized program.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_certified_plumbing_technician",
+        "xp_reward": 300,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_plumbing_system_diagnostics",
+          "skill_local_plumbing_codes",
+          "habit_review_5_plumbing_codes"
+        ],
+        "name": "Certified Plumbing Technician"
+      },
+      {
+        "description": "Visually examine each joint for leaks or corrosion.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_inspect_3_pipe_joints_2",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Inspect 3 pipe joints"
+      },
+      {
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_local_code_compliance_inspection",
+          "skill_certified_plumbing_technician",
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification",
+          "skill_plumbing_system_inspection",
+          "skill_code_compliance_inspection"
+        ],
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Learn to design and install drainage systems, including venting and traps.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_drainage_systems_design_2",
+        "xp_reward": 180,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_sketch_3_drainage_pathways_2"
+        ],
+        "name": "Drainage Systems Design"
+      },
+      {
+        "description": "Understand and implement water supply systems, including pressure regulation and water heaters.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_water_supply_systems_installation_2",
+        "xp_reward": 170,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_review_5_plumbing_diagrams"
+        ],
+        "name": "Water Supply Systems Installation"
+      },
+      {
+        "description": "Successfully inspect and certify plumbing installations for compliance with local and national codes.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_code_compliance_inspection",
+        "xp_reward": 250,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_drainage_systems_design_2",
+          "skill_water_supply_systems_installation_2",
+          "habit_analyze_1_code_snippet_for_vulnerabilities"
+        ],
+        "name": "Code Compliance Inspection"
+      },
+      {
+        "description": "Visualize different drainage solutions for a given scenario.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_sketch_3_drainage_pathways_2",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Sketch 3 drainage pathways"
+      },
+      {
+        "description": "Familiarize yourself with common water supply system layouts.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_review_5_plumbing_diagrams",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Review 5 plumbing diagrams"
+      },
+      {
+        "description": "Examine a simple plumbing diagram and identify key components.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_study_1_plumbing_diagram",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_local_code_compliance_inspection",
+          "skill_certified_plumbing_technician",
+          "skill_code_compliance_inspection_2",
+          "skill_pass_cfa_level_iii_examination",
+          "skill_obtain_apprenticeship_or_certification",
+          "skill_plumbing_system_inspection",
+          "skill_code_compliance_inspection"
+        ],
+        "name": "Study 1 Plumbing Diagram"
+      },
+      {
+        "description": "Learn to design and install drainage systems, including traps, vents, and cleanouts.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_drainage_systems_design_3",
+        "xp_reward": 180,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_sketch_3_drainage_pathways_3"
+        ],
+        "name": "Drainage Systems Design"
+      },
+      {
+        "description": "Install and maintain water supply systems, including pressure regulators, backflow preventers, and water heaters.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_water_supply_systems_installation_3",
+        "xp_reward": 170,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_review_5_plumbing_codes"
+        ],
+        "name": "Water Supply Systems Installation"
+      },
+      {
+        "description": "Pass a plumbing inspection exam demonstrating knowledge of local and national codes.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_code_compliance_inspection_2",
+        "xp_reward": 300,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_water_supply_systems_installation_3",
+          "skill_drainage_systems_design_3",
+          "habit_analyze_1_code_snippet"
+        ],
+        "name": "Code Compliance Inspection"
+      },
+      {
+        "description": "Visualize different drainage solutions for a given scenario.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_sketch_3_drainage_pathways_3",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Sketch 3 drainage pathways"
+      },
+      {
+        "description": "Understand relevant regulations for water supply installations.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_review_5_plumbing_codes",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Review 5 plumbing codes"
+      },
+      {
+        "description": "Examine a code sample for potential compliance issues.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_analyze_1_code_snippet",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Analyze 1 code snippet"
+      }
+    ]
+  }
+}

@@ -6,35 +6,49 @@ import NodeContextMenu from './NodeContextMenu';
 import NodeQuestionDialog from './NodeQuestionDialog';
 import NodeDifficultyDialog from './NodeDifficultyDialog';
 
+// Only send ingest logs when explicitly enabled to avoid noisy console errors
+const INGEST_ENDPOINT = typeof window !== 'undefined' && window.__INGEST_URL ? window.__INGEST_URL : null;
+const safeIngest = (body) => {
+    if (!INGEST_ENDPOINT) return;
+    fetch(INGEST_ENDPOINT, body).catch(() => {});
+};
+
 const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }) => {
-    const [transform, setTransform] = useState({ x: 0, y: 0, k: 1 });
+    const [transform, setTransform] = useState({ x: 500, y: 50, k: 0.8 });
     const [isDragging, setIsDragging] = useState(false);
     const [startPan, setStartPan] = useState({ x: 0, y: 0 });
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
     const [contextMenu, setContextMenu] = useState(null);
     const [questionDialog, setQuestionDialog] = useState(null);
     const [difficultyDialog, setDifficultyDialog] = useState(null);
+    
+    // Position preservation system (from skill_tree_viewer.html)
+    const [nodePositions, setNodePositions] = useState({}); // Cache node positions
+    const [previousNodeIds, setPreviousNodeIds] = useState(new Set()); // Track existing nodes
+    const [lastAdjustedNodeId, setLastAdjustedNodeId] = useState(null); // Track adjusted node
 
     const layout = useMemo(() => {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:layout',message:'Layout calculation started',data:{pillar, hasSkillTree: !!skillTree, nodesCount: skillTree?.nodes?.length || 0, nodeTypes: skillTree?.nodes?.reduce((acc, n) => { acc[n.type] = (acc[n.type] || 0) + 1; return acc; }, {}) || {}},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4-H5'})}).catch(()=>{});
+        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:layout',message:'Layout calculation started',data:{pillar, hasSkillTree: !!skillTree, nodesCount: skillTree?.nodes?.length || 0, nodeTypes: skillTree?.nodes?.reduce((acc, n) => { acc[n.type] = (acc[n.type] || 0) + 1; return acc; }, {}) || {}},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H4-H5'})});
         // #endregion
         
         const nodesSource = (skillTree && skillTree.nodes && skillTree.nodes.length > 0) ? skillTree.nodes : skillTreeJson.nodes;
         const pillarNodes = nodesSource.filter(n => n.pillar === pillar);
         
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:filter',message:'After filtering by pillar',data:{pillar, totalNodes: nodesSource.length, pillarNodesCount: pillarNodes.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
-        // #endregion
+        console.log(`\n🌳 [LAYOUT] Starting layout calculation for ${pillar}:`);
+        console.log(`   Total nodes: ${nodesSource.length}`);
+        console.log(`   Pillar nodes: ${pillarNodes.length}`);
+        console.log(`   Cached positions: ${Object.keys(nodePositions).length}`);
+        console.log(`   Last adjusted: ${lastAdjustedNodeId || 'none'}`);
         
         if (pillarNodes.length === 0) {
             return { nodes: [], edges: [], width: 800, height: 800 };
         }
 
-        // Initialize Dagre Graph (same as skill_tree_viewer.html)
+        // Initialize Dagre Graph (FIXED: Use BT like working HTML version)
         const g = new dagre.graphlib.Graph();
         g.setGraph({ 
-            rankdir: 'BT', // Bottom-to-Top (Habits at bottom, Goal at top)
+            rankdir: 'BT', // Bottom-to-Top (Habits at bottom, Goal at top) - MATCHES HTML
             nodesep: 100,   // Horizontal spacing
             ranksep: 150,   // Vertical spacing
             edgesep: 20,
@@ -57,34 +71,109 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
             });
         });
 
-        // Add Edges (Reverse Prerequisite Logic for BT layout)
-        // If A requires B, Arrow goes B -> A (B is prerequisite, A depends on B)
+        // Add Edges (FIXED: Use BT logic from HTML - prerequisite -> dependent)
+        let edgeCount = 0;
+        let missingEdges = 0;
+        const debugEdges = [];
+        
         pillarNodes.forEach(node => {
             if (node.prerequisites && node.prerequisites.length > 0) {
                 node.prerequisites.forEach(prereqId => {
                     // Check if prereq exists in this pillar view
                     const prereqNode = pillarNodes.find(n => n.id === prereqId);
                     if (prereqNode) {
-                        // Edge from prerequisite to dependent node
+                        // Edge from prerequisite to dependent node (BT layout)
                         g.setEdge(prereqId, node.id);
+                        edgeCount++;
+                        if (debugEdges.length < 5) {
+                            debugEdges.push(`${prereqNode.name} → ${node.name}`);
+                        }
+                    } else {
+                        missingEdges++;
                     }
                 });
             }
         });
+        
+        console.log(`\n🔗 [EDGES] Edge creation summary:`);
+        console.log(`   Total edges created: ${edgeCount}`);
+        console.log(`   Missing prerequisites: ${missingEdges}`);
+        console.log(`   Sample edges:`, debugEdges);
 
         // Calculate Layout
         try {
             dagre.layout(g);
         } catch (e) {
             console.error('Dagre layout error:', e);
-            return { nodes: [], edges: [], width: 800 };
+            return { nodes: [], edges: [], width: 800, height: 800 };
         }
 
-        // Process nodes with progress data and positions from Dagre
+        // Position restoration logic (from skill_tree_viewer.html lines 1035-1055)
+        let restoredCount = 0;
+        let newNodeCount = 0;
+        console.log(`\n📊 [POSITION RESTORE] Starting position restoration:`);
+        
+        g.nodes().forEach(nodeId => {
+            const current = g.node(nodeId);
+            
+            // If we just adjusted a node, don't restore ANY positions - let Dagre recalculate everything fresh
+            if (lastAdjustedNodeId) {
+                newNodeCount++;
+                if (newNodeCount <= 5) {
+                    console.log(`   ✨ [FRESH LAYOUT] "${current.label}": Dagre calculated (${current.x}, ${current.y})`);
+                }
+                return;
+            }
+            
+            if (previousNodeIds.has(nodeId) && nodePositions[nodeId]) {
+                // This node existed before - restore its position
+                const cached = nodePositions[nodeId];
+                current.x = cached.x;
+                current.y = cached.y;
+                restoredCount++;
+                
+                if (restoredCount <= 5) {
+                    console.log(`   ✓ Restored "${current.label}": (${current.x}, ${current.y})`);
+                }
+            } else {
+                // This is a new node - keep Dagre's position
+                newNodeCount++;
+                if (newNodeCount <= 5) {
+                    console.log(`   ✨ New node "${current.label}": (${current.x}, ${current.y})`);
+                }
+            }
+        });
+        
+        console.log(`\n📍 Position Summary:`);
+        console.log(`   Existing nodes restored: ${restoredCount}`);
+        console.log(`   New nodes placed: ${newNodeCount}`);
+        console.log(`   Total nodes now: ${g.nodes().length}\n`);
+
+        // Calculate bounds to normalize coordinates into positive space (avoids node/edge drift)
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        g.nodes().forEach(v => {
+            const n = g.node(v);
+            minX = Math.min(minX, n.x - n.width/2);
+            minY = Math.min(minY, n.y - n.height/2);
+            maxX = Math.max(maxX, n.x + n.width/2);
+            maxY = Math.max(maxY, n.y + n.height/2);
+        });
+
+        const padding = 100;
+        // Calculate SVG size to cover all nodes with padding (NO offsetX/offsetY transformation)
+        const svgWidth = Math.max(2000, maxX + padding);
+        const svgHeight = Math.max(2000, maxY + padding);
+
+        // Process nodes - use direct dagre positions (NO offset added)
         const processedNodes = [];
+        
         g.nodes().forEach(v => {
             const n = g.node(v);
             const node = n.original;
+            
+            // Use direct Dagre position - NO offsetX/offsetY translation
+            const nodeX = n.x;
+            const nodeY = n.y;
             
             // Get progress data for habits (same as before)
             let progressPercent = 0;
@@ -112,8 +201,8 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
             
             processedNodes.push({
                 ...node,
-                x: n.x,
-                y: n.y,
+                x: nodeX,
+                y: nodeY,
                 progressPercent,
                 status,
                 completed,
@@ -121,22 +210,26 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
             });
         });
 
-        // Process edges from Dagre
+        // Process edges with smooth curves (same as HTML)
         const processedEdges = [];
+        let drawnEdges = 0;
+        
         g.edges().forEach(e => {
             const edge = g.edge(e);
             const points = edge.points || [];
             
             if (points.length < 2) return;
             
-            // Convert points to path format - use smooth curves between points
+            drawnEdges++;
+            
+            // Create smooth curve using quadratic bezier (matches HTML logic)
             let d = `M ${points[0].x} ${points[0].y}`;
             for (let i = 1; i < points.length; i++) {
                 if (i === points.length - 1) {
-                    // Last point - straight line to target
+                    // Last point - straight line
                     d += ` L ${points[i].x} ${points[i].y}`;
                 } else {
-                    // Use quadratic bezier for smooth curves (same as skill_tree_viewer.html)
+                    // Use quadratic bezier for smooth curves
                     const midX = (points[i].x + points[i-1].x) / 2;
                     const midY = (points[i].y + points[i-1].y) / 2;
                     d += ` Q ${points[i-1].x} ${points[i-1].y} ${midX} ${midY}`;
@@ -150,29 +243,37 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
                 targetId: e.w
             });
         });
-
-        // Calculate total width and height for canvas
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        g.nodes().forEach(v => {
-            const n = g.node(v);
-            minX = Math.min(minX, n.x - n.width/2);
-            minY = Math.min(minY, n.y - n.height/2);
-            maxX = Math.max(maxX, n.x + n.width/2);
-            maxY = Math.max(maxY, n.y + n.height/2);
-        });
         
-        const padding = 100;
-        const totalWidth = Math.max(2000, maxX + padding);
-        const totalHeight = Math.max(2000, maxY + padding);
+        console.log(`\n📈 [DRAWN EDGES] Total edges drawn: ${drawnEdges}`);
 
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:result',message:'Layout calculation complete',data:{pillar, processedNodesCount: processedNodes.length, processedEdgesCount: processedEdges.length, totalWidth, totalHeight, nodeNames: processedNodes.map(n => n.name)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:result',message:'Layout calculation complete',data:{pillar, processedNodesCount: processedNodes.length, processedEdgesCount: processedEdges.length, svgWidth, svgHeight, nodeNames: processedNodes.map(n => n.name)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})});
         // #endregion
         
-        return { nodes: processedNodes, edges: processedEdges, width: totalWidth, height: totalHeight };
-      }, [pillar, skillTree, characterSheet]);
+        return { nodes: processedNodes, edges: processedEdges, width: svgWidth, height: svgHeight };
+      }, [pillar, skillTree, characterSheet, nodePositions, previousNodeIds, lastAdjustedNodeId]);
 
-    useEffect(() => { setTransform({ x: 0, y: 0, k: 0.8 }); }, [pillar]);
+    // Cache node positions after layout (from HTML lines 1285-1299)
+    useEffect(() => {
+        if (layout.nodes.length > 0) {
+            const positions = {};
+            const nodeIds = new Set();
+            
+            layout.nodes.forEach(node => {
+                positions[node.id] = { x: node.x, y: node.y };
+                nodeIds.add(node.id);
+            });
+            
+            setNodePositions(positions);
+            setPreviousNodeIds(nodeIds);
+            console.log(`📸 [CACHE SAVED] Cached ${nodeIds.size} node positions for future adjustments`);
+            
+            // Clear the adjustment flag now that we've cached everything
+            setLastAdjustedNodeId(null);
+        }
+    }, [layout.nodes]);
+
+    useEffect(() => { setTransform({ x: 500, y: 50, k: 0.8 }); }, [pillar]);
 
     // Use ref for wheel event to make it non-passive
     const containerRef = React.useRef(null);
@@ -181,7 +282,10 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
         const container = containerRef.current;
         if (!container) return;
 
-            const handleWheel = (e) => {
+        const handleWheel = (e) => {
+            // Disable zoom when difficulty dialog is open
+            if (difficultyDialog) return;
+            
             e.preventDefault();
             e.stopPropagation();
             const delta = -e.deltaY * 0.001;
@@ -202,7 +306,7 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
                 const newY = mouseY - worldY * newScale;
                 
                 // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleWheel',message:'Zoom transform update - cursor-focused',data:{prevScale:prev.k,newScale,prevX:prev.x,prevY:prev.y,newX,newY,mouseX,mouseY,worldX,worldY,delta,containerWidth:rect.width,containerHeight:rect.height,backgroundSizeBefore:30 * prev.k,backgroundSizeAfter:30 * newScale},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'ZOOM-CURSOR'})}).catch(()=>{});
+                safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleWheel',message:'Zoom transform update - cursor-focused',data:{prevScale:prev.k,newScale,prevX:prev.x,prevY:prev.y,newX,newY,mouseX,mouseY,worldX,worldY,delta,containerWidth:rect.width,containerHeight:rect.height,backgroundSizeBefore:30 * prev.k,backgroundSizeAfter:30 * newScale},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'ZOOM-CURSOR'})});
                 // #endregion
                 
                 return { x: newX, y: newY, k: newScale };
@@ -215,13 +319,14 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
         return () => {
             container.removeEventListener('wheel', handleWheel);
         };
-    }, []);
+    }, [difficultyDialog]);
 
     const handleMouseDown = (e) => {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleMouseDown',message:'Container mousedown event',data:{button:e.button,targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY,isRightClick:e.button===2},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleMouseDown',message:'Container mousedown event',data:{button:e.button,targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY,isRightClick:e.button===2},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})});
         // #endregion
         if (e.button !== 0) return; // Only handle left mouse button
+        if (difficultyDialog) return; // Disable panning when difficulty dialog is open
         setIsDragging(true); 
         setStartPan({ x: e.clientX - transform.x, y: e.clientY - transform.y }); 
     };
@@ -232,7 +337,7 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
             const newX = e.clientX - startPan.x;
             const newY = e.clientY - startPan.y;
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleMouseMove',message:'Pan transform update',data:{prevX:prev.x,prevY:prev.y,newX,newY,scale:prev.k,layoutWidth:layout.width,layoutHeight:layout.height,clientX:e.clientX,clientY:e.clientY,startPanX:startPan.x,startPanY:startPan.y},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H3,H5'})}).catch(()=>{});
+            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleMouseMove',message:'Pan transform update',data:{prevX:prev.x,prevY:prev.y,newX,newY,scale:prev.k,layoutWidth:layout.width,layoutHeight:layout.height,clientX:e.clientX,clientY:e.clientY,startPanX:startPan.x,startPanY:startPan.y},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H3,H5'})});
             // #endregion
             return { ...prev, x: newX, y: newY };
         });
@@ -241,12 +346,12 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
 
     const handleNodeContextMenu = (e, node) => {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu handler called',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,clientX:e.clientX,clientY:e.clientY,targetTag:e.target.tagName,targetClassName:e.target.className},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu handler called',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,clientX:e.clientX,clientY:e.clientY,targetTag:e.target.tagName,targetClassName:e.target.className},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
         // #endregion
         // Only show context menu for Habit and Sub-Skill nodes
         if (node.type !== 'Habit' && node.type !== 'Sub-Skill') {
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu rejected - wrong node type',data:{nodeType:node.type},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Context menu rejected - wrong node type',data:{nodeType:node.type},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
             // #endregion
             return;
         }
@@ -255,12 +360,12 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
         e.stopPropagation();
 
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Setting context menu state',data:{nodeId:node.id,positionX:e.clientX,positionY:e.clientY,pageX:e.pageX,pageY:e.pageY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleNodeContextMenu',message:'Setting context menu state',data:{nodeId:node.id,positionX:e.clientX,positionY:e.clientY,pageX:e.pageX,pageY:e.pageY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
         // #endregion
         // Use clientX/Y for fixed positioning (viewport coordinates)
-        // Apply offset at source so it stays consistent (adjust these values)
-        const cursorOffsetX = -40; // Horizontal: negative = left, positive = right
-        const cursorOffsetY = -80; // Vertical: negative = up, positive = down
+        // Position menu to the LEFT of cursor, slightly above
+        const cursorOffsetX = -220; // Horizontal: negative = left (position menu left of cursor)
+        const cursorOffsetY = -60; // Vertical: negative = up, positive = down
         setContextMenu({
             node: node,
             position: { x: e.clientX + cursorOffsetX, y: e.clientY + cursorOffsetY }
@@ -289,10 +394,31 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
     };
 
     const handleDifficultyAdjusted = async (data) => {
+        // Track which node was adjusted (like HTML version)
+        if (difficultyDialog) {
+            setLastAdjustedNodeId(difficultyDialog.id);
+        }
+        
+        console.log(`\n🔄 [DIFFICULTY ADJUSTED] Node: ${difficultyDialog?.id}`);
+        console.log(`   Updated node: ${data.updated_node?.id}`);
+        console.log(`   New nodes: ${data.new_nodes?.length || 0}`);
+        console.log(`   Full skill tree nodes: ${data.skill_tree?.nodes?.length || 0}`);
+        
+        // Clear cached positions to force fresh Dagre layout on the updated tree
+        setNodePositions({});
+        setPreviousNodeIds(new Set());
+        
+        // Reset view like pillar switching does
+        setTransform({ x: 500, y: 50, k: 0.8 });
+        
         // Refresh skill tree data after difficulty adjustment
         if (data.skill_tree && onSkillTreeUpdate) {
             onSkillTreeUpdate(data.skill_tree);
+            // Position restoration will handle layout stability
         } else {
+            // #region agent log  
+            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:handleDifficultyAdjusted:fallback',message:'Using fallback reload',data:{reason:'No skill_tree in response or no update handler'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
+            // #endregion
             // Fallback: reload from backend
             const userId = characterSheet?.user_id || 'user_01';
             try {
@@ -315,7 +441,7 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
         const container = containerRef.current;
         if (container) {
             const rect = container.getBoundingClientRect();
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:container-mount',message:'Container mounted dimensions',data:{containerWidth:rect.width,containerHeight:rect.height,hasOverflowAuto:container.classList.contains('overflow-auto'),transformX:transform.x,transformY:transform.y,transformK:transform.k,layoutWidth:layout.width,layoutHeight:layout.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H5'})}).catch(()=>{});
+            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:container-mount',message:'Container mounted dimensions',data:{containerWidth:rect.width,containerHeight:rect.height,hasOverflowAuto:container.classList.contains('overflow-auto'),transformX:transform.x,transformY:transform.y,transformK:transform.k,layoutWidth:layout.width,layoutHeight:layout.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H5'})});
         }
     }, [transform, layout.width, layout.height]);
     // #endregion
@@ -330,7 +456,7 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
                 onMouseLeave={handleMouseUp}
                 onContextMenu={(e) => {
                     // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:container-contextmenu',message:'Container context menu event',data:{targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+                    safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:container-contextmenu',message:'Container context menu event',data:{targetTag:e.target.tagName,targetClassName:e.target.className,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})});
                     // #endregion
                     // Only prevent default if not clicking on a node (let node handler handle it)
                     const isNode = e.target.closest('[data-node-id]');
@@ -340,46 +466,43 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
                 }}
                 style={{ overscrollBehavior: 'none' }}
             >
+                <div 
+                    className="absolute inset-0 pointer-events-none" 
+                    style={{ 
+                        backgroundImage: 'linear-gradient(#bae6fd 1px, transparent 1px), linear-gradient(90deg, #bae6fd 1px, transparent 1px)', 
+                        backgroundSize: `${30 * transform.k}px ${30 * transform.k}px`,
+                        backgroundPosition: `${transform.x}px ${transform.y}px`,
+                    }}
+                />
             <div 
                 className={`absolute origin-top-left ${!isDragging ? 'transition-transform duration-75 ease-out' : ''}`}
                 style={{ 
                     transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.k})`, 
-                    width: Math.max(layout.width || 2000, 2000), 
-                    height: Math.max(layout.height || 2000, 2000),
+                    width: layout.width, 
+                    height: layout.height,
                     position: 'relative'
                 }}
                 ref={(el) => {
                     if (el) {
                         // #region agent log
                         const rect = el.getBoundingClientRect();
-                        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:canvas-div',message:'Canvas div dimensions and transform',data:{transformX:transform.x,transformY:transform.y,transformK:transform.k,styleWidth:Math.max(layout.width || 2000, 2000),styleHeight:Math.max(layout.height || 2000, 2000),boundingWidth:rect.width,boundingHeight:rect.height,boundingLeft:rect.left,boundingTop:rect.top,backgroundSizeScaled:30 * transform.k,isDragging,hasTransition:!isDragging},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3,H4'})}).catch(()=>{});
+                        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:canvas-div',message:'Canvas div dimensions and transform',data:{transformX:transform.x,transformY:transform.y,transformK:transform.k,styleWidth:layout.width,styleHeight:layout.height,boundingWidth:rect.width,boundingHeight:rect.height,boundingLeft:rect.left,boundingTop:rect.top,backgroundSizeScaled:30 * transform.k,isDragging,hasTransition:!isDragging},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3,H4'})});
                         // #endregion
                     }
                 }}
             >
-                <div 
-                    className="absolute pointer-events-none" 
-                    style={{ 
-                        top: `-${(Math.max(layout.width || 2000, 2000))}px`,
-                        left: `-${(Math.max(layout.width || 2000, 2000))}px`,
-                        width: `${(Math.max(layout.width || 2000, 2000)) * 3}px`,
-                        height: `${(Math.max(layout.height || 2000, 2000)) * 3}px`,
-                        backgroundImage: 'linear-gradient(#bae6fd 1px, transparent 1px), linear-gradient(90deg, #bae6fd 1px, transparent 1px)', 
-                        backgroundSize: `${30 * transform.k}px ${30 * transform.k}px`,
-                        backgroundRepeat: 'repeat',
-                        backgroundPosition: '0 0',
-                        willChange: 'transform'
+                <svg 
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        top: 0,
+                        left: 0,
+                        overflow: 'visible'
                     }}
-                    ref={(bgEl) => {
-                        if (bgEl) {
-                            // #region agent log
-                            const rect = bgEl.getBoundingClientRect();
-                            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:background-div',message:'Background div dimensions',data:{backgroundWidth:rect.width,backgroundHeight:rect.height,backgroundLeft:rect.left,backgroundTop:rect.top,backgroundSize:30 * transform.k,transformX:transform.x,transformY:transform.y,transformK:transform.k,canvasWidth:layout.width,canvasHeight:layout.height,styleTop:`-${(Math.max(layout.width || 2000, 2000))}px`,styleLeft:`-${(Math.max(layout.width || 2000, 2000))}px`},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-                            // #endregion
-                        }
-                    }}
-                ></div>
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    width={layout.width}
+                    height={layout.height}
+                >
                     {layout.edges.map(e => (
                         <path key={e.id} d={e.d} stroke="#3b82f6" strokeWidth="2" fill="none" strokeOpacity="0.4" />
                     ))}
@@ -387,26 +510,31 @@ const TreeVisualizer = ({ pillar, skillTree, characterSheet, onSkillTreeUpdate }
                 {layout.nodes.map(node => {
                     // #region agent log
                     if (node.type === 'Habit' || node.type === 'Sub-Skill') {
-                        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-render',message:'Rendering node with context menu handler',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,nodeX:node.x,nodeY:node.y},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+                        safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-render',message:'Rendering node with context menu handler',data:{nodeId:node.id,nodeType:node.type,nodeName:node.name,nodeX:node.x,nodeY:node.y},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
                     }
                     // #endregion
                     return (
                     <div 
                         key={node.id}
                         data-node-id={node.id}
-                        className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 hover:z-50"
-                        style={{ left: node.x, top: node.y }} 
+                        className="absolute flex flex-col items-center justify-center cursor-pointer z-10 hover:z-50"
+                        style={{ 
+                            left: node.x + 'px', 
+                            top: node.y + 'px',
+                            transform: 'translate(-50%, -50%)',
+                            transition: 'all 0.3s ease'
+                        }} 
                         onMouseEnter={() => setHoveredNodeId(node.id)} 
                         onMouseLeave={() => setHoveredNodeId(null)}
                         onContextMenu={(e) => {
                             // #region agent log
-                            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-contextmenu-event',message:'onContextMenu event fired on node',data:{nodeId:node.id,nodeType:node.type,clientX:e.clientX,clientY:e.clientY,defaultPrevented:e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+                            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-contextmenu-event',message:'onContextMenu event fired on node',data:{nodeId:node.id,nodeType:node.type,clientX:e.clientX,clientY:e.clientY,defaultPrevented:e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})});
                             // #endregion
                             handleNodeContextMenu(e, node);
                         }}
                         onMouseDown={(e) => {
                             // #region agent log
-                            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-mousedown',message:'Node mousedown event',data:{nodeId:node.id,nodeType:node.type,button:e.button,isRightClick:e.button===2,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+                            safeIngest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TreeVisualizer.jsx:node-mousedown',message:'Node mousedown event',data:{nodeId:node.id,nodeType:node.type,button:e.button,isRightClick:e.button===2,clientX:e.clientX,clientY:e.clientY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})});
                             // #endregion
                             if (e.button === 2) {
                                 // Right click - stop propagation to prevent container handler

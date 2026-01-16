@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Activity, User, Map, ClipboardList, Calendar, Lock, Settings, LogOut } from 'lucide-react';
+import { Activity, User, Map, ClipboardList, Calendar, Lock, Settings, LogOut, RotateCcw } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
-export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) {
+export default function Header({ activeTab, setActiveTab, isLockIn, onLogout, onRestartOnboarding }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -40,6 +40,13 @@ export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) 
   const handleSettings = () => {
     // TODO: Implement settings functionality
     console.log('[Settings] Settings clicked');
+    setIsMenuOpen(false);
+  };
+
+  const handleRestartOnboarding = () => {
+    if (onRestartOnboarding) {
+      onRestartOnboarding();
+    }
     setIsMenuOpen(false);
   };
 
@@ -107,6 +114,12 @@ export default function Header({ activeTab, setActiveTab, isLockIn, onLogout }) 
                   className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-stone-300 hover:text-white hover:bg-white/10"
                 >
                   <Settings size={14} /> Settings
+                </button>
+                <button
+                  onClick={handleRestartOnboarding}
+                  className="w-full px-4 py-2.5 text-left text-[11px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 text-stone-300 hover:text-white hover:bg-white/10"
+                >
+                  <RotateCcw size={14} /> Restart Onboarding
                 </button>
                 <div className="border-t border-white/10 my-1"></div>
                 <button

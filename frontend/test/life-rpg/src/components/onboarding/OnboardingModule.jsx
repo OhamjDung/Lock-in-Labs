@@ -26,6 +26,7 @@ const OnboardingModule = ({ onFinish }) => {
   ]);
   const [isSending, setIsSending] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isGeneratingSkillTree, setIsGeneratingSkillTree] = useState(false);
   const [phase, setPhase] = useState("phase1");
   const [pendingDebuffs, setPendingDebuffs] = useState([]);
   const [pillarsAskedAbout, setPillarsAskedAbout] = useState([]);
@@ -387,6 +388,16 @@ const OnboardingModule = ({ onFinish }) => {
     try {
       const historyPayload = messages;
 
+      // DEBUG: Log what we're sending to the backend
+      console.log('%c[DEBUG-BEFORE-BACKEND] Sending to architect-reply endpoint:', 'color: #ff00ff; font-weight: bold; font-size: 14px;', {
+        userInput: trimmed,
+        phase: phase,
+        activeGoalId: activeGoalId,
+        accumulatedGoalsCount: accumulatedGoals?.length || 0,
+        historyLength: historyPayload?.length || 0,
+        timestamp: new Date().toISOString()
+      });
+
       const res = await fetch("http://127.0.0.1:8000/api/onboarding/architect-reply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -407,6 +418,17 @@ const OnboardingModule = ({ onFinish }) => {
         throw new Error("Failed to reach Architect backend");
       }
       const data = await res.json();
+
+      // DEBUG: Log the full response from backend
+      console.log('%c[DEBUG-AFTER-BACKEND] Full response from architect-reply:', 'color: #ff00ff; font-weight: bold; font-size: 14px;', {
+        reply: data.reply,
+        phase: data.phase,
+        activeGoalId: data.active_goal_id,
+        debugDirective: data.debug?.architect_directive,
+        debugReasoning: data.debug?.architect_reasoning,
+        debugThinking: data.debug?.architect_thinking,
+        timestamp: new Date().toISOString()
+      });
 
       // Update phase and state from response
       if (data.phase) {
@@ -490,6 +512,9 @@ const OnboardingModule = ({ onFinish }) => {
           const thinkingColor = data.phase === 'phase2' ? '#8b5cf6' : '#10b981';
           console.log(`%c${thinkingLabel}`, `color: ${thinkingColor}; font-weight: bold; font-size: 14px;`, data.debug.architect_thinking);
         }
+        if (data.debug.architect_reasoning) {
+          console.log('%c[Architect Reasoning]', 'color: #14b8a6; font-weight: bold; font-size: 14px;', data.debug.architect_reasoning);
+        }
         if (data.debug.phase_transition) {
           const pt = data.debug.phase_transition;
           console.log('%c[Phase Transition Check]', 'color: #ef4444; font-weight: bold; font-size: 14px;', 
@@ -535,6 +560,32 @@ const OnboardingModule = ({ onFinish }) => {
       }
 
       let reply = data.reply || "";
+      
+      // DEBUG: Compare directive vs actual response
+      if (data.debug?.architect_directive && reply) {
+        const directive = data.debug.architect_directive;
+        const response = reply;
+        
+        // Extract key phrases from directive to check if they're in response
+        const directiveKeywords = directive.match(/[A-Z][a-z]+/g) || [];
+        const keywordMatches = directiveKeywords.filter(kw => response.includes(kw));
+        
+        console.log('%c[DEBUG-DIRECTIVE-MATCH] Comparing directive to response:', 'color: #ff6600; font-weight: bold; font-size: 14px;', {
+          directiveLength: directive.length,
+          responseLength: response.length,
+          directivePreview: directive.substring(0, 100) + '...',
+          responsePreview: response.substring(0, 100) + '...',
+          matchingKeywords: keywordMatches,
+          criticalPhrasesMissing: {
+            'asks_for_skill_level': response.toLowerCase().includes('scale of 1-10') || response.toLowerCase().includes('rate'),
+            'mentions_mental': response.toLowerCase().includes('mental'),
+            'mentions_goal_name': data.accumulated_goals?.find(g => g.id === data.active_goal_id || data.debug?.active_goal_id)?.name ? 
+              response.includes(data.accumulated_goals.find(g => g.id === data.active_goal_id || data.debug?.active_goal_id).name) : 'N/A'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       let progress = 0;
       let match = reply.match(/\[Progress:[^\]]*?(\d{1,3})%\]/i);
       if (!match) {
@@ -582,6 +633,7 @@ const OnboardingModule = ({ onFinish }) => {
       // Auto-extract and save profile when phase4 is reached
       if (data.should_extract_profile && data.phase === "phase4" && auth.currentUser) {
         console.log('%c[Profile] Auto-extracting and saving profile...', 'color: #10b981; font-weight: bold; font-size: 14px;');
+        setIsGeneratingSkillTree(true);
         const userId = auth.currentUser.uid;
         
         // Extract profile from conversation history (include the latest messages)
@@ -625,12 +677,15 @@ const OnboardingModule = ({ onFinish }) => {
               }
             } else {
               console.error('[Profile] Failed to save profile:', saveRes.statusText);
+              setIsGeneratingSkillTree(false);
             }
           } else {
             console.error('[Profile] Failed to extract profile:', extractRes.statusText);
+            setIsGeneratingSkillTree(false);
           }
         } catch (error) {
           console.error('[Profile] Error extracting/saving profile:', error);
+          setIsGeneratingSkillTree(false);
         }
       }
       
@@ -722,8 +777,24 @@ const OnboardingModule = ({ onFinish }) => {
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #a8a29e; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #78716c; }
+        @keyframes pulse-subtle { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
       `}</style>
       <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: `url('https://www.transparenttextures.com/patterns/aged-paper.png')` }}></div>
+      
+      {/* Loading Screen Overlay */}
+      {isGeneratingSkillTree && (
+        <div className="fixed inset-0 z-[200] bg-stone-900/95 backdrop-blur-sm flex items-center justify-center flex-col gap-6">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 border-4 border-transparent border-t-[#d4c5a9] rounded-full animate-spin"></div>
+            <div className="absolute inset-1 border-4 border-transparent border-b-[#8c7b5d] rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <div className="text-center">
+            <h2 className="font-serif text-xl text-[#d4c5a9] font-bold tracking-wide mb-2 animate-pulse-subtle">Generating Your Skill Tree</h2>
+            <p className="font-mono text-xs text-[#a8a29e] tracking-widest uppercase">analyzing goals and building roadmap</p>
+          </div>
+        </div>
+      )}
       
       <div className={`relative w-full max-w-4xl bg-[#d4c5a9] rounded-sm shadow-2xl transition-all duration-700 ease-in-out min-h-[600px] flex flex-col overflow-hidden border-t-2 border-l-2 border-[#e6dcc5] border-b-4 border-r-4 border-[#8c7b5d] ${step === 3 ? 'rotate-0' : 'rotate-1'}`}>
         

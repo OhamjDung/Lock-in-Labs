@@ -90,6 +90,21 @@ class BasePlanner:
         # Include RAG retrieval
         verified_skills = retrieve_relevant_skills(north_star, top_k=5, pillar=Pillar[pillar_name.upper()])
         rag_context = json.dumps(verified_skills, indent=2) if verified_skills else "[]"
+        
+        # FALLBACK: If RAG returns nothing, allow LLM to use internal knowledge
+        if not verified_skills or len(verified_skills) == 0:
+            rag_warning = (
+                "\n**⚠️ WARNING: No verified skills found in knowledge base for this goal.**\n"
+                "You MUST use your internal knowledge to generate a basic roadmap.\n"
+                "Use industry-standard skills and best practices for this domain.\n"
+                "Example: For 'Become a plumber', generate skills like:\n"
+                "  - Basic Plumbing Tools Knowledge\n"
+                "  - Pipe Fitting Basics\n"
+                "  - Water System Understanding\n"
+                "  - Obtain Apprenticeship or Certification\n\n"
+            )
+        else:
+            rag_warning = ""
 
         return f"""
         You are a {pillar_name} Architect.
@@ -100,6 +115,7 @@ class BasePlanner:
         
         **VERIFIED SKILL LIBRARY (Prioritize these):**
         {rag_context}
+        {rag_warning}
         
         **CRITICAL RULES FOR DEPTH (MANDATORY - DO NOT VIOLATE):**
         0. **DEPTH LIMIT (CRITICAL)**: You MUST create EXACTLY {max_layers} layers or fewer. The maximum depth from any starting node to the capstone must be {max_layers} layers or less. If you need to simplify, create fewer nodes, not more layers.

@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-15T18:36:01.845930",
+  "user_id": "custom_profile",
+  "node_id": "habit_read_1_paragraph_on_water_pressure",
+  "old_difficulty": null,
+  "new_difficulty": "easier",
+  "request_payload": {
+    "user_id": "custom_profile",
+    "node_id": "habit_read_1_paragraph_on_water_pressure",
+    "direction": "easier",
+    "amount": "a_lot",
+    "reason": "Testing from skill tree viewer"
+  }
+}

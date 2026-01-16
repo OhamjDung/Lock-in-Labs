@@ -1,0 +1,1618 @@
+﻿{
+    "character_sheet":  {
+                            "user_id":  "8OgBJwxGgRc1No7mi6tbVwmOZE13",
+                            "goals":  [
+                                          {
+                                              "id":  "96a9fab1-efed-4313-bc38-18f47330ab9c",
+                                              "name":  "Become a plumber",
+                                              "pillars":  [
+                                                              "CAREER"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  2,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "d2d603f1-72d9-4439-949b-da02eaeb60ab",
+                                              "name":  "Be more calm when something stressful happens",
+                                              "pillars":  [
+                                                              "MENTAL"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Mindfulness Meditation Practice",
+                                                                    "Emotional Awareness Journaling",
+                                                                    "Calm Response Protocol"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  4,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "89d73e02-2091-4c4f-b63a-341eb2b00d03",
+                                              "name":  "Be more outgoing and talk to more people",
+                                              "pillars":  [
+                                                              "SOCIAL"
+                                                          ],
+                                              "current_quests":  [
+                                                                     "Talk to new people when going outside",
+                                                                     "Practice stretches",
+                                                                     "Watch YouTube videos"
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Conversation Starters",
+                                                                    "Active Listening",
+                                                                    "Nonverbal Communication",
+                                                                    "Attend 3 Meetups and Initiate 5 Conversations"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  6,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "519a2424-fa41-4a93-b437-8cc3f6ceb0ba",
+                                              "name":  "Be more flexible",
+                                              "pillars":  [
+                                                              "CAREER"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Basic Communication Skills",
+                                                                    "Active Listening",
+                                                                    "Time Management Basics",
+                                                                    "SMART Goal Setting",
+                                                                    "Complete First Project"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  1,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "42008ada-d185-41fb-b132-a7023111ea57",
+                                              "name":  "Fitness",
+                                              "pillars":  [
+                                                              "PHYSICAL"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Hypertrophy Training",
+                                                                    "Basic Movement Patterns",
+                                                                    "Proper Squat Form",
+                                                                    "Proper Deadlift Form",
+                                                                    "Phase 1: Stability \u0026 Mobility",
+                                                                    "Complete First Workout"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  1,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "e387bead-7302-46c5-ad2f-b970cb130c2b",
+                                              "name":  "Career",
+                                              "pillars":  [
+                                                              "CAREER"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Basic Communication Skills",
+                                                                    "Office Productivity Tools",
+                                                                    "Financial Principles",
+                                                                    "Accounting Standards",
+                                                                    "Complete First Project"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  1,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "a4da178c-a0a2-44ad-a8fc-dff2dd6f76af",
+                                              "name":  "Social",
+                                              "pillars":  [
+                                                              "SOCIAL"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Conversation Starters",
+                                                                    "Active Listening",
+                                                                    "Empathy",
+                                                                    "Rapport Building",
+                                                                    "Have a 5-minute conversation with a stranger"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  1,
+                                              "roadmap":  [
+
+                                                          ]
+                                          },
+                                          {
+                                              "id":  "90b26233-4a1f-4e0e-9ba9-44cb7d2e92e4",
+                                              "name":  "Connection",
+                                              "pillars":  [
+                                                              "SOCIAL"
+                                                          ],
+                                              "current_quests":  [
+
+                                                                 ],
+                                              "needed_quests":  [
+                                                                    "Conversation Starters",
+                                                                    "Active Listening",
+                                                                    "Empathy",
+                                                                    "Rapport Building",
+                                                                    "Have a 5-minute conversation"
+                                                                ],
+                                              "description":  null,
+                                              "skill_level":  1,
+                                              "roadmap":  [
+
+                                                          ]
+                                          }
+                                      ],
+                            "stats_career":  {
+
+                                             },
+                            "stats_physical":  {
+
+                                               },
+                            "stats_mental":  {
+
+                                             },
+                            "stats_social":  {
+
+                                             },
+                            "debuffs":  [
+
+                                        ],
+                            "skill_tree":  null,
+                            "pillar_rankings":  [
+                                                    "CAREER",
+                                                    "SOCIAL"
+                                                ],
+                            "xp_total":  0,
+                            "xp_career":  0,
+                            "xp_physical":  0,
+                            "xp_mental":  0,
+                            "xp_social":  0,
+                            "habit_progress":  {
+                                                   "habit_complete_1_mindfulness_meditation_practice_task":  {
+                                                                                                                 "node_id":  "habit_complete_1_mindfulness_meditation_practice_task",
+                                                                                                                 "status":  "LOCKED",
+                                                                                                                 "completed_total":  0,
+                                                                                                                 "completed_since_last_report":  0,
+                                                                                                                 "last_completed_date":  null,
+                                                                                                                 "streak_days":  0,
+                                                                                                                 "last_quiz_attempt":  null,
+                                                                                                                 "quiz_lockout_until":  null,
+                                                                                                                 "active_quiz_question":  null,
+                                                                                                                 "active_quiz_rubric":  null
+                                                                                                             },
+                                                   "habit_complete_1_emotional_awareness_journaling_task":  {
+                                                                                                                "node_id":  "habit_complete_1_emotional_awareness_journaling_task",
+                                                                                                                "status":  "LOCKED",
+                                                                                                                "completed_total":  0,
+                                                                                                                "completed_since_last_report":  0,
+                                                                                                                "last_completed_date":  null,
+                                                                                                                "streak_days":  0,
+                                                                                                                "last_quiz_attempt":  null,
+                                                                                                                "quiz_lockout_until":  null,
+                                                                                                                "active_quiz_question":  null,
+                                                                                                                "active_quiz_rubric":  null
+                                                                                                            },
+                                                   "habit_complete_1_calm_response_protocol_task":  {
+                                                                                                        "node_id":  "habit_complete_1_calm_response_protocol_task",
+                                                                                                        "status":  "LOCKED",
+                                                                                                        "completed_total":  0,
+                                                                                                        "completed_since_last_report":  0,
+                                                                                                        "last_completed_date":  null,
+                                                                                                        "streak_days":  0,
+                                                                                                        "last_quiz_attempt":  null,
+                                                                                                        "quiz_lockout_until":  null,
+                                                                                                        "active_quiz_question":  null,
+                                                                                                        "active_quiz_rubric":  null
+                                                                                                    },
+                                                   "habit_complete_1_conversation_starters_task":  {
+                                                                                                       "node_id":  "habit_complete_1_conversation_starters_task",
+                                                                                                       "status":  "LOCKED",
+                                                                                                       "completed_total":  0,
+                                                                                                       "completed_since_last_report":  0,
+                                                                                                       "last_completed_date":  null,
+                                                                                                       "streak_days":  0,
+                                                                                                       "last_quiz_attempt":  null,
+                                                                                                       "quiz_lockout_until":  null,
+                                                                                                       "active_quiz_question":  null,
+                                                                                                       "active_quiz_rubric":  null
+                                                                                                   },
+                                                   "habit_complete_1_active_listening_task":  {
+                                                                                                  "node_id":  "habit_complete_1_active_listening_task",
+                                                                                                  "status":  "LOCKED",
+                                                                                                  "completed_total":  0,
+                                                                                                  "completed_since_last_report":  0,
+                                                                                                  "last_completed_date":  null,
+                                                                                                  "streak_days":  0,
+                                                                                                  "last_quiz_attempt":  null,
+                                                                                                  "quiz_lockout_until":  null,
+                                                                                                  "active_quiz_question":  null,
+                                                                                                  "active_quiz_rubric":  null
+                                                                                              },
+                                                   "habit_complete_1_nonverbal_communication_task":  {
+                                                                                                         "node_id":  "habit_complete_1_nonverbal_communication_task",
+                                                                                                         "status":  "LOCKED",
+                                                                                                         "completed_total":  0,
+                                                                                                         "completed_since_last_report":  0,
+                                                                                                         "last_completed_date":  null,
+                                                                                                         "streak_days":  0,
+                                                                                                         "last_quiz_attempt":  null,
+                                                                                                         "quiz_lockout_until":  null,
+                                                                                                         "active_quiz_question":  null,
+                                                                                                         "active_quiz_rubric":  null
+                                                                                                     },
+                                                   "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task":  {
+                                                                                                                               "node_id":  "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task",
+                                                                                                                               "status":  "ACTIVE",
+                                                                                                                               "completed_total":  0,
+                                                                                                                               "completed_since_last_report":  0,
+                                                                                                                               "last_completed_date":  null,
+                                                                                                                               "streak_days":  0,
+                                                                                                                               "last_quiz_attempt":  null,
+                                                                                                                               "quiz_lockout_until":  null,
+                                                                                                                               "active_quiz_question":  null,
+                                                                                                                               "active_quiz_rubric":  null
+                                                                                                                           },
+                                                   "habit_complete_1_basic_communication_skills_task":  {
+                                                                                                            "node_id":  "habit_complete_1_basic_communication_skills_task",
+                                                                                                            "status":  "ACTIVE",
+                                                                                                            "completed_total":  0,
+                                                                                                            "completed_since_last_report":  0,
+                                                                                                            "last_completed_date":  null,
+                                                                                                            "streak_days":  0,
+                                                                                                            "last_quiz_attempt":  null,
+                                                                                                            "quiz_lockout_until":  null,
+                                                                                                            "active_quiz_question":  null,
+                                                                                                            "active_quiz_rubric":  null
+                                                                                                        },
+                                                   "habit_complete_1_active_listening_task_2":  {
+                                                                                                    "node_id":  "habit_complete_1_active_listening_task_2",
+                                                                                                    "status":  "LOCKED",
+                                                                                                    "completed_total":  0,
+                                                                                                    "completed_since_last_report":  0,
+                                                                                                    "last_completed_date":  null,
+                                                                                                    "streak_days":  0,
+                                                                                                    "last_quiz_attempt":  null,
+                                                                                                    "quiz_lockout_until":  null,
+                                                                                                    "active_quiz_question":  null,
+                                                                                                    "active_quiz_rubric":  null
+                                                                                                },
+                                                   "habit_complete_1_time_management_basics_task":  {
+                                                                                                        "node_id":  "habit_complete_1_time_management_basics_task",
+                                                                                                        "status":  "LOCKED",
+                                                                                                        "completed_total":  0,
+                                                                                                        "completed_since_last_report":  0,
+                                                                                                        "last_completed_date":  null,
+                                                                                                        "streak_days":  0,
+                                                                                                        "last_quiz_attempt":  null,
+                                                                                                        "quiz_lockout_until":  null,
+                                                                                                        "active_quiz_question":  null,
+                                                                                                        "active_quiz_rubric":  null
+                                                                                                    },
+                                                   "habit_complete_1_smart_goal_setting_task":  {
+                                                                                                    "node_id":  "habit_complete_1_smart_goal_setting_task",
+                                                                                                    "status":  "ACTIVE",
+                                                                                                    "completed_total":  0,
+                                                                                                    "completed_since_last_report":  0,
+                                                                                                    "last_completed_date":  null,
+                                                                                                    "streak_days":  0,
+                                                                                                    "last_quiz_attempt":  null,
+                                                                                                    "quiz_lockout_until":  null,
+                                                                                                    "active_quiz_question":  null,
+                                                                                                    "active_quiz_rubric":  null
+                                                                                                },
+                                                   "habit_complete_1_complete_first_project_task":  {
+                                                                                                        "node_id":  "habit_complete_1_complete_first_project_task",
+                                                                                                        "status":  "LOCKED",
+                                                                                                        "completed_total":  0,
+                                                                                                        "completed_since_last_report":  0,
+                                                                                                        "last_completed_date":  null,
+                                                                                                        "streak_days":  0,
+                                                                                                        "last_quiz_attempt":  null,
+                                                                                                        "quiz_lockout_until":  null,
+                                                                                                        "active_quiz_question":  null,
+                                                                                                        "active_quiz_rubric":  null
+                                                                                                    },
+                                                   "habit_complete_1_hypertrophy_training_task":  {
+                                                                                                      "node_id":  "habit_complete_1_hypertrophy_training_task",
+                                                                                                      "status":  "LOCKED",
+                                                                                                      "completed_total":  0,
+                                                                                                      "completed_since_last_report":  0,
+                                                                                                      "last_completed_date":  null,
+                                                                                                      "streak_days":  0,
+                                                                                                      "last_quiz_attempt":  null,
+                                                                                                      "quiz_lockout_until":  null,
+                                                                                                      "active_quiz_question":  null,
+                                                                                                      "active_quiz_rubric":  null
+                                                                                                  },
+                                                   "habit_complete_1_basic_movement_patterns_task":  {
+                                                                                                         "node_id":  "habit_complete_1_basic_movement_patterns_task",
+                                                                                                         "status":  "LOCKED",
+                                                                                                         "completed_total":  0,
+                                                                                                         "completed_since_last_report":  0,
+                                                                                                         "last_completed_date":  null,
+                                                                                                         "streak_days":  0,
+                                                                                                         "last_quiz_attempt":  null,
+                                                                                                         "quiz_lockout_until":  null,
+                                                                                                         "active_quiz_question":  null,
+                                                                                                         "active_quiz_rubric":  null
+                                                                                                     },
+                                                   "habit_complete_1_proper_squat_form_task":  {
+                                                                                                   "node_id":  "habit_complete_1_proper_squat_form_task",
+                                                                                                   "status":  "LOCKED",
+                                                                                                   "completed_total":  0,
+                                                                                                   "completed_since_last_report":  0,
+                                                                                                   "last_completed_date":  null,
+                                                                                                   "streak_days":  0,
+                                                                                                   "last_quiz_attempt":  null,
+                                                                                                   "quiz_lockout_until":  null,
+                                                                                                   "active_quiz_question":  null,
+                                                                                                   "active_quiz_rubric":  null
+                                                                                               },
+                                                   "habit_complete_1_proper_deadlift_form_task":  {
+                                                                                                      "node_id":  "habit_complete_1_proper_deadlift_form_task",
+                                                                                                      "status":  "LOCKED",
+                                                                                                      "completed_total":  0,
+                                                                                                      "completed_since_last_report":  0,
+                                                                                                      "last_completed_date":  null,
+                                                                                                      "streak_days":  0,
+                                                                                                      "last_quiz_attempt":  null,
+                                                                                                      "quiz_lockout_until":  null,
+                                                                                                      "active_quiz_question":  null,
+                                                                                                      "active_quiz_rubric":  null
+                                                                                                  },
+                                                   "habit_complete_1_phase_1__stability___mobility_task":  {
+                                                                                                               "node_id":  "habit_complete_1_phase_1__stability___mobility_task",
+                                                                                                               "status":  "LOCKED",
+                                                                                                               "completed_total":  0,
+                                                                                                               "completed_since_last_report":  0,
+                                                                                                               "last_completed_date":  null,
+                                                                                                               "streak_days":  0,
+                                                                                                               "last_quiz_attempt":  null,
+                                                                                                               "quiz_lockout_until":  null,
+                                                                                                               "active_quiz_question":  null,
+                                                                                                               "active_quiz_rubric":  null
+                                                                                                           },
+                                                   "habit_complete_1_complete_first_workout_task":  {
+                                                                                                        "node_id":  "habit_complete_1_complete_first_workout_task",
+                                                                                                        "status":  "LOCKED",
+                                                                                                        "completed_total":  0,
+                                                                                                        "completed_since_last_report":  0,
+                                                                                                        "last_completed_date":  null,
+                                                                                                        "streak_days":  0,
+                                                                                                        "last_quiz_attempt":  null,
+                                                                                                        "quiz_lockout_until":  null,
+                                                                                                        "active_quiz_question":  null,
+                                                                                                        "active_quiz_rubric":  null
+                                                                                                    },
+                                                   "habit_complete_1_basic_communication_skills_task_2":  {
+                                                                                                              "node_id":  "habit_complete_1_basic_communication_skills_task_2",
+                                                                                                              "status":  "LOCKED",
+                                                                                                              "completed_total":  0,
+                                                                                                              "completed_since_last_report":  0,
+                                                                                                              "last_completed_date":  null,
+                                                                                                              "streak_days":  0,
+                                                                                                              "last_quiz_attempt":  null,
+                                                                                                              "quiz_lockout_until":  null,
+                                                                                                              "active_quiz_question":  null,
+                                                                                                              "active_quiz_rubric":  null
+                                                                                                          },
+                                                   "habit_complete_1_office_productivity_tools_task":  {
+                                                                                                           "node_id":  "habit_complete_1_office_productivity_tools_task",
+                                                                                                           "status":  "LOCKED",
+                                                                                                           "completed_total":  0,
+                                                                                                           "completed_since_last_report":  0,
+                                                                                                           "last_completed_date":  null,
+                                                                                                           "streak_days":  0,
+                                                                                                           "last_quiz_attempt":  null,
+                                                                                                           "quiz_lockout_until":  null,
+                                                                                                           "active_quiz_question":  null,
+                                                                                                           "active_quiz_rubric":  null
+                                                                                                       },
+                                                   "habit_complete_1_financial_principles_task":  {
+                                                                                                      "node_id":  "habit_complete_1_financial_principles_task",
+                                                                                                      "status":  "LOCKED",
+                                                                                                      "completed_total":  0,
+                                                                                                      "completed_since_last_report":  0,
+                                                                                                      "last_completed_date":  null,
+                                                                                                      "streak_days":  0,
+                                                                                                      "last_quiz_attempt":  null,
+                                                                                                      "quiz_lockout_until":  null,
+                                                                                                      "active_quiz_question":  null,
+                                                                                                      "active_quiz_rubric":  null
+                                                                                                  },
+                                                   "habit_complete_1_accounting_standards_task":  {
+                                                                                                      "node_id":  "habit_complete_1_accounting_standards_task",
+                                                                                                      "status":  "LOCKED",
+                                                                                                      "completed_total":  0,
+                                                                                                      "completed_since_last_report":  0,
+                                                                                                      "last_completed_date":  null,
+                                                                                                      "streak_days":  0,
+                                                                                                      "last_quiz_attempt":  null,
+                                                                                                      "quiz_lockout_until":  null,
+                                                                                                      "active_quiz_question":  null,
+                                                                                                      "active_quiz_rubric":  null
+                                                                                                  },
+                                                   "habit_complete_1_complete_first_project_task_2":  {
+                                                                                                          "node_id":  "habit_complete_1_complete_first_project_task_2",
+                                                                                                          "status":  "LOCKED",
+                                                                                                          "completed_total":  0,
+                                                                                                          "completed_since_last_report":  0,
+                                                                                                          "last_completed_date":  null,
+                                                                                                          "streak_days":  0,
+                                                                                                          "last_quiz_attempt":  null,
+                                                                                                          "quiz_lockout_until":  null,
+                                                                                                          "active_quiz_question":  null,
+                                                                                                          "active_quiz_rubric":  null
+                                                                                                      },
+                                                   "habit_complete_1_conversation_starters_task_2":  {
+                                                                                                         "node_id":  "habit_complete_1_conversation_starters_task_2",
+                                                                                                         "status":  "LOCKED",
+                                                                                                         "completed_total":  0,
+                                                                                                         "completed_since_last_report":  0,
+                                                                                                         "last_completed_date":  null,
+                                                                                                         "streak_days":  0,
+                                                                                                         "last_quiz_attempt":  null,
+                                                                                                         "quiz_lockout_until":  null,
+                                                                                                         "active_quiz_question":  null,
+                                                                                                         "active_quiz_rubric":  null
+                                                                                                     },
+                                                   "habit_complete_1_active_listening_task_3":  {
+                                                                                                    "node_id":  "habit_complete_1_active_listening_task_3",
+                                                                                                    "status":  "LOCKED",
+                                                                                                    "completed_total":  0,
+                                                                                                    "completed_since_last_report":  0,
+                                                                                                    "last_completed_date":  null,
+                                                                                                    "streak_days":  0,
+                                                                                                    "last_quiz_attempt":  null,
+                                                                                                    "quiz_lockout_until":  null,
+                                                                                                    "active_quiz_question":  null,
+                                                                                                    "active_quiz_rubric":  null
+                                                                                                },
+                                                   "habit_complete_1_empathy_task":  {
+                                                                                         "node_id":  "habit_complete_1_empathy_task",
+                                                                                         "status":  "LOCKED",
+                                                                                         "completed_total":  0,
+                                                                                         "completed_since_last_report":  0,
+                                                                                         "last_completed_date":  null,
+                                                                                         "streak_days":  0,
+                                                                                         "last_quiz_attempt":  null,
+                                                                                         "quiz_lockout_until":  null,
+                                                                                         "active_quiz_question":  null,
+                                                                                         "active_quiz_rubric":  null
+                                                                                     },
+                                                   "habit_complete_1_rapport_building_task":  {
+                                                                                                  "node_id":  "habit_complete_1_rapport_building_task",
+                                                                                                  "status":  "LOCKED",
+                                                                                                  "completed_total":  0,
+                                                                                                  "completed_since_last_report":  0,
+                                                                                                  "last_completed_date":  null,
+                                                                                                  "streak_days":  0,
+                                                                                                  "last_quiz_attempt":  null,
+                                                                                                  "quiz_lockout_until":  null,
+                                                                                                  "active_quiz_question":  null,
+                                                                                                  "active_quiz_rubric":  null
+                                                                                              },
+                                                   "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task":  {
+                                                                                                                              "node_id":  "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task",
+                                                                                                                              "status":  "LOCKED",
+                                                                                                                              "completed_total":  0,
+                                                                                                                              "completed_since_last_report":  0,
+                                                                                                                              "last_completed_date":  null,
+                                                                                                                              "streak_days":  0,
+                                                                                                                              "last_quiz_attempt":  null,
+                                                                                                                              "quiz_lockout_until":  null,
+                                                                                                                              "active_quiz_question":  null,
+                                                                                                                              "active_quiz_rubric":  null
+                                                                                                                          },
+                                                   "habit_complete_1_conversation_starters_task_3":  {
+                                                                                                         "node_id":  "habit_complete_1_conversation_starters_task_3",
+                                                                                                         "status":  "LOCKED",
+                                                                                                         "completed_total":  0,
+                                                                                                         "completed_since_last_report":  0,
+                                                                                                         "last_completed_date":  null,
+                                                                                                         "streak_days":  0,
+                                                                                                         "last_quiz_attempt":  null,
+                                                                                                         "quiz_lockout_until":  null,
+                                                                                                         "active_quiz_question":  null,
+                                                                                                         "active_quiz_rubric":  null
+                                                                                                     },
+                                                   "habit_complete_1_active_listening_task_4":  {
+                                                                                                    "node_id":  "habit_complete_1_active_listening_task_4",
+                                                                                                    "status":  "LOCKED",
+                                                                                                    "completed_total":  0,
+                                                                                                    "completed_since_last_report":  0,
+                                                                                                    "last_completed_date":  null,
+                                                                                                    "streak_days":  0,
+                                                                                                    "last_quiz_attempt":  null,
+                                                                                                    "quiz_lockout_until":  null,
+                                                                                                    "active_quiz_question":  null,
+                                                                                                    "active_quiz_rubric":  null
+                                                                                                },
+                                                   "habit_complete_1_empathy_task_2":  {
+                                                                                           "node_id":  "habit_complete_1_empathy_task_2",
+                                                                                           "status":  "LOCKED",
+                                                                                           "completed_total":  0,
+                                                                                           "completed_since_last_report":  0,
+                                                                                           "last_completed_date":  null,
+                                                                                           "streak_days":  0,
+                                                                                           "last_quiz_attempt":  null,
+                                                                                           "quiz_lockout_until":  null,
+                                                                                           "active_quiz_question":  null,
+                                                                                           "active_quiz_rubric":  null
+                                                                                       },
+                                                   "habit_complete_1_rapport_building_task_2":  {
+                                                                                                    "node_id":  "habit_complete_1_rapport_building_task_2",
+                                                                                                    "status":  "LOCKED",
+                                                                                                    "completed_total":  0,
+                                                                                                    "completed_since_last_report":  0,
+                                                                                                    "last_completed_date":  null,
+                                                                                                    "streak_days":  0,
+                                                                                                    "last_quiz_attempt":  null,
+                                                                                                    "quiz_lockout_until":  null,
+                                                                                                    "active_quiz_question":  null,
+                                                                                                    "active_quiz_rubric":  null
+                                                                                                },
+                                                   "habit_complete_1_have_a_5_minute_conversation_task":  {
+                                                                                                              "node_id":  "habit_complete_1_have_a_5_minute_conversation_task",
+                                                                                                              "status":  "LOCKED",
+                                                                                                              "completed_total":  0,
+                                                                                                              "completed_since_last_report":  0,
+                                                                                                              "last_completed_date":  null,
+                                                                                                              "streak_days":  0,
+                                                                                                              "last_quiz_attempt":  null,
+                                                                                                              "quiz_lockout_until":  null,
+                                                                                                              "active_quiz_question":  null,
+                                                                                                              "active_quiz_rubric":  null
+                                                                                                          }
+                                               },
+                            "calendar_events":  [
+
+                                                ],
+                            "pomodoro_history":  [
+
+                                                 ],
+                            "pomodoros_total":  0,
+                            "lockin_history":  [
+
+                                               ],
+                            "lockin_total_time_seconds":  0,
+                            "phone_distractions_total":  0,
+                            "user_facts":  [
+
+                                           ],
+                            "daily_schedule":  {
+
+                                               },
+                            "daily_reports":  [
+
+                                              ],
+                            "last_report_date":  null,
+                            "reminder_preferences":  null
+                        },
+    "skill_tree":  {
+                       "nodes":  [
+                                     {
+                                         "id":  "goal_become_a_plumber",
+                                         "name":  "Become a plumber",
+                                         "type":  "Goal",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "goal_be_more_calm_when_something_stressful_happens",
+                                         "name":  "Be more calm when something stressful happens",
+                                         "type":  "Goal",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+                                                               "skill_mindfulness_meditation_practice",
+                                                               "skill_emotional_awareness_journaling",
+                                                               "skill_calm_response_protocol"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_mindfulness_meditation_practice",
+                                         "name":  "Mindfulness Meditation Practice",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_mindfulness_meditation_practice_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more calm when something stressful happens\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_emotional_awareness_journaling",
+                                         "name":  "Emotional Awareness Journaling",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_emotional_awareness_journaling_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more calm when something stressful happens\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_calm_response_protocol",
+                                         "name":  "Calm Response Protocol",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_calm_response_protocol_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more calm when something stressful happens\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_be_more_outgoing_and_talk_to_more_people",
+                                         "name":  "Be more outgoing and talk to more people",
+                                         "type":  "Goal",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "skill_conversation_starters",
+                                                               "skill_active_listening",
+                                                               "skill_nonverbal_communication",
+                                                               "skill_attend_3_meetups_and_initiate_5_conversations"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_conversation_starters",
+                                         "name":  "Conversation Starters",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_conversation_starters_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more outgoing and talk to more people\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_active_listening",
+                                         "name":  "Active Listening",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_active_listening_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more outgoing and talk to more people\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_nonverbal_communication",
+                                         "name":  "Nonverbal Communication",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_nonverbal_communication_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more outgoing and talk to more people\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_attend_3_meetups_and_initiate_5_conversations",
+                                         "name":  "Attend 3 Meetups and Initiate 5 Conversations",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Legacy skill for goal \u0027Be more outgoing and talk to more people\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_be_more_flexible",
+                                         "name":  "Be more flexible",
+                                         "type":  "Goal",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "skill_basic_communication_skills",
+                                                               "skill_active_listening_2",
+                                                               "skill_time_management_basics",
+                                                               "skill_smart_goal_setting",
+                                                               "skill_complete_first_project"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_basic_communication_skills",
+                                         "name":  "Basic Communication Skills",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_basic_communication_skills_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more flexible\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_active_listening_2",
+                                         "name":  "Active Listening",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_active_listening_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more flexible\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_time_management_basics",
+                                         "name":  "Time Management Basics",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_time_management_basics_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more flexible\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_smart_goal_setting",
+                                         "name":  "SMART Goal Setting",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_smart_goal_setting_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Be more flexible\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_complete_first_project",
+                                         "name":  "Complete First Project",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_complete_first_project_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Legacy skill for goal \u0027Be more flexible\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_fitness",
+                                         "name":  "Fitness",
+                                         "type":  "Goal",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "skill_hypertrophy_training",
+                                                               "skill_basic_movement_patterns",
+                                                               "skill_proper_squat_form",
+                                                               "skill_proper_deadlift_form",
+                                                               "skill_phase_1__stability___mobility",
+                                                               "skill_complete_first_workout"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_hypertrophy_training",
+                                         "name":  "Hypertrophy Training",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_hypertrophy_training_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_basic_movement_patterns",
+                                         "name":  "Basic Movement Patterns",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_basic_movement_patterns_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_proper_squat_form",
+                                         "name":  "Proper Squat Form",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_proper_squat_form_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_proper_deadlift_form",
+                                         "name":  "Proper Deadlift Form",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_proper_deadlift_form_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_phase_1__stability___mobility",
+                                         "name":  "Phase 1: Stability \u0026 Mobility",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_phase_1__stability___mobility_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_complete_first_workout",
+                                         "name":  "Complete First Workout",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_complete_first_workout_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Legacy skill for goal \u0027Fitness\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_career",
+                                         "name":  "Career",
+                                         "type":  "Goal",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "skill_basic_communication_skills_2",
+                                                               "skill_office_productivity_tools",
+                                                               "skill_financial_principles",
+                                                               "skill_accounting_standards",
+                                                               "skill_complete_first_project_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_basic_communication_skills_2",
+                                         "name":  "Basic Communication Skills",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_basic_communication_skills_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Career\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_office_productivity_tools",
+                                         "name":  "Office Productivity Tools",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_office_productivity_tools_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Career\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_financial_principles",
+                                         "name":  "Financial Principles",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_financial_principles_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Career\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_accounting_standards",
+                                         "name":  "Accounting Standards",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_accounting_standards_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Career\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_complete_first_project_2",
+                                         "name":  "Complete First Project",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_complete_first_project_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Legacy skill for goal \u0027Career\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_social",
+                                         "name":  "Social",
+                                         "type":  "Goal",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "skill_conversation_starters_2",
+                                                               "skill_active_listening_3",
+                                                               "skill_empathy",
+                                                               "skill_rapport_building",
+                                                               "skill_have_a_5_minute_conversation_with_a_stranger"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_conversation_starters_2",
+                                         "name":  "Conversation Starters",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_conversation_starters_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Social\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_active_listening_3",
+                                         "name":  "Active Listening",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_active_listening_task_3"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Social\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_empathy",
+                                         "name":  "Empathy",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_empathy_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Social\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_rapport_building",
+                                         "name":  "Rapport Building",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_rapport_building_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Social\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_have_a_5_minute_conversation_with_a_stranger",
+                                         "name":  "Have a 5-minute conversation with a stranger",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Social\u0027."
+                                     },
+                                     {
+                                         "id":  "goal_connection",
+                                         "name":  "Connection",
+                                         "type":  "Goal",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "skill_conversation_starters_3",
+                                                               "skill_active_listening_4",
+                                                               "skill_empathy_2",
+                                                               "skill_rapport_building_2",
+                                                               "skill_have_a_5_minute_conversation"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  ""
+                                     },
+                                     {
+                                         "id":  "skill_conversation_starters_3",
+                                         "name":  "Conversation Starters",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_conversation_starters_task_3"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Connection\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_active_listening_4",
+                                         "name":  "Active Listening",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_active_listening_task_4"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Connection\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_empathy_2",
+                                         "name":  "Empathy",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_empathy_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Connection\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_rapport_building_2",
+                                         "name":  "Rapport Building",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_rapport_building_task_2"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Connection\u0027."
+                                     },
+                                     {
+                                         "id":  "skill_have_a_5_minute_conversation",
+                                         "name":  "Have a 5-minute conversation",
+                                         "type":  "Sub-Skill",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+                                                               "habit_complete_1_have_a_5_minute_conversation_task"
+                                                           ],
+                                         "xp_reward":  100,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  30,
+                                         "description":  "Legacy skill for goal \u0027Connection\u0027."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_mindfulness_meditation_practice_task",
+                                         "name":  "Complete 1 Mindfulness Meditation Practice task",
+                                         "type":  "Habit",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Mindfulness Meditation Practice."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_emotional_awareness_journaling_task",
+                                         "name":  "Complete 1 Emotional Awareness Journaling task",
+                                         "type":  "Habit",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Emotional Awareness Journaling."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_calm_response_protocol_task",
+                                         "name":  "Complete 1 Calm Response Protocol task",
+                                         "type":  "Habit",
+                                         "pillar":  "MENTAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Calm Response Protocol."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_conversation_starters_task",
+                                         "name":  "Complete 1 Conversation Starters task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Conversation Starters."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_active_listening_task",
+                                         "name":  "Complete 1 Active Listening task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Active Listening."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_nonverbal_communication_task",
+                                         "name":  "Complete 1 Nonverbal Communication task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Nonverbal Communication."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task",
+                                         "name":  "Complete 1 Attend 3 Meetups and Initiate 5 Conversations task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Attend 3 Meetups and Initiate 5 Conversations."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_basic_communication_skills_task",
+                                         "name":  "Complete 1 Basic Communication Skills task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Basic Communication Skills."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_active_listening_task_2",
+                                         "name":  "Complete 1 Active Listening task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Active Listening."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_time_management_basics_task",
+                                         "name":  "Complete 1 Time Management Basics task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Time Management Basics."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_smart_goal_setting_task",
+                                         "name":  "Complete 1 SMART Goal Setting task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve SMART Goal Setting."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_complete_first_project_task",
+                                         "name":  "Complete 1 Complete First Project task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Complete First Project."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_hypertrophy_training_task",
+                                         "name":  "Complete 1 Hypertrophy Training task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Hypertrophy Training."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_basic_movement_patterns_task",
+                                         "name":  "Complete 1 Basic Movement Patterns task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Basic Movement Patterns."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_proper_squat_form_task",
+                                         "name":  "Complete 1 Proper Squat Form task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Proper Squat Form."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_proper_deadlift_form_task",
+                                         "name":  "Complete 1 Proper Deadlift Form task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Proper Deadlift Form."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_phase_1__stability___mobility_task",
+                                         "name":  "Complete 1 Phase 1: Stability \u0026 Mobility task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Phase 1: Stability \u0026 Mobility."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_complete_first_workout_task",
+                                         "name":  "Complete 1 Complete First Workout task",
+                                         "type":  "Habit",
+                                         "pillar":  "PHYSICAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Complete First Workout."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_basic_communication_skills_task_2",
+                                         "name":  "Complete 1 Basic Communication Skills task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Basic Communication Skills."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_office_productivity_tools_task",
+                                         "name":  "Complete 1 Office Productivity Tools task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Office Productivity Tools."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_financial_principles_task",
+                                         "name":  "Complete 1 Financial Principles task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Financial Principles."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_accounting_standards_task",
+                                         "name":  "Complete 1 Accounting Standards task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Accounting Standards."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_complete_first_project_task_2",
+                                         "name":  "Complete 1 Complete First Project task",
+                                         "type":  "Habit",
+                                         "pillar":  "CAREER",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Complete First Project."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_conversation_starters_task_2",
+                                         "name":  "Complete 1 Conversation Starters task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Conversation Starters."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_active_listening_task_3",
+                                         "name":  "Complete 1 Active Listening task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Active Listening."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_empathy_task",
+                                         "name":  "Complete 1 Empathy task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Empathy."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_rapport_building_task",
+                                         "name":  "Complete 1 Rapport Building task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Rapport Building."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task",
+                                         "name":  "Complete 1 Have a 5-minute conversation with a stranger task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Have a 5-minute conversation with a stranger."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_conversation_starters_task_3",
+                                         "name":  "Complete 1 Conversation Starters task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Conversation Starters."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_active_listening_task_4",
+                                         "name":  "Complete 1 Active Listening task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Active Listening."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_empathy_task_2",
+                                         "name":  "Complete 1 Empathy task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Empathy."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_rapport_building_task_2",
+                                         "name":  "Complete 1 Rapport Building task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Rapport Building."
+                                     },
+                                     {
+                                         "id":  "habit_complete_1_have_a_5_minute_conversation_task",
+                                         "name":  "Complete 1 Have a 5-minute conversation task",
+                                         "type":  "Habit",
+                                         "pillar":  "SOCIAL",
+                                         "prerequisites":  [
+
+                                                           ],
+                                         "xp_reward":  15,
+                                         "xp_multiplier":  1,
+                                         "required_completions":  1,
+                                         "description":  "Daily habit to improve Have a 5-minute conversation."
+                                     }
+                                 ]
+                   },
+    "onboarding_message":  "Congratulations on taking this first step! These habits – focusing on communication, networking, and goal setting – will lay a strong foundation for your Career and Social growth. Let\u0027s start building momentum today!"
+}

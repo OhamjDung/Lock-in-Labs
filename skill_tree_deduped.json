@@ -1,0 +1,732 @@
+{
+    "nodes": [
+        {
+            "id": "goal_become_a_plumber",
+            "name": "Become a plumber",
+            "type": "Goal",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "goal_be_more_calm_when_something_stressful_happens",
+            "name": "Be more calm when something stressful happens",
+            "type": "Goal",
+            "pillar": "MENTAL",
+            "prerequisites": [
+                "skill_calm_response_protocol"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_mindfulness_meditation_practice",
+            "name": "Mindfulness Meditation Practice",
+            "type": "Sub-Skill",
+            "pillar": "MENTAL",
+            "prerequisites": [
+                "habit_complete_1_mindfulness_meditation_practice_task"
+            ],
+            "xp_reward": 50,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Engage in 10-15 minutes of daily mindfulness meditation, focusing on breath and observing thoughts without judgment."
+        },
+        {
+            "id": "skill_emotional_awareness_journaling",
+            "name": "Emotional Awareness Journaling",
+            "type": "Sub-Skill",
+            "pillar": "MENTAL",
+            "prerequisites": [
+                "skill_mindfulness_meditation_practice",
+                "habit_complete_1_emotional_awareness_journaling_task"
+            ],
+            "xp_reward": 75,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Record daily emotions and associated triggers in a journal, noting physical sensations and thought patterns."
+        },
+        {
+            "id": "skill_calm_response_protocol",
+            "name": "Calm Response Protocol",
+            "type": "Sub-Skill",
+            "pillar": "MENTAL",
+            "prerequisites": [
+                "skill_emotional_awareness_journaling",
+                "habit_complete_1_calm_response_protocol_task"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "When experiencing a stressful situation, utilize the Calm Response Protocol: 1) Recognize the emotion, 2) Take 3 deep breaths, 3) Reframe the situation positively."
+        },
+        {
+            "id": "goal_be_more_outgoing_and_talk_to_more_people",
+            "name": "Be more outgoing and talk to more people",
+            "type": "Goal",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_attend_3_meetups_and_initiate_5_conversations"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_conversation_starters",
+            "name": "Conversation Starters",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "habit_complete_1_conversation_starters_task"
+            ],
+            "xp_reward": 80,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Learn and practice simple, open-ended questions and observations to initiate conversations."
+        },
+        {
+            "id": "skill_active_listening",
+            "name": "Active Listening",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_conversation_starters",
+                "skill_basic_communication_skills",
+                "habit_complete_1_active_listening_task"
+            ],
+            "xp_reward": 120,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Develop skills in paying attention, understanding, responding, and remembering what others say."
+        },
+        {
+            "id": "skill_nonverbal_communication",
+            "name": "Nonverbal Communication",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "habit_complete_1_nonverbal_communication_task"
+            ],
+            "xp_reward": 90,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Understand and utilize body language, facial expressions, and tone of voice to enhance communication."
+        },
+        {
+            "id": "skill_attend_3_meetups_and_initiate_5_conversations",
+            "name": "Attend 3 Meetups and Initiate 5 Conversations",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_active_listening",
+                "skill_nonverbal_communication",
+                "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task"
+            ],
+            "xp_reward": 200,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Attend three social events (meetups, workshops, etc.) and actively initiate five conversations with new people."
+        },
+        {
+            "id": "goal_be_more_flexible",
+            "name": "Be more flexible",
+            "type": "Goal",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_complete_first_project"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_basic_communication_skills",
+            "name": "Basic Communication Skills",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "habit_complete_1_basic_communication_skills_task"
+            ],
+            "xp_reward": 50,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Develop fundamental skills in verbal and written communication."
+        },
+        {
+            "id": "skill_basic_time_management",
+            "name": "Basic Time Management",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_basic_communication_skills",
+                "habit_complete_1_basic_time_management_task"
+            ],
+            "xp_reward": 60,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Understand and apply basic time management techniques."
+        },
+        {
+            "id": "skill_smart_goal_setting",
+            "name": "SMART Goal Setting",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_basic_time_management",
+                "habit_complete_1_smart_goal_setting_task"
+            ],
+            "xp_reward": 80,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Learn to set Specific, Measurable, Achievable, Relevant, and Time-bound goals."
+        },
+        {
+            "id": "skill_complete_first_project",
+            "name": "Complete First Project",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_smart_goal_setting",
+                "skill_active_listening",
+                "habit_complete_1_complete_first_project_task"
+            ],
+            "xp_reward": 200,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Successfully complete a small, manageable project demonstrating basic skills and goal-setting abilities."
+        },
+        {
+            "id": "goal_fitness",
+            "name": "Fitness",
+            "type": "Goal",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "skill_hypertrophy_training",
+                "skill_complete_first_workout"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_hypertrophy_training",
+            "name": "Hypertrophy Training",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "habit_complete_1_hypertrophy_training_task"
+            ],
+            "xp_reward": 200,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Training methodology focused on maximizing muscle growth through volume and progressive overload."
+        },
+        {
+            "id": "skill_basic_movement_patterns",
+            "name": "Basic Movement Patterns",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "habit_complete_1_basic_movement_patterns_task"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Mastering fundamental movement patterns: squat, hinge, push, pull, and overhead press."
+        },
+        {
+            "id": "skill_proper_squat_form",
+            "name": "Proper Squat Form",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "skill_basic_movement_patterns",
+                "habit_complete_1_proper_squat_form_task"
+            ],
+            "xp_reward": 150,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Learning and executing a safe and effective squat with proper technique."
+        },
+        {
+            "id": "skill_proper_deadlift_form",
+            "name": "Proper Deadlift Form",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "skill_basic_movement_patterns",
+                "habit_complete_1_proper_deadlift_form_task"
+            ],
+            "xp_reward": 150,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Learning and executing a safe and effective deadlift with proper technique."
+        },
+        {
+            "id": "skill_phase_1__stability___mobility",
+            "name": "Phase 1: Stability & Mobility",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "skill_basic_movement_patterns",
+                "skill_proper_squat_form",
+                "skill_proper_deadlift_form",
+                "habit_complete_1_phase_1__stability___mobility_task"
+            ],
+            "xp_reward": 200,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Focusing on mobility, joint health, and foundational stability through targeted exercises and stretching."
+        },
+        {
+            "id": "skill_complete_first_workout",
+            "name": "Complete First Workout",
+            "type": "Sub-Skill",
+            "pillar": "PHYSICAL",
+            "prerequisites": [
+                "skill_phase_1__stability___mobility",
+                "habit_complete_1_complete_first_workout_task"
+            ],
+            "xp_reward": 300,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Successfully complete a 30-minute workout incorporating basic exercises with proper form."
+        },
+        {
+            "id": "goal_career",
+            "name": "Career",
+            "type": "Goal",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_land_first_job"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_office_productivity_tools",
+            "name": "Office Productivity Tools",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_basic_communication_skills",
+                "habit_complete_1_office_productivity_tools_task"
+            ],
+            "xp_reward": 75,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Learn to use common office software like Microsoft Office Suite (Word, Excel, PowerPoint)."
+        },
+        {
+            "id": "skill_financial_principles",
+            "name": "Financial Principles",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_office_productivity_tools",
+                "habit_complete_1_financial_principles_task"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Understand core financial concepts such as budgeting, cash flow, and basic accounting."
+        },
+        {
+            "id": "skill_financial_statement_analysis",
+            "name": "Financial Statement Analysis",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_financial_principles",
+                "habit_complete_1_financial_statement_analysis_task"
+            ],
+            "xp_reward": 125,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Analyze financial statements (balance sheet, income statement, cash flow statement) to assess a company's financial health."
+        },
+        {
+            "id": "skill_land_first_job",
+            "name": "Land First Job",
+            "type": "Sub-Skill",
+            "pillar": "CAREER",
+            "prerequisites": [
+                "skill_financial_statement_analysis",
+                "habit_complete_1_land_first_job_task"
+            ],
+            "xp_reward": 200,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Secure an entry-level position in the accounting field."
+        },
+        {
+            "id": "goal_social",
+            "name": "Social",
+            "type": "Goal",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_have_a_5_minute_conversation_with_a_stranger"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_empathy",
+            "name": "Empathy",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_active_listening",
+                "habit_complete_1_empathy_task"
+            ],
+            "xp_reward": 60,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Develop the ability to understand and share the feelings of others."
+        },
+        {
+            "id": "skill_rapport_building",
+            "name": "Rapport Building",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_empathy",
+                "skill_active_listening",
+                "habit_complete_1_rapport_building_task"
+            ],
+            "xp_reward": 80,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Find common ground and build a connection with others through shared interests and experiences."
+        },
+        {
+            "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+            "name": "Have a 5-minute conversation with a stranger",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_rapport_building",
+                "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Initiate and maintain a brief conversation with someone you don't know."
+        },
+        {
+            "id": "goal_connection",
+            "name": "Connection",
+            "type": "Goal",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_have_a_5_minute_conversation"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": ""
+        },
+        {
+            "id": "skill_have_a_5_minute_conversation",
+            "name": "Have a 5-minute conversation",
+            "type": "Sub-Skill",
+            "pillar": "SOCIAL",
+            "prerequisites": [
+                "skill_rapport_building",
+                "habit_complete_1_have_a_5_minute_conversation_task"
+            ],
+            "xp_reward": 100,
+            "xp_multiplier": 1.0,
+            "required_completions": 30,
+            "description": "Engage in a 5-minute conversation with a new person, asking open-ended questions and actively listening to their responses."
+        },
+        {
+            "id": "habit_complete_1_mindfulness_meditation_practice_task",
+            "name": "Complete 1 Mindfulness Meditation Practice task",
+            "type": "Habit",
+            "pillar": "MENTAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Mindfulness Meditation Practice."
+        },
+        {
+            "id": "habit_complete_1_emotional_awareness_journaling_task",
+            "name": "Complete 1 Emotional Awareness Journaling task",
+            "type": "Habit",
+            "pillar": "MENTAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Emotional Awareness Journaling."
+        },
+        {
+            "id": "habit_complete_1_calm_response_protocol_task",
+            "name": "Complete 1 Calm Response Protocol task",
+            "type": "Habit",
+            "pillar": "MENTAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Calm Response Protocol."
+        },
+        {
+            "id": "habit_complete_1_conversation_starters_task",
+            "name": "Complete 1 Conversation Starters task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Conversation Starters."
+        },
+        {
+            "id": "habit_complete_1_active_listening_task",
+            "name": "Complete 1 Active Listening task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Active Listening."
+        },
+        {
+            "id": "habit_complete_1_nonverbal_communication_task",
+            "name": "Complete 1 Nonverbal Communication task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Nonverbal Communication."
+        },
+        {
+            "id": "habit_complete_1_attend_3_meetups_and_initiate_5_conversations_task",
+            "name": "Complete 1 Attend 3 Meetups and Initiate 5 Conversations task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Attend 3 Meetups and Initiate 5 Conversations."
+        },
+        {
+            "id": "habit_complete_1_basic_communication_skills_task",
+            "name": "Complete 1 Basic Communication Skills task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Basic Communication Skills."
+        },
+        {
+            "id": "habit_complete_1_basic_time_management_task",
+            "name": "Complete 1 Basic Time Management task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Basic Time Management."
+        },
+        {
+            "id": "habit_complete_1_smart_goal_setting_task",
+            "name": "Complete 1 SMART Goal Setting task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve SMART Goal Setting."
+        },
+        {
+            "id": "habit_complete_1_complete_first_project_task",
+            "name": "Complete 1 Complete First Project task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Complete First Project."
+        },
+        {
+            "id": "habit_complete_1_hypertrophy_training_task",
+            "name": "Complete 1 Hypertrophy Training task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Hypertrophy Training."
+        },
+        {
+            "id": "habit_complete_1_basic_movement_patterns_task",
+            "name": "Complete 1 Basic Movement Patterns task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Basic Movement Patterns."
+        },
+        {
+            "id": "habit_complete_1_proper_squat_form_task",
+            "name": "Complete 1 Proper Squat Form task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Proper Squat Form."
+        },
+        {
+            "id": "habit_complete_1_proper_deadlift_form_task",
+            "name": "Complete 1 Proper Deadlift Form task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Proper Deadlift Form."
+        },
+        {
+            "id": "habit_complete_1_phase_1__stability___mobility_task",
+            "name": "Complete 1 Phase 1: Stability & Mobility task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Phase 1: Stability & Mobility."
+        },
+        {
+            "id": "habit_complete_1_complete_first_workout_task",
+            "name": "Complete 1 Complete First Workout task",
+            "type": "Habit",
+            "pillar": "PHYSICAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Complete First Workout."
+        },
+        {
+            "id": "habit_complete_1_office_productivity_tools_task",
+            "name": "Complete 1 Office Productivity Tools task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Office Productivity Tools."
+        },
+        {
+            "id": "habit_complete_1_financial_principles_task",
+            "name": "Complete 1 Financial Principles task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Financial Principles."
+        },
+        {
+            "id": "habit_complete_1_financial_statement_analysis_task",
+            "name": "Complete 1 Financial Statement Analysis task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Financial Statement Analysis."
+        },
+        {
+            "id": "habit_complete_1_land_first_job_task",
+            "name": "Complete 1 Land First Job task",
+            "type": "Habit",
+            "pillar": "CAREER",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Land First Job."
+        },
+        {
+            "id": "habit_complete_1_empathy_task",
+            "name": "Complete 1 Empathy task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Empathy."
+        },
+        {
+            "id": "habit_complete_1_rapport_building_task",
+            "name": "Complete 1 Rapport Building task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Rapport Building."
+        },
+        {
+            "id": "habit_complete_1_have_a_5_minute_conversation_with_a_stranger_task",
+            "name": "Complete 1 Have a 5-minute conversation with a stranger task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Have a 5-minute conversation with a stranger."
+        },
+        {
+            "id": "habit_complete_1_have_a_5_minute_conversation_task",
+            "name": "Complete 1 Have a 5-minute conversation task",
+            "type": "Habit",
+            "pillar": "SOCIAL",
+            "prerequisites": [],
+            "xp_reward": 15,
+            "xp_multiplier": 1.0,
+            "required_completions": 1,
+            "description": "Daily habit to improve Have a 5-minute conversation."
+        }
+    ]
+}

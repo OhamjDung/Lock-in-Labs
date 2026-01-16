@@ -14,6 +14,11 @@
             padding: 20px;
             color: white;
         }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         .container {
             max-width: 1800px;
             margin: 0 auto;
@@ -241,14 +246,15 @@
     <div class="header-row">
         <h1>🌳 Adaptive Skill Tree</h1>
         <div class="controls">
-            <input type="text" id="userIdInput" placeholder="Enter User ID" value="test_skill_tree_demo">
-            <button onclick="fetchAndRender()">Load</button>
+            <button onclick="loadLocalJSON()">Load New Tree</button>
             <div class="pillar-filter">
                 <button onclick="filterPillar('CAREER')" class="active">CAREER</button>
                 <button onclick="filterPillar('PHYSICAL')">PHYSICAL</button>
                 <button onclick="filterPillar('SOCIAL')">SOCIAL</button>
                 <button onclick="filterPillar('MENTAL')">MENTAL</button>
             </div>
+            <button onclick="applyDifficultyAdjustment()" style="background: #8b5cf6;">Adjust Difficulty</button>
+            <button onclick="resetDifficulty()" style="background: #ef4444;">Reset</button>
         </div>
     </div>
 
@@ -266,39 +272,41 @@
 <script>
     // --- STATE ---
     let rawData = null;
+    let originalData = null; // Store original for reset
     let characterSheet = null;
+    let currentUserId = null; // Track the loaded user ID
     let currentPillar = 'CAREER';
     let transform = { x: 500, y: 50, scale: 0.8 };
     let isDragging = false;
     let startPos = { x: 0, y: 0 };
+    let nodePositions = {}; // Cache node positions before difficulty adjustment
+    let previousNodeIds = new Set(); // Track which nodes existed before adjustment
+    let lastAdjustedNodeId = null; // Track which node was just adjusted (to exclude from position restoration)
 
-    // --- API CALL ---
-    async function fetchAndRender() {
-        const userId = document.getElementById('userIdInput').value.trim();
-        if (!userId) {
-            showError('Please enter a User ID');
-            return;
-        }
-        
+    // --- LOAD LOCAL JSON ---
+    async function loadLocalJSON() {
         const container = document.getElementById('canvas');
         const errorContainer = document.getElementById('errorContainer');
         errorContainer.innerHTML = '';
         container.innerHTML = '<div class="loading">Loading skill tree...</div>';
         
         try {
-            const res = await fetch(`http://localhost:8000/api/profile/${userId}`);
+            const res = await fetch('skill_tree_test_data.json');
             if (!res.ok) {
-                throw new Error(`Failed to load profile: ${res.statusText}`);
+                throw new Error(`Failed to load JSON: ${res.statusText}`);
             }
             const data = await res.json();
             
             rawData = data.skill_tree ? data.skill_tree.nodes : [];
+            originalData = JSON.parse(JSON.stringify(rawData)); // Deep copy for reset
             characterSheet = data.character_sheet || {};
+            currentUserId = characterSheet.user_id || 'user_01'; // Get user_id from loaded data
             
             if (!rawData || rawData.length === 0) {
-                throw new Error('No skill tree found. Run the test script first to generate one.');
+                throw new Error('No skill tree found in JSON file.');
             }
             
+            console.log(`Loaded skill tree for user: ${currentUserId}`);
             renderGraph();
             renderStats();
         } catch (e) {
@@ -321,6 +329,635 @@
         if (rawData) {
             renderGraph();
         }
+    }
+
+    // --- DIFFICULTY ADJUSTMENT ---
+    function applyDifficultyAdjustment() {
+        if (!rawData) {
+            showError('Please load a skill tree first');
+            return;
+        }
+        
+        // Show difficulty adjustment dialog (matching the real frontend)
+        showDifficultyDialog();
+    }
+
+    function showDifficultyDialog() {
+        // Create dialog overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        `;
+
+        // Create dialog
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        `;
+
+        let selectedDirection = null;
+        let selectedAmount = null;
+
+        dialog.innerHTML = `
+            <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+                <h2 style="font-size: 18px; font-weight: bold; color: #1e293b; margin: 0;">Adjust Difficulty</h2>
+                <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0;">Simulate difficulty adjustment for testing</p>
+            </div>
+            
+            <div style="padding: 16px;">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 500; color: #334155; margin-bottom: 8px;">
+                        Make it:
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button id="btn-easier" style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;">
+                            <span style="font-size: 18px;">📉</span>
+                            <span style="font-weight: 500; color: #334155; font-size: 13px;">Easier</span>
+                            <span style="font-size: 10px; color: #64748b;">Reduce difficulty</span>
+                        </button>
+                        <button id="btn-harder" style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;">
+                            <span style="font-size: 18px;">📈</span>
+                            <span style="font-weight: 500; color: #334155; font-size: 13px;">Harder</span>
+                            <span style="font-size: 10px; color: #64748b;">Increase difficulty</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="amount-section" style="display: none; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 500; color: #334155; margin-bottom: 8px;">
+                        How much <span id="direction-text">easier</span>?
+                    </label>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button id="btn-little" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">A little</div>
+                            <div style="font-size: 10px; color: #64748b;">Small adjustment (25%)</div>
+                        </button>
+                        <button id="btn-moderate" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">Moderately</div>
+                            <div style="font-size: 10px; color: #64748b;">Medium adjustment (50%)</div>
+                        </button>
+                        <button id="btn-a_lot" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">A lot</div>
+                            <div style="font-size: 10px; color: #64748b;">Large adjustment (75%)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="preview-section" style="display: none; padding: 10px; background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; margin-bottom: 16px;">
+                    <p style="font-size: 12px; font-weight: 500; color: #334155; margin: 0 0 4px 0;">Preview:</p>
+                    <p id="preview-text" style="font-size: 11px; color: #475569; margin: 0;"></p>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button id="btn-cancel" style="padding: 8px 16px; font-size: 12px; font-weight: 500; color: #334155; background: transparent; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s;">
+                        Cancel
+                    </button>
+                    <button id="btn-apply" disabled style="padding: 8px 16px; font-size: 12px; font-weight: 500; color: white; background: #3b82f6; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; opacity: 0.5;">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Direction buttons
+        const btnEasier = dialog.querySelector('#btn-easier');
+        const btnHarder = dialog.querySelector('#btn-harder');
+        const amountSection = dialog.querySelector('#amount-section');
+        const directionText = dialog.querySelector('#direction-text');
+
+        btnEasier.addEventListener('click', () => {
+            selectedDirection = 'easier';
+            btnEasier.style.borderColor = '#10b981';
+            btnEasier.style.background = '#f0fdf4';
+            btnHarder.style.borderColor = '#e2e8f0';
+            btnHarder.style.background = 'white';
+            amountSection.style.display = 'block';
+            directionText.textContent = 'easier';
+            updatePreview();
+        });
+
+        btnHarder.addEventListener('click', () => {
+            selectedDirection = 'harder';
+            btnHarder.style.borderColor = '#ef4444';
+            btnHarder.style.background = '#fef2f2';
+            btnEasier.style.borderColor = '#e2e8f0';
+            btnEasier.style.background = 'white';
+            amountSection.style.display = 'block';
+            directionText.textContent = 'harder';
+            updatePreview();
+        });
+
+        // Amount buttons
+        const amountButtons = {
+            'btn-little': 'little',
+            'btn-moderate': 'moderate',
+            'btn-a_lot': 'a_lot'
+        };
+
+        Object.entries(amountButtons).forEach(([id, value]) => {
+            const btn = dialog.querySelector(`#${id}`);
+            btn.addEventListener('click', () => {
+                selectedAmount = value;
+                // Reset all amount buttons
+                dialog.querySelectorAll('.amount-btn').forEach(b => {
+                    b.style.borderColor = '#e2e8f0';
+                    b.style.background = 'white';
+                });
+                // Highlight selected
+                btn.style.borderColor = '#3b82f6';
+                btn.style.background = '#eff6ff';
+                updatePreview();
+            });
+        });
+
+        function updatePreview() {
+            const previewSection = dialog.querySelector('#preview-section');
+            const previewText = dialog.querySelector('#preview-text');
+            const btnApply = dialog.querySelector('#btn-apply');
+
+            if (selectedDirection && selectedAmount) {
+                const percentage = selectedAmount === 'little' ? '25%' : selectedAmount === 'moderate' ? '50%' : '75%';
+                previewSection.style.display = 'block';
+                previewText.textContent = `${selectedDirection === 'easier' ? 'Decreasing' : 'Increasing'} difficulty by ${percentage}. Will adjust required completions for all nodes.`;
+                btnApply.disabled = false;
+                btnApply.style.opacity = '1';
+                btnApply.style.cursor = 'pointer';
+            } else {
+                previewSection.style.display = 'none';
+                btnApply.disabled = true;
+                btnApply.style.opacity = '0.5';
+                btnApply.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Cancel button
+        dialog.querySelector('#btn-cancel').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+
+        // Apply button
+        dialog.querySelector('#btn-apply').addEventListener('click', () => {
+            if (selectedDirection && selectedAmount) {
+                const percentage = selectedAmount === 'little' ? 0.25 : selectedAmount === 'moderate' ? 0.5 : 0.75;
+                const multiplier = selectedDirection === 'easier' ? (1 - percentage) : (1 + percentage);
+                
+                let adjustedCount = 0;
+                rawData.forEach(node => {
+                    const original = node.required_completions || 30;
+                    const adjusted = Math.max(1, Math.round(original * multiplier));
+                    if (adjusted !== original) {
+                        node.required_completions = adjusted;
+                        adjustedCount++;
+                    }
+                });
+                
+                renderGraph();
+                renderStats();
+                
+                showError(`Difficulty adjusted ${selectedDirection} by ${percentage * 100}% for ${adjustedCount} nodes`);
+                document.body.removeChild(overlay);
+            }
+        });
+
+        // Click overlay to close
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+            }
+        });
+    }
+
+    // --- NODE CONTEXT MENU ---
+    let activeContextMenu = null;
+
+    function showNodeContextMenu(e, node) {
+        // Close any existing context menu
+        if (activeContextMenu) {
+            document.body.removeChild(activeContextMenu);
+            activeContextMenu = null;
+        }
+
+        // Create context menu
+        const menu = document.createElement('div');
+        menu.style.cssText = `
+            position: fixed;
+            z-index: 1000;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            min-width: 200px;
+        `;
+
+        menu.innerHTML = `
+            <div style="padding: 12px; border-bottom: 1px solid #f1f5f9;">
+                <div style="font-weight: 600; font-size: 14px; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${node.name}</div>
+                <div style="font-size: 12px; color: #64748b; text-transform: capitalize;">${node.type}</div>
+            </div>
+            <button id="adjust-difficulty-btn" style="width: 100%; padding: 10px 16px; text-align: left; border: none; background: white; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; color: #334155; transition: background 0.2s; border-radius: 0 0 8px 8px;">
+                <span style="font-size: 18px;">📊</span>
+                <span>Adjust Difficulty</span>
+            </button>
+        `;
+
+        // Position menu (offset to left of cursor, slightly above)
+        const x = e.clientX - 220;
+        const y = e.clientY - 60;
+        menu.style.left = `${Math.max(10, x)}px`;
+        menu.style.top = `${Math.max(10, y)}px`;
+
+        document.body.appendChild(menu);
+        activeContextMenu = menu;
+
+        // Hover effect for button
+        const btn = menu.querySelector('#adjust-difficulty-btn');
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = '#eff6ff';
+        });
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'white';
+        });
+
+        // Click handler
+        btn.addEventListener('click', () => {
+            document.body.removeChild(menu);
+            activeContextMenu = null;
+            showNodeDifficultyDialog(node);
+        });
+
+        // Close on click outside
+        const closeHandler = (event) => {
+            if (!menu.contains(event.target)) {
+                if (activeContextMenu === menu) {
+                    document.body.removeChild(menu);
+                    activeContextMenu = null;
+                }
+                document.removeEventListener('mousedown', closeHandler);
+            }
+        };
+        setTimeout(() => {
+            document.addEventListener('mousedown', closeHandler);
+        }, 0);
+
+        // Close on Escape
+        const escapeHandler = (event) => {
+            if (event.key === 'Escape' && activeContextMenu === menu) {
+                document.body.removeChild(menu);
+                activeContextMenu = null;
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
+
+    function showNodeDifficultyDialog(node) {
+        // Create dialog overlay
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            padding: 16px;
+        `;
+
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 450px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        `;
+
+        let selectedDirection = null;
+        let selectedAmount = null;
+
+        dialog.innerHTML = `
+            <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+                <h2 style="font-size: 18px; font-weight: bold; color: #1e293b; margin: 0;">Adjust: ${node.name}</h2>
+                <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0; text-transform: capitalize;">${node.type}</p>
+            </div>
+            
+            <div style="padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                <div style="font-size: 12px; color: #334155;">
+                    <span style="font-weight: 500;">Current:</span> ${node.required_completions || 30} completions required
+                </div>
+                ${node.description ? `<p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0; font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">"${node.description}"</p>` : ''}
+            </div>
+            
+            <div style="padding: 16px;">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 500; color: #334155; margin-bottom: 8px;">
+                        Make it:
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button id="btn-easier" style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;">
+                            <span style="font-size: 18px;">📉</span>
+                            <span style="font-weight: 500; color: #334155; font-size: 13px;">Easier</span>
+                            <span style="font-size: 10px; color: #64748b;">Reduce difficulty</span>
+                        </button>
+                        <button id="btn-harder" style="padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s;">
+                            <span style="font-size: 18px;">📈</span>
+                            <span style="font-weight: 500; color: #334155; font-size: 13px;">Harder</span>
+                            <span style="font-size: 10px; color: #64748b;">Increase difficulty</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="amount-section" style="display: none; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 500; color: #334155; margin-bottom: 8px;">
+                        How much <span id="direction-text">easier</span>?
+                    </label>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button id="btn-little" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">A little</div>
+                            <div style="font-size: 10px; color: #64748b;">Small adjustment (25%)</div>
+                        </button>
+                        <button id="btn-moderate" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">Moderately</div>
+                            <div style="font-size: 10px; color: #64748b;">Medium adjustment (50%)</div>
+                        </button>
+                        <button id="btn-a_lot" class="amount-btn" style="padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: left; transition: all 0.2s;">
+                            <div style="font-weight: 500; color: #334155; font-size: 12px;">A lot</div>
+                            <div style="font-size: 10px; color: #64748b;">Large adjustment (75%)</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="preview-section" style="display: none; padding: 10px; background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; margin-bottom: 16px;">
+                    <p style="font-size: 12px; font-weight: 500; color: #334155; margin: 0 0 4px 0;">Preview:</p>
+                    <p id="preview-text" style="font-size: 11px; color: #475569; margin: 0;"></p>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+                    <button id="btn-cancel" style="padding: 8px 16px; font-size: 12px; font-weight: 500; color: #334155; background: transparent; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s;">
+                        Cancel
+                    </button>
+                    <button id="btn-apply" disabled style="padding: 8px 16px; font-size: 12px; font-weight: 500; color: white; background: #3b82f6; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; opacity: 0.5;">
+                        Apply
+                    </button>
+                </div>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Direction buttons
+        const btnEasier = dialog.querySelector('#btn-easier');
+        const btnHarder = dialog.querySelector('#btn-harder');
+        const amountSection = dialog.querySelector('#amount-section');
+        const directionText = dialog.querySelector('#direction-text');
+
+        btnEasier.addEventListener('click', () => {
+            selectedDirection = 'easier';
+            btnEasier.style.borderColor = '#10b981';
+            btnEasier.style.background = '#f0fdf4';
+            btnHarder.style.borderColor = '#e2e8f0';
+            btnHarder.style.background = 'white';
+            amountSection.style.display = 'block';
+            directionText.textContent = 'easier';
+            updatePreview();
+        });
+
+        btnHarder.addEventListener('click', () => {
+            selectedDirection = 'harder';
+            btnHarder.style.borderColor = '#ef4444';
+            btnHarder.style.background = '#fef2f2';
+            btnEasier.style.borderColor = '#e2e8f0';
+            btnEasier.style.background = 'white';
+            amountSection.style.display = 'block';
+            directionText.textContent = 'harder';
+            updatePreview();
+        });
+
+        // Amount buttons
+        const amountButtons = {
+            'btn-little': 'little',
+            'btn-moderate': 'moderate',
+            'btn-a_lot': 'a_lot'
+        };
+
+        Object.entries(amountButtons).forEach(([id, value]) => {
+            const btn = dialog.querySelector(`#${id}`);
+            btn.addEventListener('click', () => {
+                selectedAmount = value;
+                dialog.querySelectorAll('.amount-btn').forEach(b => {
+                    b.style.borderColor = '#e2e8f0';
+                    b.style.background = 'white';
+                });
+                btn.style.borderColor = '#3b82f6';
+                btn.style.background = '#eff6ff';
+                updatePreview();
+            });
+        });
+
+        function updatePreview() {
+            const previewSection = dialog.querySelector('#preview-section');
+            const previewText = dialog.querySelector('#preview-text');
+            const btnApply = dialog.querySelector('#btn-apply');
+
+            if (selectedDirection && selectedAmount) {
+                const percentage = selectedAmount === 'little' ? 0.25 : selectedAmount === 'moderate' ? 0.5 : 0.75;
+                const multiplier = selectedDirection === 'easier' ? (1 - percentage) : (1 + percentage);
+                const currentRequired = node.required_completions || 30;
+                const newRequired = Math.max(1, Math.round(currentRequired * multiplier));
+                
+                previewSection.style.display = 'block';
+                previewText.textContent = `${selectedDirection === 'easier' ? 'Decreasing' : 'Increasing'} from ${currentRequired} to ${newRequired} completions (${selectedAmount === 'little' ? '25%' : selectedAmount === 'moderate' ? '50%' : '75%'} adjustment).`;
+                btnApply.disabled = false;
+                btnApply.style.opacity = '1';
+                btnApply.style.cursor = 'pointer';
+            } else {
+                previewSection.style.display = 'none';
+                btnApply.disabled = true;
+                btnApply.style.opacity = '0.5';
+                btnApply.style.cursor = 'not-allowed';
+            }
+        }
+
+        // Cancel button
+        dialog.querySelector('#btn-cancel').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+
+        // Apply button
+        dialog.querySelector('#btn-apply').addEventListener('click', async () => {
+            if (selectedDirection && selectedAmount) {
+                const btnApply = dialog.querySelector('#btn-apply');
+                const btnCancel = dialog.querySelector('#btn-cancel');
+                
+                // Disable buttons and show loading
+                btnApply.disabled = true;
+                btnApply.innerHTML = '<span style="display: inline-block; width: 14px; height: 14px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite;"></span> Adjusting...';
+                btnCancel.disabled = true;
+                
+                try {
+                    // Check if we have a user ID
+                    if (!currentUserId) {
+                        throw new Error('No user ID loaded. Please load a skill tree first.');
+                    }
+                    
+                    console.log(`\n🔄 [BEFORE ADJUSTMENT] Current cached nodes: ${previousNodeIds.size}`);
+                    console.log(`   Node IDs to preserve:`, Array.from(previousNodeIds).slice(0, 5).join(', '), '...');
+                    
+                    // DEBUG: Log request details
+                    const requestPayload = {
+                        user_id: currentUserId,
+                        node_id: node.id,
+                        direction: selectedDirection,
+                        amount: selectedAmount,
+                        reason: `Testing from skill tree viewer`
+                    };
+                    
+                    console.log('🔍 [DEBUG] Difficulty Adjustment Request:');
+                    console.log('   URL:', 'http://127.0.0.1:8000/api/skill-tree/node/adjust-difficulty');
+                    console.log('   Payload:', requestPayload);
+                    console.log('   Node Details:', { 
+                        id: node.id, 
+                        name: node.name, 
+                        type: node.type,
+                        pillar: node.pillar 
+                    });
+                    
+                    // Call the REAL backend API
+                    const response = await fetch('http://127.0.0.1:8000/api/skill-tree/node/adjust-difficulty', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestPayload)
+                    });
+                    
+                    console.log('📡 [DEBUG] Response Status:', response.status, response.statusText);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        console.error('❌ [DEBUG] Error Response:', errorData);
+                        throw new Error(errorData.error || `Server error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('✅ [DEBUG] Success Response:', data);
+                    console.log('   Updated Node:', data.updated_node);
+                    console.log('   Updated Node Prerequisites:', data.updated_node?.prerequisites);
+                    console.log('   New Nodes Count:', data.new_nodes ? data.new_nodes.length : 0);
+                    console.log('   Skill Tree Nodes:', data.skill_tree ? data.skill_tree.nodes.length : 0);
+                    
+                    // PROPERLY handle the API response
+                    // Backend returns the modified original node AND new prerequisite nodes
+                    // The updated_node has prerequisites pointing to the new nodes
+                    if (data.updated_node) {
+                        // Track which node was adjusted so we exclude it from position restoration
+                        lastAdjustedNodeId = node.id;
+                        
+                        // Find and update the original node in rawData (it now has new prerequisites)
+                        const originalIndex = rawData.findIndex(n => n.id === node.id);
+                        if (originalIndex !== -1) {
+                            console.log(`🔄 [UPDATE] Updating original node with new prerequisites:`, data.updated_node.prerequisites);
+                            rawData[originalIndex] = data.updated_node;
+                            console.log(`   ${data.updated_node.name} now has prerequisites: ${data.updated_node.prerequisites?.join(', ') || 'none'}`);
+                        } else {
+                            // If original node not found, add the updated node as new
+                            rawData.push(data.updated_node);
+                            console.log(`⚠️ [NEW] Original node not found, adding updated node as new`);
+                        }
+                    }
+                    
+                    // Add only the NEW prerequisite nodes
+                    if (data.new_nodes && data.new_nodes.length > 0) {
+                        console.log(`➕ [ADD] Adding ${data.new_nodes.length} new prerequisite nodes:`);
+                        data.new_nodes.forEach(newNode => {
+                            // Check if node already exists to avoid duplicates
+                            const exists = rawData.some(n => n.id === newNode.id);
+                            if (!exists) {
+                                rawData.push(newNode);
+                                console.log(`   + ${newNode.name} (${newNode.type}) - ID: ${newNode.id}`);
+                            } else {
+                                console.log(`   ⚠ Skipped duplicate: ${newNode.name}`);
+                            }
+                        });
+                    }
+                    
+                    // No need to relink - the backend already set up prerequisites correctly
+                    
+                    // Re-render the graph
+                    renderGraph();
+                    renderStats();
+                    
+                    // Show success message
+                    const newNodesCount = data.new_nodes ? data.new_nodes.length : 0;
+                    if (selectedDirection === 'easier' && newNodesCount > 0) {
+                        showError(`✅ Generated ${newNodesCount} intermediate nodes for "${node.name}"!`);
+                    } else if (selectedDirection === 'harder') {
+                        showError(`✅ Increased difficulty for "${node.name}"!`);
+                    } else {
+                        showError(`✅ Adjusted "${node.name}"!`);
+                    }
+                    
+                    document.body.removeChild(overlay);
+                } catch (error) {
+                    console.error('Error adjusting difficulty:', error);
+                    showError(`❌ Error: ${error.message}`);
+                    
+                    // Re-enable buttons
+                    btnApply.disabled = false;
+                    btnApply.textContent = 'Apply';
+                    btnCancel.disabled = false;
+                }
+            }
+        });
+
+        // Click overlay to close
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+            }
+        });
+    }
+
+    function resetDifficulty() {
+        if (!originalData) {
+            showError('No original data to reset to');
+            return;
+        }
+        
+        // Restore original data
+        rawData = JSON.parse(JSON.stringify(originalData));
+        
+        showError('Reset to original difficulty levels');
+        renderGraph();
+        renderStats();
     }
 
     // --- LAYOUT ENGINE ---
@@ -366,6 +1003,10 @@
 
         // 4. Add Edges (Reverse Prerequisite Logic for BT layout)
         // If A requires B, Arrow goes B -> A (B is prerequisite, A depends on B)
+        let edgeCount = 0;
+        let missingEdges = 0;
+        const debugEdges = [];
+        
         pillarNodes.forEach(node => {
             if (node.prerequisites && node.prerequisites.length > 0) {
                 node.prerequisites.forEach(prereqId => {
@@ -374,10 +1015,21 @@
                     if (prereqNode) {
                         // Edge from prerequisite to dependent node
                         g.setEdge(prereqId, node.id);
+                        edgeCount++;
+                        if (debugEdges.length < 5) {
+                            debugEdges.push(`${prereqNode.name} → ${node.name}`);
+                        }
+                    } else {
+                        missingEdges++;
                     }
                 });
             }
         });
+        
+        console.log(`\n🔗 [EDGES] Edge creation summary:`);
+        console.log(`   Total edges created: ${edgeCount}`);
+        console.log(`   Missing prerequisites (not in this pillar): ${missingEdges}`);
+        console.log(`   Sample edges:`, debugEdges);
 
         // 5. Calculate Layout
         try {
@@ -388,7 +1040,52 @@
             return;
         }
 
-        // --- RENDERING ---
+        // 5b. Restore positions for existing nodes, keep new nodes where Dagre placed them
+        // BUT: Don't restore if we just did a difficulty adjustment - let Dagre recalculate everything fresh
+        let restoredCount = 0;
+        let newNodeCount = 0;
+        console.log(`\n📊 [POSITION RESTORE] Starting position restoration:`);
+        console.log(`   Total cached positions: ${Object.keys(nodePositions).length}`);
+        console.log(`   Total new nodes in graph: ${g.nodes().length}`);
+        console.log(`   Last adjusted node: ${lastAdjustedNodeId || 'none'}`);
+        
+        g.nodes().forEach(nodeId => {
+            const current = g.node(nodeId);
+            
+            // If we just adjusted a node, don't restore ANY positions - let Dagre recalculate everything
+            // This ensures edges and nodes are all consistent
+            if (lastAdjustedNodeId) {
+                newNodeCount++;
+                if (newNodeCount <= 5) {
+                    console.log(`   ✨ [FRESH LAYOUT] "${current.label}": Dagre calculated (${current.x}, ${current.y})`);
+                }
+                return;
+            }
+            
+            if (previousNodeIds.has(nodeId) && nodePositions[nodeId]) {
+                // This node existed before - restore its position
+                const cached = nodePositions[nodeId];
+                current.x = cached.x;
+                current.y = cached.y;
+                restoredCount++;
+                
+                if (restoredCount <= 5) {
+                    console.log(`   ✓ Restored "${current.label}": (${current.x}, ${current.y})`);
+                }
+            } else {
+                // This is a new node - keep Dagre's position
+                newNodeCount++;
+                if (newNodeCount <= 5) {
+                    console.log(`   ✨ New node "${current.label}": (${current.x}, ${current.y})`);
+                }
+            }
+        });
+        
+        console.log(`\n📍 Position Summary:`);
+        console.log(`   Existing nodes restored: ${restoredCount}`);
+        console.log(`   New nodes placed: ${newNodeCount}`);
+        console.log(`   Total nodes now: ${g.nodes().length}\n`);
+
         // SVG Layer for Edges
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         // Calculate bounds
@@ -411,12 +1108,12 @@
         // This ensures edges and nodes use the same coordinate system
         svg.setAttribute('width', svgWidth);
         svg.setAttribute('height', svgHeight);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:410',message:'SVG coordinate system (NO viewBox)',data:{minX,minY,maxX,maxY,padding,svgWidth,svgHeight,usingViewBox:false},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         canvas.appendChild(svg);
 
         // Draw Edges
+        let drawnEdges = 0;
+        const sampleEdgeDebug = [];
+        
         g.edges().forEach(e => {
             const edge = g.edge(e);
             const points = edge.points || [];
@@ -425,15 +1122,21 @@
             const sourceNode = g.node(e.v);
             const targetNode = g.node(e.w);
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:414',message:'Edge rendering start',data:{edgeId:`${e.v}-${e.w}`,pointsCount:points.length,firstPoint:points[0]?{x:points[0].x,y:points[0].y}:null,lastPoint:points[points.length-1]?{x:points[points.length-1].x,y:points[points.length-1].y}:null,sourceNodePos:{x:sourceNode.x,y:sourceNode.y},targetNodePos:{x:targetNode.x,y:targetNode.y},viewBox:`${minX - padding} ${minY - padding} ${svgWidth} ${svgHeight}`},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
-            
             if (points.length < 2) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:418',message:'Edge skipped - insufficient points',data:{edgeId:`${e.v}-${e.w}`,pointsCount:points.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
                 return;
+            }
+            
+            drawnEdges++;
+            if (sampleEdgeDebug.length < 3) {
+                sampleEdgeDebug.push({
+                    source: e.v,
+                    target: e.w,
+                    sourceLabel: sourceNode?.label,
+                    targetLabel: targetNode?.label,
+                    sourcePos: `(${sourceNode.x}, ${sourceNode.y})`,
+                    targetPos: `(${targetNode.x}, ${targetNode.y})`,
+                    pathPoints: points.length
+                });
             }
             
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -449,42 +1152,27 @@
                     const midX = (points[i].x + points[i-1].x) / 2;
                     const midY = (points[i].y + points[i-1].y) / 2;
                     d += ` Q ${points[i-1].x} ${points[i-1].y} ${midX} ${midY}`;
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:432',message:'Bezier segment added',data:{edgeId:`${e.v}-${e.w}`,segmentIndex:i,prevPoint:{x:points[i-1].x,y:points[i-1].y},currPoint:{x:points[i].x,y:points[i].y},midPoint:{x:midX,y:midY},pathSoFar:d.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
                 }
             }
-            
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:436',message:'Final path string',data:{edgeId:`${e.v}-${e.w}`,finalPath:d,pathLength:d.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B'})}).catch(()=>{});
-            // #endregion
             
             path.setAttribute('d', d);
             path.classList.add('active-path');
             svg.appendChild(path);
         });
+        
+        console.log(`\n📈 [DRAWN EDGES] Total edges drawn: ${drawnEdges}`);
+        console.log('   Sample edges:', sampleEdgeDebug);
 
         // Draw Nodes
         g.nodes().forEach(v => {
             const n = g.node(v);
             const data = n.original;
             
-            // #region agent log
-            if (g.nodes().indexOf(v) < 3) { // Log first 3 nodes
-                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:442',message:'Node position',data:{nodeId:v,nodeName:data.name,nodeType:data.type,nodeX:n.x,nodeY:n.y,nodeWidth:n.width,nodeHeight:n.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C,D'})}).catch(()=>{});
-            }
-            // #endregion
-            
             const el = document.createElement('div');
             el.className = 'node-container';
             el.style.left = `${n.x}px`;
             el.style.top = `${n.y}px`;
-            
-            // #region agent log
-            if (g.nodes().indexOf(v) < 3) { // Log first 3 nodes
-                fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:448',message:'Node CSS positioning',data:{nodeId:v,nodeName:data.name,cssLeft:`${n.x}px`,cssTop:`${n.y}px`,dagreX:n.x,dagreY:n.y,nodeWidth:n.width,nodeHeight:n.height},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-            }
-            // #endregion
+            el.setAttribute('data-node-id', v);
             
             // Get progress data for habits
             let progressPercent = 0;
@@ -534,16 +1222,22 @@
                 el.title = data.description;
             }
             
+            // Add right-click context menu for Habit and Sub-Skill nodes
+            if (data.type === 'Habit' || data.type === 'Sub-Skill') {
+                el.setAttribute('data-node-id', data.id);
+                el.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showNodeContextMenu(e, data);
+                });
+            }
+            
             canvas.appendChild(el);
         });
         
         // Update canvas size to match SVG
         canvas.style.width = svgWidth + 'px';
         canvas.style.height = svgHeight + 'px';
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'skill_tree_viewer.html:520',message:'Canvas size updated',data:{canvasWidth:svgWidth,canvasHeight:svgHeight,svgWidth,svgHeight},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         
         // Reset transform
         transform = { x: 500, y: 50, scale: 0.8 };
@@ -584,6 +1278,26 @@
             </div>
         `;
         statsContainer.style.display = 'grid';
+        
+        // CACHE node positions after rendering for next difficulty adjustment
+        nodePositions = {};
+        previousNodeIds = new Set();
+        const canvas = document.getElementById('canvas');
+        const nodeContainers = canvas.querySelectorAll('.node-container');
+        nodeContainers.forEach(container => {
+            const nodeId = container.getAttribute('data-node-id');
+            if (nodeId) {
+                nodePositions[nodeId] = {
+                    x: parseFloat(container.style.left),
+                    y: parseFloat(container.style.top)
+                };
+                previousNodeIds.add(nodeId);
+            }
+        });
+        console.log(`📸 [CACHE SAVED] Cached ${previousNodeIds.size} node positions for future adjustments`);
+        
+        // Clear the adjustment flag now that we've rendered everything
+        lastAdjustedNodeId = null;
     }
 
     // --- PAN & ZOOM UTILS ---
@@ -621,14 +1335,9 @@
         canvas.style.transform = `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`;
     }
 
-    // Auto-load on page load if user ID is in URL
+    // Auto-load on page load
     window.addEventListener('load', () => {
-        const params = new URLSearchParams(window.location.search);
-        const userId = params.get('userId');
-        if (userId) {
-            document.getElementById('userIdInput').value = userId;
-            fetchAndRender();
-        }
+        loadLocalJSON();
     });
 </script>
 

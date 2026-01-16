@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-15T21:19:34.751394",
+  "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+  "node_id": "habit_perform_3_sets_of_10_bodyweight_squats",
+  "old_difficulty": null,
+  "new_difficulty": "easier",
+  "request_payload": {
+    "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+    "node_id": "habit_perform_3_sets_of_10_bodyweight_squats",
+    "direction": "easier",
+    "amount": "a_lot",
+    "reason": null
+  }
+}

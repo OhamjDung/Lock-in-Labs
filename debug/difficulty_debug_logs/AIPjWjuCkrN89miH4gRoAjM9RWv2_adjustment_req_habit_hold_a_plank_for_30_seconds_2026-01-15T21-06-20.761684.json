@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-15T21:06:20.761684",
+  "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+  "node_id": "habit_hold_a_plank_for_30_seconds",
+  "old_difficulty": null,
+  "new_difficulty": "easier",
+  "request_payload": {
+    "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+    "node_id": "habit_hold_a_plank_for_30_seconds",
+    "direction": "easier",
+    "amount": "moderate",
+    "reason": null
+  }
+}

@@ -93,6 +93,85 @@ class SkillTreeGenerator:
         used_ids.add(new_id)
         return new_id
 
+    def _generate_fallback_habit(self, skill_name: str, pillar: Pillar) -> str:
+        """Generate a better fallback habit when LLM fails, using simple heuristics."""
+        skill_lower = skill_name.lower()
+        
+        # Physical pillar patterns
+        if pillar == Pillar.PHYSICAL:
+            if "run" in skill_lower or "cardio" in skill_lower:
+                return "Run 1 mile at easy pace"
+            elif "strength" in skill_lower or "muscle" in skill_lower or "hypertrophy" in skill_lower:
+                return "Perform 3 sets of 10 pushups"
+            elif "squat" in skill_lower:
+                return "Perform 3 sets of 5 bodyweight squats"
+            elif "deadlift" in skill_lower:
+                return "Perform 3 sets of 5 deadlifts with light weight"
+            elif "stretch" in skill_lower or "flexibility" in skill_lower or "mobility" in skill_lower:
+                return "Hold 5 stretches for 30 seconds each"
+            elif "workout" in skill_lower:
+                return "Complete a 20-minute workout"
+            else:
+                return "Exercise for 15 minutes"
+        
+        # Career pillar patterns
+        elif pillar == Pillar.CAREER:
+            if "communication" in skill_lower or "speaking" in skill_lower:
+                return "Have 1 focused conversation with a colleague"
+            elif "code" in skill_lower or "programming" in skill_lower or "python" in skill_lower:
+                return "Write 10 lines of code"
+            elif "time management" in skill_lower or "productivity" in skill_lower:
+                return "Complete 1 Pomodoro session (25 mins)"
+            elif "excel" in skill_lower or "spreadsheet" in skill_lower:
+                return "Create 1 Excel formula or pivot table"
+            elif "financial" in skill_lower or "accounting" in skill_lower:
+                return "Analyze 1 financial statement"
+            elif "project" in skill_lower:
+                return "Work on project for 30 minutes"
+            else:
+                return "Work on 1 career skill for 20 minutes"
+        
+        # Mental pillar patterns
+        elif pillar == Pillar.MENTAL:
+            if "meditat" in skill_lower or "mindful" in skill_lower:
+                return "Meditate for 5 minutes"
+            elif "journal" in skill_lower or "writing" in skill_lower:
+                return "Write 3 journal entries about emotions"
+            elif "calm" in skill_lower or "stress" in skill_lower or "anxiety" in skill_lower:
+                return "Take 10 deep breaths when stressed"
+            elif "focus" in skill_lower or "concentration" in skill_lower:
+                return "Focus on 1 task for 15 minutes without distractions"
+            else:
+                return "Practice mental wellness for 10 minutes"
+        
+        # Social pillar patterns (with variety to avoid redundant habit names)
+        elif pillar == Pillar.SOCIAL:
+            if "conversation" in skill_lower or "talk" in skill_lower:
+                # Vary conversation habits to avoid "Start 1 conversation" × 4
+                import random
+                variations = [
+                    "Ask someone for directions or recommendations",
+                    "Compliment 1 person genuinely",
+                    "Ask someone about their day or weekend plans",
+                    "Start 1 conversation with someone new",
+                    "Share 1 interesting fact or story with someone",
+                    "Ask someone about their hobbies or interests"
+                ]
+                return random.choice(variations)
+            elif "listening" in skill_lower or "listen" in skill_lower:
+                return "Repeat back the last sentence someone said"
+            elif "empathy" in skill_lower or "understanding" in skill_lower:
+                return "Ask someone how they're feeling"
+            elif "rapport" in skill_lower or "relationship" in skill_lower:
+                return "Send 1 message to reconnect with a friend"
+            elif "meetup" in skill_lower or "event" in skill_lower:
+                return "Attend 1 social event"
+            else:
+                return "Have 1 meaningful social interaction"
+        
+        # Generic fallback
+        return f"Practice {skill_name} for 15 minutes"
+
     def _generate_habits_for_skills(
         self,
         skills: List[SkillNode],
@@ -129,33 +208,34 @@ class SkillTreeGenerator:
 
         prompt = (
             "You are a Behavioral Scientist designing Atomic Habits for a Life RPG. "
-            "Given this JSON list of skills, propose 2-3 specific, binary actions for each skill.\n\n"
+            "Given this JSON list of skills, propose 1 SPECIFIC, PHYSICAL action for EACH skill.\n\n"
             f"**VERIFIED HABIT LIBRARY (Use these if they match the skill):**\n{rag_text}\n\n"
             
-            "**THE 'VERB ENFORCER' RULES:**\n"
-            "1. **NO 'PRACTICE'**: Never start a habit name with the word 'Practice'. "
-            "   Use specific action verbs: Run, Write, Speak, Solve, Read, Code, Build, etc.\n"
-            "2. **CAREER CONTEXT CHECK**: If the skill is for a NON-CODING career (e.g., Accounting, Finance, Marketing), "
-            "   FORBID coding-related habits like 'LeetCode', 'Git', 'Code', 'Programming', 'Algorithm'.\n"
-            "   - *Forbidden for non-coding careers:* 'Solve 1 LeetCode Easy', 'Commit code to Git'\n"
-            "   - *Use instead:* 'Create 1 Excel Macro', 'Balance a 3-statement model', 'Analyze 1 financial report'\n"
-            "2. **BE BINARY**: The habit must be pass/fail. 'Be more confident' is bad. "
-            "   'Speak up once in a meeting' is good.\n"
-            "3. **BE ATOMIC**: If the skill is 'Python', do not say 'Build a generic app'. "
-            "   Say 'Write 1 script to rename files' or 'Solve 1 LeetCode Easy problem'.\n"
-            "4. **DURATION**: Default to short bursts (e.g., '5 mins', '1 set', '1 problem', '1 page').\n"
-            "5. If the Verified Library has a habit for a skill ID, USE IT but ensure it follows rules 1-4.\n\n"
+            "**STRICT ACTIONABILITY RULES (ENFORCED):**\n"
+            "1. **START WITH A VERB**: Every habit MUST begin with an action verb (Run, Write, Read, Solve, Code, Build, Say, Do, Create, Analyze, etc.)\n"
+            "2. **INCLUDE A NUMBER/DURATION**: Every habit MUST have a measurable quantity:\n"
+            "   - Time: '10 mins', '2 minutes', '30 seconds'\n"
+            "   - Quantity: '3 sets', '5 pages', '1 problem', '10 lines'\n"
+            "   - Reps: '5 pushups', '1 conversation', '3 examples'\n"
+            "3. **FORBIDDEN WORDS**: NEVER use 'Practice', 'Task', 'Complete', 'Do exercise', 'Work on'\n"
+            "4. **BE STUPIDLY SIMPLE**: A 5-year-old should understand exactly what to do\n"
+            "5. **CAREER CONTEXT CHECK**: If the skill is for a NON-CODING career (Accounting, Finance, Marketing), "
+            "   FORBID coding habits (LeetCode, Git, Programming). Use domain tools instead (Excel, Reports, Spreadsheets).\n\n"
             
-            "**BAD EXAMPLES:**\n"
-            "- 'Practice Active Listening' (Vague, uses forbidden word)\n"
-            "- 'Get better at running' (Goal, not habit)\n"
-            "- 'Practice Python' (Too generic)\n\n"
+            "**FORBIDDEN EXAMPLES (DO NOT GENERATE THESE):**\n"
+            "❌ 'Practice Active Listening' (No verb, uses 'Practice')\n"
+            "❌ 'Complete 1 Active Listening task' (Uses 'Complete' and 'task')\n"
+            "❌ 'Work on Hypertrophy Training' (Vague, no number)\n"
+            "❌ 'Get better at running' (Not an action)\n\n"
             
-            "**GOOD EXAMPLES:**\n"
-            "- 'Summarize the last sentence the person said' (Actionable, binary)\n"
-            "- 'Run 1 mile at conversation pace' (Specific, measurable)\n"
-            "- 'Write 1 Python script to automate file renaming' (Atomic, concrete)\n"
-            "- 'Solve 1 LeetCode Easy problem' (Binary, specific)\n\n"
+            "**CORRECT EXAMPLES (GENERATE LIKE THESE):**\n"
+            "✅ 'Repeat back the last sentence someone said' (Verb + specific action)\n"
+            "✅ 'Perform 3 sets of 10 pushups' (Verb + number + specific exercise)\n"
+            "✅ 'Run 1 mile at easy pace' (Verb + distance + constraint)\n"
+            "✅ 'Write 5 lines of Python' (Verb + quantity + specific)\n"
+            "✅ 'Read 10 pages of a finance book' (Verb + quantity + context)\n"
+            "✅ 'Solve 1 LeetCode Easy problem' (Verb + quantity + specific)\n"
+            "✅ 'Create 1 Excel pivot table' (Verb + quantity + tool)\n\n"
             
             "**DIFFICULTY TIERS:**\n"
             "For each habit, assign a 'difficulty_tier' (1, 2, 3, or 4):\n"
@@ -192,8 +272,8 @@ class SkillTreeGenerator:
             raw_habits = habits_by_skill.get(skill.id)
 
             if not raw_habits:
-                # Fallback: one simple habit per skill (avoid "Practice" word)
-                habit_name = f"Complete 1 {skill.name} task"
+                # Fallback: Generate actionable habit based on skill name
+                habit_name = self._generate_fallback_habit(skill.name, skill.pillar)
                 habit_id = self._make_unique_id(used_ids, "habit", habit_name)
                 habit = SkillNode(
                     id=habit_id,
@@ -310,55 +390,88 @@ class SkillTreeGenerator:
                 # If no roadmap exists but needed_quests does, convert on the fly.
                 if not current_roadmap and goal.needed_quests:
                     print(f"Migrating legacy goal: {goal.name}")
-                    legacy_nodes = []
+                    legacy_node_ids = []  # Track IDs to link to goal
+                    
                     for q in goal.needed_quests:
-                        id_candidate = _slugify(q)
-                        # Check if progress exists under the raw name (old behavior)
-                        if q in character_sheet.habit_progress:
-                            final_id = q
-                        # Check if progress exists under the slug (potential hybrid behavior)
-                        elif id_candidate in character_sheet.habit_progress:
-                            final_id = id_candidate
-                        else:
-                            # Default to slug for new "legacy" nodes ensuring clean IDs
-                            final_id = f"legacy_{id_candidate}"
+                        # DEDUPLICATION: Check if this skill already exists
+                        skill_key = _slugify(q)
                         
-                        legacy_nodes.append(SkillNode(
-                            id=final_id, 
-                            name=q, 
-                            type=NodeType.SUB_SKILL, 
-                            pillar=goal_pillar, 
-                            xp_reward=100,
-                            prerequisites=[],
-                            description=f"Legacy skill for goal '{goal.name}'."
-                        ))
-                    current_roadmap = legacy_nodes
+                        if skill_key in skill_by_key:
+                            # Reuse existing skill node instead of creating duplicate
+                            print(f"  Reusing existing skill: {q}")
+                            existing_skill = skill_by_key[skill_key]
+                            legacy_node_ids.append(existing_skill.id)
+                        else:
+                            # Create new skill node
+                            id_candidate = _slugify(q)
+                            # Check if progress exists under the raw name (old behavior)
+                            if q in character_sheet.habit_progress:
+                                final_id = q
+                            # Check if progress exists under the slug (potential hybrid behavior)
+                            elif id_candidate in character_sheet.habit_progress:
+                                final_id = id_candidate
+                            else:
+                                # Default to skill_ prefix for clean IDs (not legacy_ anymore)
+                                final_id = f"skill_{id_candidate}"
+                            
+                            new_skill = SkillNode(
+                                id=final_id, 
+                                name=q, 
+                                type=NodeType.SUB_SKILL, 
+                                pillar=goal_pillar, 
+                                xp_reward=100,
+                                prerequisites=[],
+                                description=""  # Empty for clean display
+                            )
+                            skill_by_key[skill_key] = new_skill
+                            nodes.append(new_skill)
+                            all_skills.append(new_skill)
+                            legacy_node_ids.append(final_id)
+                    
+                    # Link all legacy skills directly to goal (they have no prerequisites chain)
+                    for skill_id in legacy_node_ids:
+                        if skill_id not in goal_node.prerequisites:
+                            goal_node.prerequisites.append(skill_id)
+                    
+                    # Skip the roadmap structure preservation logic for legacy goals
+                    continue
                 
                 if not current_roadmap:
                     continue
                 
                 # --- Preserve Planner's Deep Structure ---
                 
-                # 1. Create ID mapping (planner IDs -> unique tree IDs)
+                # 1. Create ID mapping (planner IDs -> unique tree IDs) with deduplication
                 planner_id_map = {}
                 
-                # First pass: Create all planner nodes
+                # First pass: Create or reuse planner nodes
                 for raw_node in current_roadmap:
-                    unique_id = self._make_unique_id(used_ids, "skill", raw_node.name)
-                    planner_id_map[raw_node.id] = unique_id
+                    # DEDUPLICATION: Check if semantically identical skill exists
+                    skill_key = _slugify(raw_node.name)
                     
-                    new_node = SkillNode(
-                        id=unique_id,
-                        name=raw_node.name,
-                        type=NodeType.SUB_SKILL,
-                        pillar=goal_pillar,
-                        prerequisites=[],  # Fill in Pass 2
-                        xp_reward=raw_node.xp_reward,
-                        xp_multiplier=raw_node.xp_multiplier,
-                        description=raw_node.description
-                    )
-                    nodes.append(new_node)
-                    all_skills.append(new_node)
+                    if skill_key in skill_by_key:
+                        # Reuse existing skill node
+                        existing_skill = skill_by_key[skill_key]
+                        planner_id_map[raw_node.id] = existing_skill.id
+                        print(f"  Reusing skill '{raw_node.name}' (ID: {existing_skill.id}) for goal '{goal.name}'")
+                    else:
+                        # Create new skill node
+                        unique_id = self._make_unique_id(used_ids, "skill", raw_node.name)
+                        planner_id_map[raw_node.id] = unique_id
+                        
+                        new_node = SkillNode(
+                            id=unique_id,
+                            name=raw_node.name,
+                            type=NodeType.SUB_SKILL,
+                            pillar=goal_pillar,
+                            prerequisites=[],  # Fill in Pass 2
+                            xp_reward=raw_node.xp_reward,
+                            xp_multiplier=raw_node.xp_multiplier,
+                            description=raw_node.description
+                        )
+                        skill_by_key[skill_key] = new_node
+                        nodes.append(new_node)
+                        all_skills.append(new_node)
                 
                 # Second pass: Link prerequisites (preserve planner's chain)
                 for raw_node in current_roadmap:

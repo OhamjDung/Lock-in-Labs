@@ -4,7 +4,7 @@ Utility for regenerating skill tree nodes with adjusted difficulty.
 import json
 import re
 from typing import Literal, Optional, List, Dict, Tuple
-from src.models import SkillNode, NodeType, DifficultyTier, REP_MAP, CharacterSheet
+from src.models import SkillNode, NodeType, DifficultyTier, REP_MAP, CharacterSheet, Pillar
 from src.llm import LLMClient
 from src.planners import get_planner
 from src.skill_tree.generator import SkillTreeGenerator
@@ -225,6 +225,44 @@ def generate_easier_prerequisite_nodes(
             raise ValueError("Planner returned no roadmap nodes")
         
         # 2.5. PILLAR-SCOPED DEDUPLICATION: Check for existing nodes and reuse when safe
+        # Set up existing nodes mappings for the target pillar
+        if existing_skill_tree_nodes is None:
+            existing_skill_tree_nodes = []
+        
+        # Filter existing nodes to this pillar only
+        existing_pillar_nodes = [n for n in existing_skill_tree_nodes if n.pillar == node.pillar]
+        existing_pillar_nodes_by_id = {n.id: n for n in existing_pillar_nodes}
+        existing_pillar_nodes_by_name = {n.name: n for n in existing_pillar_nodes}
+        
+        # Calculate ancestor IDs - traverse prerequisites from target node
+        def _get_ancestors(target_node: SkillNode, nodes_by_id: Dict[str, SkillNode]) -> set:
+            """Get all ancestor node IDs by following prerequisite chain."""
+            ancestors = set()
+            queue = [target_node.id] if target_node.prerequisites else []
+            
+            # Add direct prerequisites
+            for prereq_id in (target_node.prerequisites or []):
+                if prereq_id in nodes_by_id:
+                    queue.append(prereq_id)
+            
+            # Traverse prerequisites recursively
+            visited = set()
+            while queue:
+                current_id = queue.pop(0)
+                if current_id in visited or current_id not in nodes_by_id:
+                    continue
+                visited.add(current_id)
+                ancestors.add(current_id)
+                
+                current_node = nodes_by_id[current_id]
+                for prereq_id in (current_node.prerequisites or []):
+                    if prereq_id not in visited and prereq_id in nodes_by_id:
+                        queue.append(prereq_id)
+            
+            return ancestors
+        
+        ancestor_ids = _get_ancestors(node, existing_pillar_nodes_by_id)
+        
         # Map planner node IDs to actual node IDs (new or reused)
         planner_to_real_id_map: Dict[str, str] = {}  # planner_id -> real_id
         nodes_to_add: List[SkillNode] = []  # Only truly new nodes
@@ -255,20 +293,28 @@ def generate_easier_prerequisite_nodes(
                 # #endregion
                 continue  # Skip this node to prevent cycle
             
-            # CASE B: Node exists in same pillar - REUSE it!
-            existing_node = _find_node_by_name(planner_name, node.pillar, existing_skill_tree_nodes)
-            if existing_node:
-                # Verify cycle safety: ensure the existing node is not an ancestor
-                if existing_node.id in ancestor_ids:
-                    # #region agent log
-                    try:
-                        with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
-                            import json as json_log, time
-                            f.write(json_log.dumps({"location":"node_regenerator.py:generate_easier_prerequisite_nodes:reuse_blocked_by_cycle","message":"Cannot reuse existing node - would create cycle","data":{"planner_node_name":planner_name,"existing_node_id":existing_node.id},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"DEDUP"}) + '\n')
-                    except: pass
-                    # #endregion
-                    # Skip reuse if it would create a cycle
-                    existing_node = None
+            # CASE B: Node exists in same pillar - REUSE it (unless adjusting a Habit, which should get NEW nodes)
+            # For Habit nodes, skip reuse to always generate new prerequisite chains
+            existing_node = None
+            if node.type != NodeType.HABIT:
+                # For Goals/Sub-Skills: try to reuse existing nodes
+                existing_node = _find_node_by_name(planner_name, node.pillar, existing_skill_tree_nodes)
+                if existing_node:
+                    # Verify cycle safety: ensure the existing node is not an ancestor
+                    if existing_node.id in ancestor_ids:
+                        # #region agent log
+                        try:
+                            with open(r'd:\Noobcept\Lock In Labs\.cursor\debug.log', 'a', encoding='utf-8') as f:
+                                import json as json_log, time
+                                f.write(json_log.dumps({"location":"node_regenerator.py:generate_easier_prerequisite_nodes:reuse_blocked_by_cycle","message":"Cannot reuse existing node - would create cycle","data":{"planner_node_name":planner_name,"existing_node_id":existing_node.id},"timestamp":int(time.time()*1000),"sessionId":"debug-session","runId":"run1","hypothesisId":"DEDUP"}) + '\n')
+                        except: pass
+                        # #endregion
+                        # Skip reuse if it would create a cycle
+                        existing_node = None
+            else:
+                # For Habit nodes: force creation of NEW nodes (don't reuse)
+                # This ensures we always return something for habit adjustments
+                pass
             
             if existing_node:
                 # REUSE: Map planner ID to existing node ID

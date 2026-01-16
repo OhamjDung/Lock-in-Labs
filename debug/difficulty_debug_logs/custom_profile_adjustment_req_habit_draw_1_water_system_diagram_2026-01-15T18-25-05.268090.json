@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-01-15T18:25:05.268090",
+  "user_id": "custom_profile",
+  "node_id": "habit_draw_1_water_system_diagram",
+  "old_difficulty": null,
+  "new_difficulty": "easier",
+  "request_payload": {
+    "user_id": "custom_profile",
+    "node_id": "habit_draw_1_water_system_diagram",
+    "direction": "easier",
+    "amount": "little",
+    "reason": "Testing from skill tree viewer"
+  }
+}

@@ -7,51 +7,6 @@ import ReportingChat from './ReportingChat';
 import VoiceReporting from './VoiceReporting';
 import DecisionCard from './DecisionCard';
 
-// Component to load test decision data for development
-function TestDecisionLoader() {
-  const [testDecision, setTestDecision] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    // Try to load test decision data from public folder
-    fetch('/test_decision_output.json')
-      .then(res => res.ok ? res.json() : null)
-      .then(data => {
-        if (data && data.decision) {
-          setTestDecision(data.decision);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="p-4 bg-stone-50 border border-stone-300 rounded-sm text-xs font-mono text-stone-600 text-center">
-        Loading test decision data...
-      </div>
-    );
-  }
-
-  if (!testDecision) {
-    return (
-      <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-sm text-xs font-mono text-yellow-800">
-        No decision data available. Run: <code className="bg-yellow-100 px-1 rounded">python debug/test_decision_with_running_data.py</code> to generate test data.
-      </div>
-    );
-  }
-
-  return (
-    <DecisionCard
-      decision={testDecision}
-      onCitationClick={(citation) => {
-        console.log('Citation clicked:', citation);
-      }}
-    />
-  );
-}
 
 export default function ReportView({ displayData }) {
   const [userId, setUserId] = useState(null);
@@ -619,10 +574,10 @@ export default function ReportView({ displayData }) {
           </div>
 
           {/* Section 3: Weekly Plan Adjustments (Explainable AI Decisions) */}
-          {(decisions.length > 0 || loadingDecisions || true) && (
+          {decisions.length > 0 && (
             <div>
               <h3 className="font-bold border-b-2 border-stone-800 mb-4 text-sm uppercase tracking-wider text-stone-900 flex items-center gap-2">
-                <Activity size={16} /> Weekly Plan Adjustments (Test Data)
+                <Activity size={16} /> Weekly Plan Adjustments
               </h3>
               <div className="text-xs font-mono text-stone-500 mb-4 italic">
                 AI-generated decisions with verified citations. Hover over factors to see evidence.
@@ -632,7 +587,7 @@ export default function ReportView({ displayData }) {
                 <div className="p-8 bg-white/40 border border-[#d4c5a9] rounded-sm text-center text-stone-600 font-serif italic">
                   Analyzing your progress...
                 </div>
-              ) : decisions.length > 0 ? (
+              ) : (
                 <div className="space-y-6">
                   {decisions.map((decision, idx) => (
                     <DecisionCard
@@ -645,9 +600,6 @@ export default function ReportView({ displayData }) {
                     />
                   ))}
                 </div>
-              ) : (
-                // Fallback: Try to load test decision data
-                <TestDecisionLoader />
               )}
             </div>
           )}

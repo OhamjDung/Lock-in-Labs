@@ -1,0 +1,1036 @@
+{
+  "timestamp": "2026-01-15T21:19:34.744954",
+  "user_id": "AIPjWjuCkrN89miH4gRoAjM9RWv2",
+  "label": "before_easier_adjustment",
+  "tree_structure": {
+    "nodes": [
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_become_a_youtuber",
+        "xp_reward": 100,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_create_and_publish_first_video"
+        ],
+        "name": "Become a YouTuber"
+      },
+      {
+        "description": "Understand YouTube's interface, content creation tools, and basic video editing concepts.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_youtube_basics",
+        "xp_reward": 50,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_search_for_3_youtube_tutorials",
+          "habit_watch_1_youtube_video_about_channel_optimization"
+        ],
+        "name": "YouTube Basics"
+      },
+      {
+        "description": "Learn basic video editing techniques using free software like DaVinci Resolve or CapCut.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_intro_to_video_editing",
+        "xp_reward": 75,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_youtube_basics",
+          "habit_record_a_30_second_video_clip",
+          "habit_import_5_clips_into_a_video_editing_software"
+        ],
+        "name": "Intro to Video Editing"
+      },
+      {
+        "description": "Develop skills in identifying target audiences, researching trending topics, and brainstorming video ideas.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_content_planning___research",
+        "xp_reward": 60,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_youtube_basics",
+          "habit_brainstorm_3_video_ideas",
+          "habit_research_1_trending_topic_on_youtube"
+        ],
+        "name": "Content Planning & Research"
+      },
+      {
+        "description": "Learn how to create a professional channel appearance, optimize video titles and descriptions for search, and build a consistent brand.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_channel_branding___optimization",
+        "xp_reward": 80,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_youtube_basics",
+          "habit_create_a_simple_channel_banner",
+          "habit_write_5_keywords_for_your_channel"
+        ],
+        "name": "Channel Branding & Optimization"
+      },
+      {
+        "description": "Produce and publish your first YouTube video, demonstrating basic video creation and uploading skills.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_create_and_publish_first_video",
+        "xp_reward": 150,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_intro_to_video_editing",
+          "skill_content_planning___research",
+          "skill_channel_branding___optimization",
+          "habit_film_a_60_second_introductory_video",
+          "habit_upload_1_video_to_youtube"
+        ],
+        "name": "Create and Publish First Video"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_run_faster",
+        "xp_reward": 100,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_complete_a_30_minute_bodyweight_workout"
+        ],
+        "name": "Run faster"
+      },
+      {
+        "description": "Learn to identify movement limitations and imbalances through observation and basic palpation.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_movement_assessment",
+        "xp_reward": 50,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_stand_up_and_stretch_for_10_minutes"
+        ],
+        "name": "Movement Assessment"
+      },
+      {
+        "description": "Introduce foundational mobility exercises targeting major joints \u2013 hips, shoulders, thoracic spine.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_basic_mobility_exercises",
+        "xp_reward": 75,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_movement_assessment",
+          "habit_perform_3_arm_circles"
+        ],
+        "name": "Basic Mobility Exercises"
+      },
+      {
+        "description": "Develop conscious awareness of body alignment in static and dynamic positions.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_postural_awareness",
+        "xp_reward": 60,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_basic_mobility_exercises",
+          "habit_check_your_posture_every_hour"
+        ],
+        "name": "Postural Awareness"
+      },
+      {
+        "description": "Implement exercises to strengthen the deep core muscles for improved stability and posture.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_core_stability",
+        "xp_reward": 80,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_postural_awareness",
+          "habit_hold_a_plank_for_30_seconds"
+        ],
+        "name": "Core Stability"
+      },
+      {
+        "description": "Learn and practice fundamental movement patterns (squat, hinge, push, pull, carry) with proper form.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_functional_movement_pattern",
+        "xp_reward": 90,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_core_stability",
+          "habit_walk_around_the_block_for_10_minutes"
+        ],
+        "name": "Functional Movement Pattern"
+      },
+      {
+        "description": "Successfully complete a structured 30-minute workout utilizing bodyweight exercises, demonstrating proper form and movement patterns.",
+        "type": "Sub-Skill",
+        "required_completions": 1,
+        "id": "skill_complete_a_30_minute_bodyweight_workout",
+        "xp_reward": 150,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_functional_movement_pattern",
+          "habit_perform_3_sets_of_10_squats"
+        ],
+        "name": "Complete a 30-minute bodyweight workout"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_have_more_clarity_in_life_and_be_more_conscious_of_my_choices",
+        "xp_reward": 100,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_reflect_on_progress_and_adjust_goals"
+        ],
+        "name": "Have more clarity in life and be more conscious of my choices"
+      },
+      {
+        "description": "Understanding your values, strengths, and weaknesses through journaling and reflection.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_self_awareness_basics",
+        "xp_reward": 50,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_write_down_3_things_you_re_grateful_for"
+        ],
+        "name": "Self-Awareness Basics"
+      },
+      {
+        "description": "Learn to define goals that are Specific, Measurable, Achievable, Relevant, and Time-bound.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_smart_goal_setting_framework",
+        "xp_reward": 75,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_self_awareness_basics",
+          "habit_write_down_1_smart_goal_for_the_week"
+        ],
+        "name": "SMART Goal Setting Framework"
+      },
+      {
+        "description": "Introduce basic meditation and breathing exercises to improve focus and reduce stress.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_mindfulness_practices",
+        "xp_reward": 60,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_self_awareness_basics",
+          "habit_meditate_for_5_minutes"
+        ],
+        "name": "Mindfulness Practices"
+      },
+      {
+        "description": "Review progress towards goals, identify obstacles, and adjust strategies for continued growth and clarity.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_reflect_on_progress_and_adjust_goals",
+        "xp_reward": 150,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_smart_goal_setting_framework",
+          "skill_mindfulness_practices",
+          "habit_review_your_goals_for_the_week"
+        ],
+        "name": "Reflect on Progress and Adjust Goals"
+      },
+      {
+        "description": "",
+        "type": "Goal",
+        "required_completions": 30,
+        "id": "goal_have_more_friends",
+        "xp_reward": 100,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_have_a_5_minute_conversation_with_a_stranger"
+        ],
+        "name": "Have more friends"
+      },
+      {
+        "description": "Learn simple, open-ended questions and comments to initiate conversations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_conversation_starters",
+        "xp_reward": 50,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_ask_3_people_how_their_day_is_going"
+        ],
+        "name": "Conversation Starters"
+      },
+      {
+        "description": "Practice techniques for truly understanding what others are saying, both verbally and nonverbally.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_active_listening",
+        "xp_reward": 75,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_conversation_starters",
+          "habit_repeat_back_the_last_sentence_someone_said"
+        ],
+        "name": "Active Listening"
+      },
+      {
+        "description": "Understand and utilize body language, facial expressions, and tone of voice to enhance communication.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_nonverbal_communication",
+        "xp_reward": 60,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_active_listening",
+          "habit_observe_5_people_s_body_language"
+        ],
+        "name": "Nonverbal Communication"
+      },
+      {
+        "description": "Develop the ability to understand and share the feelings of others.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_empathy",
+        "xp_reward": 80,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_nonverbal_communication",
+          "habit_imagine_how_someone_else_is_feeling"
+        ],
+        "name": "Empathy"
+      },
+      {
+        "description": "Initiate and maintain a 5-minute conversation with a stranger, demonstrating active listening and empathy.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+        "xp_reward": 100,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_empathy",
+          "skill_nonverbal_communication",
+          "habit_approach_a_stranger_and_say_hello"
+        ],
+        "name": "Have a 5-Minute Conversation with a Stranger"
+      },
+      {
+        "description": "Explore different tutorials related to YouTube basics.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_search_for_3_youtube_tutorials",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Search for 3 YouTube tutorials"
+      },
+      {
+        "description": "Learn about strategies to improve channel visibility.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_watch_1_youtube_video_about_channel_optimization",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Watch 1 YouTube video about channel optimization"
+      },
+      {
+        "description": "Experiment with basic video recording techniques.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_record_a_30_second_video_clip",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Record a 30-second video clip"
+      },
+      {
+        "description": "Familiarize yourself with the software's import process.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_import_5_clips_into_a_video_editing_software",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Import 5 clips into a video editing software"
+      },
+      {
+        "description": "Generate potential content topics for your channel.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_brainstorm_3_video_ideas",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Brainstorm 3 video ideas"
+      },
+      {
+        "description": "Identify popular content to inform your planning.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_research_1_trending_topic_on_youtube",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Research 1 trending topic on YouTube"
+      },
+      {
+        "description": "Design a basic banner image for your channel.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_create_a_simple_channel_banner",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Create a simple channel banner"
+      },
+      {
+        "description": "Identify relevant terms to improve search visibility.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_write_5_keywords_for_your_channel",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Write 5 keywords for your channel"
+      },
+      {
+        "description": "Record a short video introducing yourself and your channel.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_film_a_60_second_introductory_video",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Film a 60-second introductory video"
+      },
+      {
+        "description": "Publish your first video to your channel.",
+        "type": "Habit",
+        "required_completions": 30,
+        "id": "habit_upload_1_video_to_youtube",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Upload 1 video to YouTube"
+      },
+      {
+        "required_completions": 7,
+        "type": "Habit",
+        "description": "Perform basic stretches to assess your range of motion.",
+        "id": "habit_stand_up_and_stretch_for_10_minutes",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "prerequisites": [],
+        "xp_multiplier": 1.0,
+        "name": "Stand up and stretch for 10 minutes"
+      },
+      {
+        "description": "Engage in simple mobility exercises.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_perform_3_arm_circles",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Perform 3 arm circles"
+      },
+      {
+        "description": "Become aware of your body alignment throughout the day.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_check_your_posture_every_hour",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Check your posture every hour"
+      },
+      {
+        "description": "Strengthen your core muscles.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_a_plank_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Hold a plank for 30 seconds"
+      },
+      {
+        "description": "Engage in a simple functional movement pattern.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_walk_around_the_block_for_10_minutes",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Walk around the block for 10 minutes"
+      },
+      {
+        "required_completions": 14,
+        "type": "Habit",
+        "description": "Complete a bodyweight workout.",
+        "id": "habit_perform_3_sets_of_10_squats",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "prerequisites": [],
+        "xp_multiplier": 1.0,
+        "name": "Perform 3 sets of 10 squats"
+      },
+      {
+        "description": "Practice self-reflection.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_write_down_3_things_you_re_grateful_for",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Write down 3 things you're grateful for"
+      },
+      {
+        "description": "Define a specific, measurable, achievable, relevant, and time-bound goal.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_write_down_1_smart_goal_for_the_week",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Write down 1 SMART goal for the week"
+      },
+      {
+        "description": "Practice mindfulness techniques.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_meditate_for_5_minutes",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Meditate for 5 minutes"
+      },
+      {
+        "description": "Assess your progress and make adjustments as needed.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_review_your_goals_for_the_week",
+        "xp_reward": 15,
+        "pillar": "CAREER",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Review your goals for the week"
+      },
+      {
+        "description": "Practice initiating conversations.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_ask_3_people_how_their_day_is_going",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask 3 people how their day is going"
+      },
+      {
+        "description": "Demonstrate active listening skills.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_repeat_back_the_last_sentence_someone_said",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Repeat back the last sentence someone said"
+      },
+      {
+        "description": "Pay attention to nonverbal cues.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_observe_5_people_s_body_language",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Observe 5 people's body language"
+      },
+      {
+        "description": "Practice empathy by considering their perspective.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_imagine_how_someone_else_is_feeling",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Imagine how someone else is feeling"
+      },
+      {
+        "description": "Perform basic stretches to assess your range of motion.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_stand_up_and_stretch_for_10_minutes",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_simulated_marathon_pace_training"
+        ],
+        "name": "Stand up and stretch for 10 minutes"
+      },
+      {
+        "description": "Implement a comprehensive static stretching and recovery protocol to reduce muscle soreness, improve flexibility, and promote tissue repair.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_static_stretching_recovery_protocol",
+        "xp_reward": 100,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_hold_each_stretch_for_30_seconds"
+        ],
+        "name": "Static Stretching & Recovery Protocol"
+      },
+      {
+        "description": "Execute a sustained run at target marathon pace (approximately 6:00/mile) for a minimum of 60 minutes to assess cardiovascular capacity and identify pacing strategies.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_simulated_marathon_pace_training",
+        "xp_reward": 200,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_static_stretching_recovery_protocol",
+          "habit_run_3_miles_at_a_conversational_pace"
+        ],
+        "name": "Simulated Marathon Pace Training"
+      },
+      {
+        "description": "Maintain each stretch to improve flexibility and reduce muscle soreness.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_each_stretch_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Hold each stretch for 30 seconds"
+      },
+      {
+        "description": "Strengthen your core muscles.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_a_plank_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_hold_plank_for_30_seconds"
+        ],
+        "name": "Hold a plank for 30 seconds"
+      },
+      {
+        "description": "Gradually increase the duration of isometric holds (plank, wall sits, etc.) to build muscular endurance and tolerance.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_isometric_holds_progression",
+        "xp_reward": 125,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_hold_wall_sit_for_30_seconds"
+        ],
+        "name": "Isometric Holds Progression"
+      },
+      {
+        "description": "Successfully maintain a plank position for 30 consecutive seconds with proper form.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_hold_plank_for_30_seconds",
+        "xp_reward": 200,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_isometric_holds_progression",
+          "habit_hold_plank_for_30_seconds"
+        ],
+        "name": "Hold Plank for 30 Seconds"
+      },
+      {
+        "description": "Builds isometric strength and endurance, mimicking the hold.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_wall_sit_for_30_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Hold wall sit for 30 seconds"
+      },
+      {
+        "description": "Complete a bodyweight workout.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_perform_3_sets_of_10_squats",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_complete_3_sets_of_10_squats"
+        ],
+        "name": "Perform 3 sets of 10 squats"
+      },
+      {
+        "description": "Establish proper squat mechanics: neutral spine, chest up, core engaged, knees tracking over toes.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_squat_form_foundation",
+        "xp_reward": 50,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_record_your_squat_form"
+        ],
+        "name": "Squat Form Foundation"
+      },
+      {
+        "description": "Master the bodyweight squat with consistent form. Focus on depth and control.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_bodyweight_squats",
+        "xp_reward": 75,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_squat_form_foundation",
+          "habit_perform_3_sets_of_10_bodyweight_squats"
+        ],
+        "name": "Bodyweight Squats"
+      },
+      {
+        "description": "Gradually increase the number of squats performed in a set, maintaining good form.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_squat_volume_progression",
+        "xp_reward": 60,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_bodyweight_squats",
+          "habit_add_2_reps_to_each_set"
+        ],
+        "name": "Squat Volume Progression"
+      },
+      {
+        "description": "Introduce light weight to squats, focusing on controlled movements and increasing the load gradually.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_squat_intensity_progression",
+        "xp_reward": 80,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_squat_volume_progression",
+          "habit_hold_a_squat_for_3_seconds"
+        ],
+        "name": "Squat Intensity Progression"
+      },
+      {
+        "description": "Successfully perform three sets of ten bodyweight squats with proper form and controlled movement.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_complete_3_sets_of_10_squats",
+        "xp_reward": 100,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_squat_intensity_progression",
+          "habit_repeat_back_the_last_sentence_someone_said_2"
+        ],
+        "name": "Complete 3 Sets of 10 Squats"
+      },
+      {
+        "description": "Video yourself performing 5 squats and analyze your form for proper alignment and technique.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_record_your_squat_form",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Record your squat form"
+      },
+      {
+        "description": "Execute three sets of ten bodyweight squats, focusing on controlled movement and proper form.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_perform_3_sets_of_10_bodyweight_squats",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Perform 3 sets of 10 bodyweight squats"
+      },
+      {
+        "description": "Increase the number of repetitions in each set of squats by two, gradually building volume.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_add_2_reps_to_each_set",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Add 2 reps to each set"
+      },
+      {
+        "description": "Increase the duration of each squat hold by three seconds, challenging your muscular endurance.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_hold_a_squat_for_3_seconds",
+        "xp_reward": 15,
+        "pillar": "PHYSICAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Hold a squat for 3 seconds"
+      },
+      {
+        "required_completions": 7,
+        "type": "Habit",
+        "description": "Practice empathy by considering their perspective.",
+        "id": "habit_imagine_how_someone_else_is_feeling",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "prerequisites": [
+          "skill_have_a_5_minute_conversation"
+        ],
+        "xp_multiplier": 1.0,
+        "name": "Imagine how someone else is feeling"
+      },
+      {
+        "description": "Learn simple, open-ended questions and topics to initiate conversations.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_conversation_starters_2",
+        "xp_reward": 50,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "habit_ask_3_open_ended_questions",
+          "habit_share_1_personal_anecdote"
+        ],
+        "name": "Conversation Starters"
+      },
+      {
+        "description": "Develop the ability to fully focus on what others are saying, understanding their message, and responding thoughtfully.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_active_listening_2",
+        "xp_reward": 75,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_conversation_starters_2",
+          "habit_repeat_back_the_last_sentence",
+          "habit_summarize_1_point_made"
+        ],
+        "name": "Active Listening"
+      },
+      {
+        "description": "Understand and share the feelings of another.  Recognize and acknowledge others' emotions.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_empathy_2",
+        "xp_reward": 60,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_active_listening_2",
+          "habit_reflect_1_emotion_expressed",
+          "habit_mirror_body_language"
+        ],
+        "name": "Empathy"
+      },
+      {
+        "description": "Establish a connection with others through shared interests, values, and understanding.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_rapport_building",
+        "xp_reward": 80,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_empathy_2",
+          "skill_active_listening_2",
+          "habit_find_1_common_interest",
+          "habit_ask_about_their_day"
+        ],
+        "name": "Rapport Building"
+      },
+      {
+        "description": "Initiate and maintain a 5-minute conversation with a stranger, demonstrating basic conversational skills.",
+        "type": "Sub-Skill",
+        "required_completions": 30,
+        "id": "skill_have_a_5_minute_conversation",
+        "xp_reward": 100,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [
+          "skill_rapport_building",
+          "habit_initiate_a_conversation",
+          "habit_ask_2_follow_up_questions"
+        ],
+        "name": "Have a 5-Minute Conversation"
+      },
+      {
+        "description": "Start a conversation by asking questions that require more than a 'yes' or 'no' answer.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_ask_3_open_ended_questions",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask 3 open-ended questions"
+      },
+      {
+        "description": "Briefly share a relevant personal story to build connection.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_share_1_personal_anecdote",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Share 1 personal anecdote"
+      },
+      {
+        "description": "Paraphrase what the other person just said to ensure understanding.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_repeat_back_the_last_sentence",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Repeat back the last sentence"
+      },
+      {
+        "description": "Briefly recap a key idea the speaker expressed.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_summarize_1_point_made",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Summarize 1 point made"
+      },
+      {
+        "description": "Acknowledge and name the emotion you perceive the other person is feeling.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_reflect_1_emotion_expressed",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Reflect 1 emotion expressed"
+      },
+      {
+        "description": "Subtly mimic the other person's posture and gestures to show understanding.",
+        "type": "Habit",
+        "required_completions": 14,
+        "id": "habit_mirror_body_language",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Mirror body language"
+      },
+      {
+        "description": "Discover something you both enjoy and mention it.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_find_1_common_interest",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Find 1 common interest"
+      },
+      {
+        "description": "Inquire about how the other person's day is going.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_ask_about_their_day",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask about their day"
+      },
+      {
+        "description": "Start a brief conversation with someone new.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_initiate_a_conversation",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Initiate a conversation"
+      },
+      {
+        "description": "Show continued interest by asking two more questions about their responses.",
+        "type": "Habit",
+        "required_completions": 7,
+        "id": "habit_ask_2_follow_up_questions",
+        "xp_reward": 15,
+        "pillar": "SOCIAL",
+        "xp_multiplier": 1.0,
+        "prerequisites": [],
+        "name": "Ask 2 follow-up questions"
+      }
+    ]
+  }
+}

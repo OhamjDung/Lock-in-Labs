@@ -1,0 +1,1802 @@
+{
+  "timestamp": "2026-01-15T18:06:59.730973",
+  "user_id": "custom_profile",
+  "label": "before_easier_adjustment",
+  "total_nodes": 121,
+  "nodes_with_prerequisites": 64,
+  "prerequisite_chains": [
+    {
+      "node_id": "goal_become_a_plumber",
+      "node_name": "Become a plumber",
+      "node_type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_obtain_apprenticeship_or_certification"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_plumbing_tools_knowledge",
+      "node_name": "Basic Plumbing Tools Knowledge",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_identify_3_plumbing_tools",
+        "habit_study_1_plumbing_diagram"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pipe_fitting_basics",
+      "node_name": "Pipe Fitting Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_plumbing_tools_knowledge",
+        "habit_watch_5_minutes_of_pipe_fitting_tutorial",
+        "habit_trace_1_pipe_joint_diagram"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_system_understanding",
+      "node_name": "Water System Understanding",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pipe_fitting_basics",
+        "habit_read_1_paragraph_on_water_pressure",
+        "habit_draw_1_water_system_diagram"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_reading_blueprints",
+      "node_name": "Reading Blueprints",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_water_system_understanding",
+        "habit_analyze_1_blueprint_detail",
+        "habit_trace_3_lines_on_a_blueprint"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_obtain_apprenticeship_or_certification",
+      "node_name": "Obtain Apprenticeship or Certification",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_reading_blueprints",
+        "habit_research_1_apprenticeship_program",
+        "habit_contact_1_certification_provider"
+      ],
+      "difficulty": null,
+      "required_completions": 1
+    },
+    {
+      "node_id": "goal_be_more_calm_when_something_stressful_happens",
+      "node_name": "Be more calm when something stressful happens",
+      "node_type": "Goal",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_daily_calm_moment_protocol"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_beginner_mindfulness_meditation",
+      "node_name": "Beginner Mindfulness Meditation",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_breathe_for_60_seconds",
+        "habit_scan_body_for_tension"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_body_scan_meditation",
+      "node_name": "Body Scan Meditation",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_beginner_mindfulness_meditation",
+        "habit_focus_on_5_body_parts",
+        "habit_notice_sensations_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_emotion_identification",
+      "node_name": "Basic Emotion Identification",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_body_scan_meditation",
+        "habit_name_3_emotions",
+        "habit_observe_facial_expressions"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_simple_grounding_technique",
+      "node_name": "Simple Grounding Technique",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_basic_emotion_identification",
+        "habit_name_4_objects",
+        "habit_feel_5_sensations"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_daily_calm_moment_protocol",
+      "node_name": "Daily Calm Moment Protocol",
+      "node_type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_simple_grounding_technique",
+        "habit_perform_box_breathing"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_be_more_outgoing_and_talk_to_more_people",
+      "node_name": "Be more outgoing and talk to more people",
+      "node_type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_have_a_5_minute_conversation_with_a_stranger"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_conversation_starters",
+      "node_name": "Conversation Starters",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_ask_2_open_ended_questions",
+        "habit_share_1_interesting_fact"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_active_listening",
+      "node_name": "Active Listening",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "habit_send_1_gratitude_message"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_nonverbal_communication",
+      "node_name": "Nonverbal Communication",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_active_listening",
+        "habit_observe_body_language",
+        "habit_mirror_1_person_s_posture"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_empathy",
+      "node_name": "Empathy",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_nonverbal_communication",
+        "habit_reflect_1_feeling",
+        "habit_imagine_their_perspective"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_have_a_5_minute_conversation_with_a_stranger",
+      "node_name": "Have a 5-Minute Conversation with a Stranger",
+      "node_type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_empathy",
+        "skill_nonverbal_communication",
+        "habit_approach_1_stranger",
+        "habit_ask_2_simple_questions"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "goal_be_more_flexible",
+      "node_name": "Be more flexible",
+      "node_type": "Goal",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_complete_first_structured_workout"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_movement_assessment_basics",
+      "node_name": "Movement Assessment Basics",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_stand_tall_for_30_seconds",
+        "habit_walk_10_steps"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_basic_mobility_exercises",
+      "node_name": "Basic Mobility Exercises",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_movement_assessment_basics",
+        "habit_rotate_shoulders_5_times",
+        "habit_neck_rolls_3_times"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_postural_awareness_training",
+      "node_name": "Postural Awareness Training",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_basic_mobility_exercises",
+        "habit_check_posture_every_hour",
+        "habit_adjust_sitting_position"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_functional_strength_introduction",
+      "node_name": "Functional Strength Introduction",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_postural_awareness_training",
+        "habit_do_5_bodyweight_squats",
+        "habit_hold_plank_for_30_seconds"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_complete_first_structured_workout",
+      "node_name": "Complete First Structured Workout",
+      "node_type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_functional_strength_introduction",
+        "habit_complete_a_20_minute_workout"
+      ],
+      "difficulty": null,
+      "required_completions": 1
+    },
+    {
+      "node_id": "habit_contact_1_certification_provider",
+      "node_name": "Contact 1 Certification Provider",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification"
+      ],
+      "difficulty": null,
+      "required_completions": 1
+    },
+    {
+      "node_id": "skill_financial_statement_analysis",
+      "node_name": "Financial Statement Analysis",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_analyze_1_financial_statement",
+        "skill_financial_modeling"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pass_cfa_level_iii_examination",
+      "node_name": "Pass CFA Level III Examination",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_financial_statement_analysis",
+        "habit_solve_1_leetcode_easy"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_contact_1_certification_provider",
+      "node_name": "Contact 1 Certification Provider",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification"
+      ],
+      "difficulty": null,
+      "required_completions": 1
+    },
+    {
+      "node_id": "skill_financial_modeling",
+      "node_name": "Financial Modeling",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_analyze_3_financial_statements"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_pathways",
+        "skill_pipe_fitting_techniques"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_measure_10_feet_of_pipe",
+        "skill_plumbing_fundamentals",
+        "skill_pipe_fitting_techniques"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_local_plumbing_codes",
+      "node_name": "Local Plumbing Codes",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_5_code_sections",
+        "skill_plumbing_fundamentals"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_plumbing_system_inspection",
+      "node_name": "Plumbing System Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_drainage_systems_design",
+        "skill_water_supply_systems_installation",
+        "skill_local_plumbing_codes",
+        "habit_check_3_joints_for_leaks"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection",
+        "skill_local_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_plumbing_fundamentals",
+      "node_name": "Plumbing Fundamentals",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_inspect_3_pipe_joints",
+        "habit_measure_10_feet_of_pipe_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_pipe_fitting_techniques",
+      "node_name": "Pipe Fitting Techniques",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_plumbing_fundamentals",
+        "habit_tighten_5_pipe_fittings",
+        "habit_build_1_small_pipe_connection"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_local_code_compliance_inspection",
+      "node_name": "Local Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_drainage_systems_design",
+        "skill_water_supply_systems_installation",
+        "habit_review_30_minutes_of_building_codes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_certified_plumbing_technician",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_local_code_compliance_inspection",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_plumbing_system_diagnostics",
+      "node_name": "Plumbing System Diagnostics",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_drainage_systems_design",
+        "skill_water_supply_systems_installation",
+        "habit_inspect_3_pipe_joints_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_certified_plumbing_technician",
+      "node_name": "Certified Plumbing Technician",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_plumbing_system_diagnostics",
+        "skill_local_plumbing_codes",
+        "habit_review_5_plumbing_codes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design_2",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_pathways_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation_2",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_5_plumbing_diagrams"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_code_compliance_inspection",
+      "node_name": "Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_drainage_systems_design_2",
+        "skill_water_supply_systems_installation_2",
+        "habit_analyze_1_code_snippet_for_vulnerabilities"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_code_compliance_inspection_2",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design_3",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_pathways_3"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation_3",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_5_plumbing_codes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_code_compliance_inspection_2",
+      "node_name": "Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_water_supply_systems_installation_3",
+        "skill_drainage_systems_design_3",
+        "habit_analyze_1_code_snippet"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_code_compliance_inspection_2",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_local_code_compliance_inspection_2",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design_4",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_layouts"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation_4",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_5_plumbing_codes_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_local_code_compliance_inspection_2",
+      "node_name": "Local Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_water_supply_systems_installation_4",
+        "skill_drainage_systems_design_4",
+        "habit_inspect_1_building_facade"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_code_compliance_inspection_2",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_local_code_compliance_inspection_2",
+        "skill_plumbing_inspection_certification",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_local_plumbing_codes_2",
+      "node_name": "Local Plumbing Codes",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_3_sections_of_local_plumbing_codes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_plumbing_inspection_certification",
+      "node_name": "Plumbing Inspection Certification",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_plumbing_codes_2",
+        "habit_code_for_30_minutes"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_code_compliance_inspection_2",
+        "skill_code_compliance_inspection_3",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_local_code_compliance_inspection_2",
+        "skill_plumbing_inspection_certification",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design_5",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_pathways_4"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation_5",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_measure_5_pipe_lengths"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_code_compliance_inspection_3",
+      "node_name": "Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_drainage_systems_design_5",
+        "skill_water_supply_systems_installation_5",
+        "habit_review_1_code_block_for_errors"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "habit_study_1_plumbing_diagram",
+      "node_name": "Study 1 Plumbing Diagram",
+      "node_type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_local_code_compliance_inspection",
+        "skill_certified_plumbing_technician",
+        "skill_code_compliance_inspection_2",
+        "skill_code_compliance_inspection_3",
+        "skill_pass_cfa_level_iii_examination",
+        "skill_obtain_apprenticeship_or_certification",
+        "skill_local_code_compliance_inspection_2",
+        "skill_plumbing_inspection_certification",
+        "skill_local_code_compliance_inspection_3",
+        "skill_plumbing_system_inspection",
+        "skill_code_compliance_inspection"
+      ],
+      "difficulty": null,
+      "required_completions": 14
+    },
+    {
+      "node_id": "skill_drainage_systems_design_6",
+      "node_name": "Drainage Systems Design",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_sketch_3_drainage_layouts_2"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_water_supply_systems_installation_6",
+      "node_name": "Water Supply Systems Installation",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_5_plumbing_codes_3"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    },
+    {
+      "node_id": "skill_local_code_compliance_inspection_3",
+      "node_name": "Local Code Compliance Inspection",
+      "node_type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_water_supply_systems_installation_6",
+        "skill_drainage_systems_design_6",
+        "habit_inspect_1_building_code_section"
+      ],
+      "difficulty": null,
+      "required_completions": 30
+    }
+  ],
+  "node_summary": [
+    {
+      "id": "goal_become_a_plumber",
+      "name": "Become a plumber",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_basic_plumbing_tools_knowledge",
+      "name": "Basic Plumbing Tools Knowledge",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_pipe_fitting_basics",
+      "name": "Pipe Fitting Basics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_water_system_understanding",
+      "name": "Water System Understanding",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_reading_blueprints",
+      "name": "Reading Blueprints",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_obtain_apprenticeship_or_certification",
+      "name": "Obtain Apprenticeship or Certification",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "goal_be_more_calm_when_something_stressful_happens",
+      "name": "Be more calm when something stressful happens",
+      "type": "Goal",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_beginner_mindfulness_meditation",
+      "name": "Beginner Mindfulness Meditation",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_body_scan_meditation",
+      "name": "Body Scan Meditation",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_basic_emotion_identification",
+      "name": "Basic Emotion Identification",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_simple_grounding_technique",
+      "name": "Simple Grounding Technique",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_daily_calm_moment_protocol",
+      "name": "Daily Calm Moment Protocol",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "goal_be_more_outgoing_and_talk_to_more_people",
+      "name": "Be more outgoing and talk to more people",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_conversation_starters",
+      "name": "Conversation Starters",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_active_listening",
+      "name": "Active Listening",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_nonverbal_communication",
+      "name": "Nonverbal Communication",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_empathy",
+      "name": "Empathy",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+      "name": "Have a 5-Minute Conversation with a Stranger",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "goal_be_more_flexible",
+      "name": "Be more flexible",
+      "type": "Goal",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_movement_assessment_basics",
+      "name": "Movement Assessment Basics",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_basic_mobility_exercises",
+      "name": "Basic Mobility Exercises",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_postural_awareness_training",
+      "name": "Postural Awareness Training",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_functional_strength_introduction",
+      "name": "Functional Strength Introduction",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_complete_first_structured_workout",
+      "name": "Complete First Structured Workout",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_identify_3_plumbing_tools",
+      "name": "Identify 3 Plumbing Tools",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_watch_5_minutes_of_pipe_fitting_tutorial",
+      "name": "Watch 5 Minutes of Pipe Fitting Tutorial",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_trace_1_pipe_joint_diagram",
+      "name": "Trace 1 Pipe Joint Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_read_1_paragraph_on_water_pressure",
+      "name": "Read 1 Paragraph on Water Pressure",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_draw_1_water_system_diagram",
+      "name": "Draw 1 Water System Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_analyze_1_blueprint_detail",
+      "name": "Analyze 1 Blueprint Detail",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_trace_3_lines_on_a_blueprint",
+      "name": "Trace 3 Lines on a Blueprint",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_research_1_apprenticeship_program",
+      "name": "Research 1 Apprenticeship Program",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_contact_1_certification_provider",
+      "name": "Contact 1 Certification Provider",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_breathe_for_60_seconds",
+      "name": "Breathe for 60 Seconds",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_scan_body_for_tension",
+      "name": "Scan Body for Tension",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_focus_on_5_body_parts",
+      "name": "Focus on 5 Body Parts",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_notice_sensations_for_30_seconds",
+      "name": "Notice Sensations for 30 Seconds",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_name_3_emotions",
+      "name": "Name 3 Emotions",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_observe_facial_expressions",
+      "name": "Observe Facial Expressions",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_name_4_objects",
+      "name": "Name 4 Objects",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_feel_5_sensations",
+      "name": "Feel 5 Sensations",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_perform_box_breathing",
+      "name": "Perform Box Breathing",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_ask_2_open_ended_questions",
+      "name": "Ask 2 Open-Ended Questions",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_share_1_interesting_fact",
+      "name": "Share 1 Interesting Fact",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_send_1_gratitude_message",
+      "name": "Send 1 Gratitude Message",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_observe_body_language",
+      "name": "Observe Body Language",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_mirror_1_person_s_posture",
+      "name": "Mirror 1 Person's Posture",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_reflect_1_feeling",
+      "name": "Reflect 1 Feeling",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_imagine_their_perspective",
+      "name": "Imagine Their Perspective",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_approach_1_stranger",
+      "name": "Approach 1 Stranger",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_ask_2_simple_questions",
+      "name": "Ask 2 Simple Questions",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_stand_tall_for_30_seconds",
+      "name": "Stand Tall for 30 Seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_walk_10_steps",
+      "name": "Walk 10 Steps",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_rotate_shoulders_5_times",
+      "name": "Rotate Shoulders 5 Times",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_neck_rolls_3_times",
+      "name": "Neck Rolls 3 Times",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_check_posture_every_hour",
+      "name": "Check Posture Every Hour",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_adjust_sitting_position",
+      "name": "Adjust Sitting Position",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_do_5_bodyweight_squats",
+      "name": "Do 5 Bodyweight Squats",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_hold_plank_for_30_seconds",
+      "name": "Hold Plank for 30 Seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_contact_1_certification_provider",
+      "name": "Contact 1 Certification Provider",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_financial_statement_analysis",
+      "name": "Financial Statement Analysis",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_pass_cfa_level_iii_examination",
+      "name": "Pass CFA Level III Examination",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_analyze_1_financial_statement",
+      "name": "Analyze 1 financial statement",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_contact_1_certification_provider",
+      "name": "Contact 1 Certification Provider",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_financial_modeling",
+      "name": "Financial Modeling",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_drainage_systems_design",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_water_supply_systems_installation",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_local_plumbing_codes",
+      "name": "Local Plumbing Codes",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_plumbing_system_inspection",
+      "name": "Plumbing System Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "habit_sketch_3_drainage_pathways",
+      "name": "Sketch 3 drainage pathways",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_measure_10_feet_of_pipe",
+      "name": "Measure 10 feet of pipe",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_code_sections",
+      "name": "Review 5 code sections",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 4
+    },
+    {
+      "id": "skill_plumbing_fundamentals",
+      "name": "Plumbing Fundamentals",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "skill_pipe_fitting_techniques",
+      "name": "Pipe Fitting Techniques",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_local_code_compliance_inspection",
+      "name": "Local Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_inspect_3_pipe_joints",
+      "name": "Inspect 3 pipe joints",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_measure_10_feet_of_pipe_2",
+      "name": "Measure 10 feet of pipe",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_tighten_5_pipe_fittings",
+      "name": "Tighten 5 pipe fittings",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_build_1_small_pipe_connection",
+      "name": "Build 1 small pipe connection",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 5
+    },
+    {
+      "id": "skill_plumbing_system_diagnostics",
+      "name": "Plumbing System Diagnostics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "skill_certified_plumbing_technician",
+      "name": "Certified Plumbing Technician",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_inspect_3_pipe_joints_2",
+      "name": "Inspect 3 pipe joints",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 6
+    },
+    {
+      "id": "skill_drainage_systems_design_2",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_water_supply_systems_installation_2",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_code_compliance_inspection",
+      "name": "Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_sketch_3_drainage_pathways_2",
+      "name": "Sketch 3 drainage pathways",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_plumbing_diagrams",
+      "name": "Review 5 plumbing diagrams",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 7
+    },
+    {
+      "id": "skill_drainage_systems_design_3",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_water_supply_systems_installation_3",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_code_compliance_inspection_2",
+      "name": "Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_sketch_3_drainage_pathways_3",
+      "name": "Sketch 3 drainage pathways",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_plumbing_codes",
+      "name": "Review 5 plumbing codes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 8
+    },
+    {
+      "id": "skill_drainage_systems_design_4",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_water_supply_systems_installation_4",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_local_code_compliance_inspection_2",
+      "name": "Local Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_sketch_3_drainage_layouts",
+      "name": "Sketch 3 drainage layouts",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_plumbing_codes_2",
+      "name": "Review 5 plumbing codes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 9
+    },
+    {
+      "id": "skill_local_plumbing_codes_2",
+      "name": "Local Plumbing Codes",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_plumbing_inspection_certification",
+      "name": "Plumbing Inspection Certification",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 2
+    },
+    {
+      "id": "habit_review_3_sections_of_local_plumbing_codes",
+      "name": "Review 3 sections of local plumbing codes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 10
+    },
+    {
+      "id": "skill_drainage_systems_design_5",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_water_supply_systems_installation_5",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_code_compliance_inspection_3",
+      "name": "Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_sketch_3_drainage_pathways_4",
+      "name": "Sketch 3 drainage pathways",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_measure_5_pipe_lengths",
+      "name": "Measure 5 pipe lengths",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_study_1_plumbing_diagram",
+      "name": "Study 1 Plumbing Diagram",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 11
+    },
+    {
+      "id": "skill_drainage_systems_design_6",
+      "name": "Drainage Systems Design",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_water_supply_systems_installation_6",
+      "name": "Water Supply Systems Installation",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 1
+    },
+    {
+      "id": "skill_local_code_compliance_inspection_3",
+      "name": "Local Code Compliance Inspection",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "has_prerequisites": true,
+      "prereq_count": 3
+    },
+    {
+      "id": "habit_sketch_3_drainage_layouts_2",
+      "name": "Sketch 3 drainage layouts",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_review_5_plumbing_codes_3",
+      "name": "Review 5 plumbing codes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    },
+    {
+      "id": "habit_inspect_1_building_code_section",
+      "name": "Inspect 1 building code section",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "has_prerequisites": false,
+      "prereq_count": 0
+    }
+  ]
+}

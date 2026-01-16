@@ -38,13 +38,20 @@ const NodeDifficultyDialog = ({ node, userId, onClose, onDifficultyAdjusted }) =
             fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NodeDifficultyDialog.jsx:handleSubmit:pre-fetch',message:'About to make fetch request',data:{url,backend,payload,hasUserId:!!userId,nodeId:node.id,direction,amount,hasReason:!!reason},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3'})}).catch(()=>{});
             // #endregion
             
+            // Create AbortController for timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
+                signal: controller.signal,
             });
+            
+            clearTimeout(timeoutId);
             
             // #region agent log
             fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NodeDifficultyDialog.jsx:handleSubmit:post-fetch',message:'Fetch completed',data:{url,status:response.status,statusText:response.statusText,ok:response.ok,headers:Object.fromEntries(response.headers.entries())},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
@@ -70,10 +77,17 @@ const NodeDifficultyDialog = ({ node, userId, onClose, onDifficultyAdjusted }) =
             }
         } catch (err) {
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NodeDifficultyDialog.jsx:handleSubmit:catch',message:'Exception caught',data:{errorName:err.name,errorMessage:err.message,errorStack:err.stack,isNetworkError:err.message.includes('fetch')||err.message.includes('Failed to fetch'),isTypeError:err instanceof TypeError},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3,H4,H5'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7242/ingest/a5245e3d-b4d2-470b-aedd-e71da8d91edf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'NodeDifficultyDialog.jsx:handleSubmit:catch',message:'Exception caught',data:{errorName:err.name,errorMessage:err.message,errorStack:err.stack,isNetworkError:err.message.includes('fetch')||err.message.includes('Failed to fetch'),isTypeError:err instanceof TypeError,payload},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H3,H4,H5'})}).catch(()=>{});
             // #endregion
-            setError(err.message || 'Failed to adjust difficulty. Please try again.');
-            console.error('Error adjusting difficulty:', err);
+            const errorMessage = err.message || 'Failed to adjust difficulty. Please try again.';
+            setError(errorMessage);
+            console.error('Error adjusting difficulty:', {
+                error: err,
+                message: errorMessage,
+                name: err.name,
+                stack: err.stack,
+                payload: payload
+            });
         } finally {
             setIsLoading(false);
         }
@@ -93,7 +107,7 @@ const NodeDifficultyDialog = ({ node, userId, onClose, onDifficultyAdjusted }) =
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-2" onClick={handleClose}>
             <div 
-                className="bg-white rounded-lg shadow-2xl w-full max-w-md max-h-[70vh] flex flex-col mx-2"
+                className="bg-white rounded-lg shadow-2xl w-full max-w-md max-h-[70vh] flex flex-col mx-2 overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header - Fixed */}

@@ -1,0 +1,708 @@
+{
+  "nodes": [
+    {
+      "id": "goal_become_a_plumber",
+      "name": "Become a plumber",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "goal_be_more_calm_when_something_stressful_happens",
+      "name": "Be more calm when something stressful happens",
+      "type": "Goal",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "skill_mindfulness_meditation_practice",
+        "skill_emotional_awareness_journaling",
+        "skill_calm_response_protocol"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_mindfulness_meditation_practice",
+      "name": "Mindfulness Meditation Practice",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_repeat_back_the_last_sentence_someone_said"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_emotional_awareness_journaling",
+      "name": "Emotional Awareness Journaling",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_write_3_feelings_in_a_journal"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_calm_response_protocol",
+      "name": "Calm Response Protocol",
+      "type": "Sub-Skill",
+      "pillar": "MENTAL",
+      "prerequisites": [
+        "habit_repeat_box_breathing__4_4_4_4"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "goal_be_more_outgoing_and_talk_to_more_people",
+      "name": "Be more outgoing and talk to more people",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "skill_active_listening",
+        "skill_nonverbal_communication",
+        "skill_attend_3_meetups_and_initiate_5_conversations"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_conversation_starters",
+      "name": "Conversation Starters",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_ask_3_open_ended_questions"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_active_listening",
+      "name": "Active Listening",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_summarize_the_other_person_s_point_in_one_sentence"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_nonverbal_communication",
+      "name": "Nonverbal Communication",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_observe_body_language_for_60_seconds"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_attend_3_meetups_and_initiate_5_conversations",
+      "name": "Attend 3 Meetups and Initiate 5 Conversations",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_smile_at_3_people"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": ""
+    },
+    {
+      "id": "goal_be_more_flexible",
+      "name": "Be more flexible",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_communication_skills",
+        "skill_active_listening",
+        "skill_time_management_basics",
+        "skill_smart_goal_setting",
+        "skill_complete_first_project"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_basic_communication_skills",
+      "name": "Basic Communication Skills",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_solve_1_leetcode_easy"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_time_management_basics",
+      "name": "Time Management Basics",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_write_down_3_priorities_for_today"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_smart_goal_setting",
+      "name": "SMART Goal Setting",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_define_1_smart_goal_for_the_week"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_complete_first_project",
+      "name": "Complete First Project",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_code_for_30_minutes"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": ""
+    },
+    {
+      "id": "goal_fitness",
+      "name": "Fitness",
+      "type": "Goal",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "skill_hypertrophy_training",
+        "skill_basic_movement_patterns",
+        "skill_proper_squat_form",
+        "skill_proper_deadlift_form",
+        "skill_phase_1__stability___mobility",
+        "skill_complete_first_workout"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_hypertrophy_training",
+      "name": "Hypertrophy Training",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_eat_30g_protein_at_breakfast"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_basic_movement_patterns",
+      "name": "Basic Movement Patterns",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_10_minute_morning_walk"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_proper_squat_form",
+      "name": "Proper Squat Form",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_perform_3_sets_of_10_squats"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_proper_deadlift_form",
+      "name": "Proper Deadlift Form",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_complete_1_deadlift_with_light_weight"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": ""
+    },
+    {
+      "id": "skill_phase_1__stability___mobility",
+      "name": "Phase 1: Stability & Mobility",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_hold_a_plank_for_30_seconds"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_complete_first_workout",
+      "name": "Complete First Workout",
+      "type": "Sub-Skill",
+      "pillar": "PHYSICAL",
+      "prerequisites": [
+        "habit_complete_a_20_minute_bodyweight_circuit"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": ""
+    },
+    {
+      "id": "goal_career",
+      "name": "Career",
+      "type": "Goal",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "skill_basic_communication_skills",
+        "skill_office_productivity_tools",
+        "skill_financial_principles",
+        "skill_accounting_standards",
+        "skill_complete_first_project"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_office_productivity_tools",
+      "name": "Office Productivity Tools",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_use_a_spreadsheet_to_track_expenses_for_15_minutes"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_financial_principles",
+      "name": "Financial Principles",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_read_5_pages_of_a_finance_book"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_accounting_standards",
+      "name": "Accounting Standards",
+      "type": "Sub-Skill",
+      "pillar": "CAREER",
+      "prerequisites": [
+        "habit_review_3_accounting_principles"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "goal_social",
+      "name": "Social",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "skill_active_listening",
+        "skill_empathy",
+        "skill_rapport_building",
+        "skill_have_a_5_minute_conversation_with_a_stranger"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_empathy",
+      "name": "Empathy",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_imagine_how_someone_else_feels_for_60_seconds"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_rapport_building",
+      "name": "Rapport Building",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_find_2_common_interests_with_someone"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_have_a_5_minute_conversation_with_a_stranger",
+      "name": "Have a 5-minute conversation with a stranger",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_ask_a_stranger_one_question"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "goal_connection",
+      "name": "Connection",
+      "type": "Goal",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "skill_conversation_starters",
+        "skill_active_listening",
+        "skill_empathy",
+        "skill_rapport_building",
+        "skill_have_a_5_minute_conversation"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "skill_have_a_5_minute_conversation",
+      "name": "Have a 5-minute conversation",
+      "type": "Sub-Skill",
+      "pillar": "SOCIAL",
+      "prerequisites": [
+        "habit_listen_to_someone_for_5_minutes_without_interrupting"
+      ],
+      "xp_reward": 100,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": ""
+    },
+    {
+      "id": "habit_repeat_back_the_last_sentence_someone_said",
+      "name": "Repeat back the last sentence someone said",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Improves active listening and understanding."
+    },
+    {
+      "id": "habit_write_3_feelings_in_a_journal",
+      "name": "Write 3 feelings in a journal",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Helps identify and process emotions."
+    },
+    {
+      "id": "habit_repeat_box_breathing__4_4_4_4",
+      "name": "Repeat Box Breathing (4-4-4-4)",
+      "type": "Habit",
+      "pillar": "MENTAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Resets the nervous system during stressful moments."
+    },
+    {
+      "id": "habit_ask_3_open_ended_questions",
+      "name": "Ask 3 open-ended questions",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Initiates engaging conversations."
+    },
+    {
+      "id": "habit_summarize_the_other_person_s_point_in_one_sentence",
+      "name": "Summarize the other person's point in one sentence",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Demonstrates understanding and engagement."
+    },
+    {
+      "id": "habit_observe_body_language_for_60_seconds",
+      "name": "Observe body language for 60 seconds",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Enhances awareness of nonverbal cues."
+    },
+    {
+      "id": "habit_smile_at_3_people",
+      "name": "Smile at 3 people",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Increases social engagement."
+    },
+    {
+      "id": "habit_solve_1_leetcode_easy",
+      "name": "Solve 1 LeetCode Easy",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Keeps problem-solving skills sharp."
+    },
+    {
+      "id": "habit_write_down_3_priorities_for_today",
+      "name": "Write down 3 priorities for today",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Focuses on essential tasks."
+    },
+    {
+      "id": "habit_define_1_smart_goal_for_the_week",
+      "name": "Define 1 SMART goal for the week",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Provides clarity and direction."
+    },
+    {
+      "id": "habit_code_for_30_minutes",
+      "name": "Code for 30 Minutes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 30,
+      "description": "Focused deep work on a personal project."
+    },
+    {
+      "id": "habit_eat_30g_protein_at_breakfast",
+      "name": "Eat 30g Protein at Breakfast",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Supports muscle synthesis."
+    },
+    {
+      "id": "habit_10_minute_morning_walk",
+      "name": "10 Minute Morning Walk",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Gets sunlight and movement immediately after waking up."
+    },
+    {
+      "id": "habit_perform_3_sets_of_10_squats",
+      "name": "Perform 3 sets of 10 squats",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Improves lower body strength and form."
+    },
+    {
+      "id": "habit_complete_1_deadlift_with_light_weight",
+      "name": "Complete 1 deadlift with light weight",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": "Improves deadlift form and technique."
+    },
+    {
+      "id": "habit_hold_a_plank_for_30_seconds",
+      "name": "Hold a plank for 30 seconds",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Improves core stability and posture."
+    },
+    {
+      "id": "habit_complete_a_20_minute_bodyweight_circuit",
+      "name": "Complete a 20-minute bodyweight circuit",
+      "type": "Habit",
+      "pillar": "PHYSICAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 1,
+      "description": "Starts a consistent workout routine."
+    },
+    {
+      "id": "habit_use_a_spreadsheet_to_track_expenses_for_15_minutes",
+      "name": "Use a spreadsheet to track expenses for 15 minutes",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Improves financial organization."
+    },
+    {
+      "id": "habit_read_5_pages_of_a_finance_book",
+      "name": "Read 5 pages of a finance book",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Builds financial literacy."
+    },
+    {
+      "id": "habit_review_3_accounting_principles",
+      "name": "Review 3 accounting principles",
+      "type": "Habit",
+      "pillar": "CAREER",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Enhances accounting knowledge."
+    },
+    {
+      "id": "habit_imagine_how_someone_else_feels_for_60_seconds",
+      "name": "Imagine how someone else feels for 60 seconds",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Develops emotional understanding."
+    },
+    {
+      "id": "habit_find_2_common_interests_with_someone",
+      "name": "Find 2 common interests with someone",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Creates connection and trust."
+    },
+    {
+      "id": "habit_ask_a_stranger_one_question",
+      "name": "Ask a stranger one question",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 14,
+      "description": "Breaks down social barriers."
+    },
+    {
+      "id": "habit_listen_to_someone_for_5_minutes_without_interrupting",
+      "name": "Listen to someone for 5 minutes without interrupting",
+      "type": "Habit",
+      "pillar": "SOCIAL",
+      "prerequisites": [],
+      "xp_reward": 15,
+      "xp_multiplier": 1.0,
+      "required_completions": 7,
+      "description": "Improves listening skills."
+    }
+  ]
+}
